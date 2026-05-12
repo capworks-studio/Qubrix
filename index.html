@@ -1,1596 +1,1602 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qubrix</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-  <style>
-    /* ─── Reset & Base ─────────────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --brand: #6C47FF;
-      --brand-dark: #4A2FD4;
-      --brand-light: #EDE9FF;
-      --brand-mid: #A88AFF;
-      --bg: #FAFAFA;
-      --surface: #FFFFFF;
-      --surface2: #F4F4F6;
-      --surface3: #EBEBEF;
-      --text1: #111118;
-      --text2: #6B6B80;
-      --text3: #ADADC2;
-      --border: rgba(0,0,0,0.08);
-      --border2: rgba(0,0,0,0.14);
-      --success: #16A34A;
-      --success-bg: #F0FDF4;
-      --danger: #DC2626;
-      --danger-bg: #FEF2F2;
-      --r: 10px;
-      --rl: 16px;
-      --rxl: 22px;
-    }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text1);
-      min-height: 100vh;
-      font-size: 15px;
-    }
-    h1,h2,h3,h4 { font-family: 'Syne', sans-serif; }
-    button { font-family: 'DM Sans', sans-serif; cursor: pointer; }
-    input, textarea, select { font-family: 'DM Sans', sans-serif; }
-    a { color: var(--brand); text-decoration: none; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Qubrix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #09090f;
+  --bg2: #111118;
+  --bg3: #1a1a24;
+  --border: rgba(255,255,255,0.07);
+  --accent: #7c5cfc;
+  --accent2: #c084fc;
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --text: #f0f0fa;
+  --muted: #6b6b8a;
+  --radius: 14px;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; overflow-x: hidden; }
+button { cursor: pointer; font-family: var(--font-body); border: none; outline: none; }
+input, textarea, select { font-family: var(--font-body); outline: none; border: none; background: transparent; color: var(--text); }
+a { color: inherit; text-decoration: none; }
 
-    /* ─── Layout ─────────────────────────────────────────────────────────── */
-    .page { display: none; min-height: 100vh; }
-    .page.active { display: flex; flex-direction: column; }
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; width: 100%; }
+/* ---- SCROLLBAR ---- */
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 99px; }
 
-    /* ─── Navbar ─────────────────────────────────────────────────────────── */
-    .navbar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; z-index: 100;
-      backdrop-filter: blur(8px);
-    }
-    .navbar-inner {
-      display: flex; align-items: center; gap: 16px;
-      height: 58px; max-width: 1100px; margin: 0 auto; padding: 0 24px;
-    }
-    .logo {
-      font-family: 'Syne', sans-serif;
-      font-size: 22px; font-weight: 700;
-      color: var(--brand); cursor: pointer;
-      letter-spacing: -0.5px; flex-shrink: 0;
-    }
-    .logo span { color: var(--text1); }
-    .search-wrap {
-      flex: 1; max-width: 380px;
-      display: flex; align-items: center; gap: 10px;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 100px; padding: 8px 16px;
-    }
-    .search-wrap svg { width: 16px; height: 16px; color: var(--text3); flex-shrink: 0; }
-    .search-wrap input {
-      border: none; outline: none; background: transparent;
-      font-size: 14px; color: var(--text1); width: 100%;
-    }
-    .nav-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 8px 16px; border-radius: var(--r);
-      font-size: 14px; font-weight: 500; border: 1px solid var(--border2);
-      background: var(--surface); color: var(--text1);
-      transition: background 0.15s, transform 0.1s;
-      white-space: nowrap;
-    }
-    .btn:hover { background: var(--surface2); }
-    .btn:active { transform: scale(0.98); }
-    .btn-primary { background: var(--brand); color: #fff; border-color: var(--brand); }
-    .btn-primary:hover { background: var(--brand-dark); }
-    .btn-ghost { border-color: transparent; }
-    .btn-ghost:hover { background: var(--surface2); }
-    .btn-danger { background: var(--danger-bg); color: var(--danger); border-color: transparent; }
-    .btn-sm { padding: 5px 12px; font-size: 13px; }
-    .btn-icon { padding: 8px; border-radius: var(--r); }
-    .avatar-btn {
-      width: 34px; height: 34px; border-radius: 50%;
-      background: var(--brand-light); color: var(--brand);
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
-      border: 1px solid var(--border2); cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: box-shadow 0.15s;
-    }
-    .avatar-btn:hover { box-shadow: 0 0 0 3px var(--brand-light); }
+/* ---- TOAST ---- */
+#toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--bg3); border: 1px solid var(--border); color: var(--text); padding: 12px 24px; border-radius: 99px; font-size: .875rem; z-index: 9999; transition: transform .3s cubic-bezier(.34,1.56,.64,1); pointer-events: none; white-space: nowrap; }
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.ok { border-color: var(--green); color: var(--green); }
+#toast.bad { border-color: var(--red); color: var(--red); }
 
-    /* ─── HOME ───────────────────────────────────────────────────────────── */
-    .hero {
-      text-align: center; padding: 80px 24px 56px;
-      background: linear-gradient(180deg, var(--brand-light) 0%, transparent 100%);
-    }
-    .hero-pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--brand-light); color: var(--brand);
-      padding: 5px 14px; border-radius: 100px; font-size: 13px; font-weight: 500;
-      margin-bottom: 20px;
-    }
-    .hero h1 {
-      font-size: 56px; font-weight: 700; letter-spacing: -2px;
-      line-height: 1.05; color: var(--text1);
-    }
-    .hero h1 .accent { color: var(--brand); }
-    .hero p { color: var(--text2); font-size: 18px; margin-top: 14px; max-width: 480px; margin-inline: auto; }
-    .hero-actions { display: flex; gap: 12px; justify-content: center; margin-top: 32px; flex-wrap: wrap; }
-    .code-join {
-      display: flex; align-items: center; background: var(--surface);
-      border: 1px solid var(--border2); border-radius: var(--r); overflow: hidden;
-    }
-    .code-join input {
-      border: none; outline: none; padding: 10px 18px;
-      font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 600;
-      letter-spacing: 3px; width: 180px; color: var(--text1); background: transparent;
-      text-transform: uppercase;
-    }
-    .code-join input::placeholder { letter-spacing: 1px; font-weight: 400; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text3); }
-    .code-join button { background: var(--brand); color: #fff; border: none; padding: 10px 20px; font-size: 14px; font-weight: 500; }
-    .code-join button:hover { background: var(--brand-dark); }
+/* ---- LOADER ---- */
+#loader { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9998; transition: opacity .4s; }
+#loader.hide { opacity: 0; pointer-events: none; }
+.spin { width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-    .section { padding: 32px 0; }
-    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .section-title { font-size: 18px; font-weight: 700; color: var(--text1); }
-    .quiz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
-    .quiz-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--rl); overflow: hidden; cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-    }
-    .quiz-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,71,255,0.12); border-color: var(--brand); }
-    .quiz-card-cover { height: 110px; background: var(--brand-light); display: flex; align-items: center; justify-content: center; font-size: 42px; }
-    .quiz-card-body { padding: 14px; }
-    .quiz-card-body h3 { font-size: 15px; font-weight: 600; color: var(--text1); margin-bottom: 4px; }
-    .quiz-card-body p { font-size: 13px; color: var(--text2); }
-    .quiz-card-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-top: 1px solid var(--border); }
-    .tag { display: inline-block; background: var(--brand-light); color: var(--brand); padding: 2px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
-    .tag-green { background: #F0FDF4; color: #16A34A; }
-    .tag-amber { background: #FFFBEB; color: #D97706; }
-    .plays { font-size: 12px; color: var(--text3); display: flex; align-items: center; gap: 4px; }
+/* ---- MODAL ---- */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(8px); z-index: 900; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.modal-bg.open { opacity: 1; pointer-events: all; }
+.modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 36px; width: min(500px, 92vw); position: relative; transform: scale(.95); transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+.modal-bg.open .modal { transform: scale(1); }
+.modal h2 { font-family: var(--font-head); font-size: 1.4rem; margin-bottom: 24px; }
+.modal-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 8px; background: var(--bg3); color: var(--muted); font-size: 1rem; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { color: var(--text); }
 
-    /* ─── DASHBOARD ──────────────────────────────────────────────────────── */
-    .dash-layout { display: grid; grid-template-columns: 240px 1fr; gap: 0; flex: 1; }
-    .dash-sidebar {
-      background: var(--surface); border-right: 1px solid var(--border);
-      padding: 24px 16px; display: flex; flex-direction: column; gap: 4px;
-    }
-    .sidebar-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 9px 14px; border-radius: var(--r);
-      font-size: 14px; font-weight: 500; color: var(--text2);
-      cursor: pointer; transition: background 0.12s, color 0.12s;
-    }
-    .sidebar-item:hover { background: var(--surface2); color: var(--text1); }
-    .sidebar-item.active { background: var(--brand-light); color: var(--brand); }
-    .sidebar-item svg { width: 18px; height: 18px; }
-    .dash-content { padding: 28px; overflow-y: auto; }
-    .dash-header { margin-bottom: 24px; }
-    .dash-header h2 { font-size: 24px; font-weight: 700; }
-    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
-    .stat-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--rl); padding: 18px;
-    }
-    .stat-card .label { font-size: 13px; color: var(--text2); margin-bottom: 6px; }
-    .stat-card .value { font-size: 26px; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--text1); }
-    .stat-card .sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
-    .quiz-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); overflow: hidden; }
-    .qt-header { display: grid; grid-template-columns: 48px 1fr 100px 130px 90px 180px; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.3px; }
-    .qt-row { display: grid; grid-template-columns: 48px 1fr 100px 130px 90px 180px; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
-    .qt-row:last-child { border-bottom: none; }
-    .qt-row:hover { background: var(--surface2); }
-    .qt-emoji { font-size: 28px; width: 48px; height: 48px; background: var(--brand-light); border-radius: var(--r); display: flex; align-items: center; justify-content: center; }
-    .qt-title { font-weight: 600; font-size: 14px; }
-    .qt-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
-    .qt-code { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--brand); background: var(--brand-light); padding: 4px 10px; border-radius: 6px; text-align: center; }
-    .qt-actions { display: flex; gap: 6px; }
-    .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.12s; }
-    .icon-btn:hover { background: var(--surface2); color: var(--text1); border-color: var(--border2); }
-    .icon-btn.danger:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
-    .icon-btn svg { width: 15px; height: 15px; }
+/* ---- INPUTS ---- */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.field label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.field input, .field textarea, .field select { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; font-size: .95rem; color: var(--text); transition: border-color .2s; width: 100%; }
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
+.field textarea { resize: vertical; min-height: 80px; }
+.field select option { background: var(--bg2); }
 
-    /* ─── EDITOR ─────────────────────────────────────────────────────────── */
-    .editor-wrap { flex: 1; display: grid; grid-template-columns: 280px 1fr 300px; overflow: hidden; height: calc(100vh - 58px); }
-    .editor-left { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-    .editor-left-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .editor-left-header span { font-size: 14px; font-weight: 600; }
-    .q-sidebar { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
-    .q-item { display: flex; align-items: center; gap: 10px; background: var(--surface2); border: 1px solid transparent; border-radius: var(--r); padding: 10px 12px; cursor: pointer; transition: all 0.12s; user-select: none; }
-    .q-item:hover { border-color: var(--border2); background: var(--surface); }
-    .q-item.active { border-color: var(--brand); background: var(--brand-light); }
-    .q-num { width: 24px; height: 24px; border-radius: 50%; background: var(--surface3); font-size: 12px; font-weight: 700; font-family: 'Syne', sans-serif; display: flex; align-items: center; justify-content: center; color: var(--text2); flex-shrink: 0; }
-    .q-item.active .q-num { background: var(--brand); color: #fff; }
-    .q-label { font-size: 13px; color: var(--text1); flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-    .q-type-badge { font-size: 10px; color: var(--text3); flex-shrink: 0; }
-    .q-add-btn { margin: 12px; }
-    .editor-main { overflow-y: auto; padding: 24px; background: var(--bg); display: flex; flex-direction: column; gap: 20px; }
-    .editor-top { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); padding: 20px; }
-    .editor-field { margin-bottom: 16px; }
-    .editor-field:last-child { margin-bottom: 0; }
-    .field-label { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px; display: block; }
-    .field-input {
-      width: 100%; border: 1px solid var(--border2); border-radius: var(--r);
-      padding: 10px 14px; font-size: 14px; color: var(--text1);
-      background: var(--surface); outline: none; resize: vertical;
-      transition: border-color 0.15s;
-    }
-    .field-input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-light); }
-    .type-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .type-chip { border: 1px solid var(--border); border-radius: var(--r); padding: 10px 8px; text-align: center; cursor: pointer; transition: all 0.12s; background: var(--surface); }
-    .type-chip:hover { border-color: var(--brand); background: var(--brand-light); }
-    .type-chip.active { border-color: var(--brand); background: var(--brand-light); }
-    .type-chip svg { width: 20px; height: 20px; color: var(--brand); display: block; margin: 0 auto 5px; }
-    .type-chip span { font-size: 11px; color: var(--text2); }
-    .answer-list { display: flex; flex-direction: column; gap: 8px; }
-    .answer-row { display: flex; align-items: center; gap: 8px; }
-    .drag-handle { color: var(--text3); cursor: grab; display: flex; }
-    .drag-handle svg { width: 16px; height: 16px; }
-    .answer-input { flex: 1; }
-    .correct-check { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border2); background: var(--surface2); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all 0.15s; color: var(--text3); }
-    .correct-check:hover { border-color: var(--success); }
-    .correct-check.on { background: var(--success-bg); color: var(--success); border-color: var(--success); }
-    .correct-check svg { width: 15px; height: 15px; }
-    .media-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-    .media-preview { border: 1px dashed var(--border2); border-radius: var(--r); padding: 20px; text-align: center; color: var(--text3); font-size: 13px; cursor: pointer; }
-    .media-preview:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
-    .editor-right { background: var(--surface); border-left: 1px solid var(--border); overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-    .settings-block { border: 1px solid var(--border); border-radius: var(--rl); overflow: hidden; }
-    .settings-block-title { font-size: 13px; font-weight: 600; padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); }
-    .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); }
-    .settings-row:last-child { border-bottom: none; }
-    .settings-label { font-size: 13px; color: var(--text1); }
-    .settings-hint { font-size: 12px; color: var(--text3); margin-top: 1px; }
-    .toggle { width: 38px; height: 22px; border-radius: 11px; background: var(--surface3); border: 1px solid var(--border2); cursor: pointer; position: relative; transition: background 0.2s; flex-shrink: 0; }
-    .toggle.on { background: var(--brand); border-color: var(--brand); }
-    .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-    .toggle.on::after { transform: translateX(16px); }
-    .theme-swatches { display: flex; gap: 6px; padding: 12px 16px; flex-wrap: wrap; }
-    .swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
-    .swatch:hover { transform: scale(1.1); }
-    .swatch.active { border-color: var(--text1); }
-    .editor-topbar { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; padding: 10px 20px; }
-    .quiz-title-input { flex: 1; border: none; outline: none; font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text1); background: transparent; }
-    .range-row { display: flex; align-items: center; gap: 10px; padding: 10px 16px; }
-    .range-row label { font-size: 13px; color: var(--text2); width: 80px; }
-    .range-row input[type=range] { flex: 1; }
-    .range-row span { font-size: 13px; font-weight: 600; width: 40px; text-align: right; color: var(--text1); }
-    .range-row input[type=number] { width: 70px; border: 1px solid var(--border2); border-radius: 6px; padding: 4px 8px; font-size: 13px; color: var(--text1); outline: none; background: var(--surface2); }
+/* ---- BUTTONS ---- */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border-radius: 10px; font-size: .9rem; font-weight: 500; transition: all .2s; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #6b48f0; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,92,252,.3); }
+.btn-ghost { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-danger { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.2); }
+.btn-danger:hover { background: rgba(239,68,68,.25); }
+.btn-sm { padding: 7px 14px; font-size: .8rem; border-radius: 8px; }
+.btn-icon { padding: 9px; border-radius: 8px; }
 
-    /* ─── JOIN PAGE ───────────────────────────────────────────────────────── */
-    .join-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; }
-    .join-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rxl); padding: 40px; width: 100%; max-width: 420px; text-align: center; }
-    .join-card h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-    .join-card p { color: var(--text2); margin-bottom: 28px; }
-    .join-form { display: flex; flex-direction: column; gap: 12px; }
-    .join-code-input { text-align: center; font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; }
-    .join-divider { display: flex; align-items: center; gap: 12px; color: var(--text3); font-size: 13px; }
-    .join-divider::before, .join-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-    .qr-box { margin: 0 auto; width: 100px; height: 100px; border: 1px solid var(--border); border-radius: var(--r); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--text3); font-size: 12px; cursor: pointer; }
-    .qr-box svg { width: 40px; height: 40px; }
+/* ============================================================
+   NAVBAR
+============================================================ */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 500; display: flex; align-items: center; padding: 0 28px; height: 64px; background: rgba(9,9,15,.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+.nav-logo { font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; letter-spacing: -.02em; background: linear-gradient(135deg, #fff 30%, var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.nav-logo span { color: var(--accent); -webkit-text-fill-color: var(--accent); }
+.nav-search { flex: 1; max-width: 400px; margin: 0 32px; position: relative; }
+.nav-search input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 99px; padding: 8px 16px 8px 40px; font-size: .875rem; transition: border-color .2s; }
+.nav-search input:focus { border-color: var(--accent); }
+.nav-search .ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .875rem; }
+.nav-search-results { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: none; z-index: 600; }
+.nav-search-results.open { display: block; }
+.search-item { padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: .875rem; }
+.search-item:hover { background: var(--bg3); }
+.search-item .code-badge { font-family: monospace; background: var(--bg3); padding: 2px 8px; border-radius: 6px; font-size: .75rem; color: var(--muted); }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.nav-join { background: var(--bg3); border: 1px solid var(--border); border-radius: 99px; padding: 7px 16px; font-size: .85rem; display: flex; align-items: center; gap: 8px; transition: border-color .2s; }
+.nav-join:hover { border-color: var(--accent); color: var(--accent); }
+.avatar-btn { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--accent2)); font-family: var(--font-head); font-weight: 700; font-size: .85rem; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; }
+.avatar-menu { position: absolute; top: calc(100% + 8px); right: 0; background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 8px; min-width: 200px; z-index: 600; display: none; }
+.avatar-wrap { position: relative; }
+.avatar-wrap:hover .avatar-menu, .avatar-wrap.open .avatar-menu { display: block; }
+.avatar-menu a, .avatar-menu button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border-radius: 8px; font-size: .875rem; color: var(--text); background: transparent; text-align: left; }
+.avatar-menu a:hover, .avatar-menu button:hover { background: var(--bg3); }
+.avatar-menu hr { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
+.avatar-menu .danger { color: var(--red); }
 
-    /* ─── PLAYER ─────────────────────────────────────────────────────────── */
-    .player-wrap { flex: 1; display: grid; grid-template-columns: 1fr 280px; gap: 0; }
-    .player-main { display: flex; flex-direction: column; align-items: center; padding: 32px; gap: 24px; }
-    .player-header { width: 100%; max-width: 640px; display: flex; align-items: center; gap: 12px; }
-    .progress-bar { flex: 1; height: 6px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
-    .progress-fill { height: 100%; background: var(--brand); border-radius: 3px; transition: width 0.3s; }
-    .timer-circle { width: 48px; height: 48px; flex-shrink: 0; }
-    .timer-circle svg { width: 48px; height: 48px; transform: rotate(-90deg); }
-    .timer-circle .track { fill: none; stroke: var(--surface3); stroke-width: 4; }
-    .timer-circle .fill { fill: none; stroke: var(--brand); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 125.6; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear, stroke 0.3s; }
-    .timer-label { position: absolute; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
-    .timer-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
-    .q-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rxl); padding: 32px; width: 100%; max-width: 640px; }
-    .q-card .q-num-label { font-size: 12px; color: var(--text3); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    .q-card h2 { font-size: 22px; font-weight: 700; line-height: 1.35; }
-    .q-media { margin: 16px 0; border-radius: var(--r); overflow: hidden; }
-    .q-media img { width: 100%; max-height: 200px; object-fit: cover; }
-    .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; }
-    .choice-btn {
-      display: flex; align-items: center; gap: 12px;
-      background: var(--surface2); border: 1px solid var(--border2);
-      border-radius: var(--rl); padding: 14px 16px; cursor: pointer;
-      font-size: 15px; font-weight: 500; color: var(--text1);
-      transition: all 0.15s; text-align: left;
-    }
-    .choice-btn:hover { border-color: var(--brand); background: var(--brand-light); color: var(--brand); }
-    .choice-btn.correct { border-color: var(--success); background: var(--success-bg); color: var(--success); pointer-events: none; }
-    .choice-btn.wrong { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); pointer-events: none; }
-    .choice-btn.disabled { opacity: 0.5; pointer-events: none; }
-    .choice-letter { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; font-family: 'Syne', sans-serif; flex-shrink: 0; }
-    .tf-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
-    .tf-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; border-radius: var(--rl); border: 1px solid var(--border2); font-size: 16px; font-weight: 700; font-family: 'Syne', sans-serif; cursor: pointer; transition: all 0.15s; background: var(--surface2); }
-    .tf-btn svg { width: 32px; height: 32px; }
-    .tf-btn.vrai { color: var(--success); }
-    .tf-btn.vrai:hover { background: var(--success-bg); border-color: var(--success); }
-    .tf-btn.faux { color: var(--danger); }
-    .tf-btn.faux:hover { background: var(--danger-bg); border-color: var(--danger); }
-    .text-answer-wrap { margin-top: 24px; display: flex; gap: 10px; }
-    .text-answer-input { flex: 1; border: 1.5px solid var(--border2); border-radius: var(--r); padding: 12px 16px; font-size: 16px; outline: none; transition: border-color 0.15s; }
-    .text-answer-input:focus { border-color: var(--brand); }
-    .player-side { background: var(--surface); border-left: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
-    .lb-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text2); }
-    .lb-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--r); }
-    .lb-item:nth-child(2) { background: #FFFBEB; }
-    .lb-rank { font-size: 18px; width: 28px; text-align: center; }
-    .lb-name { flex: 1; font-size: 14px; font-weight: 500; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-    .lb-score { font-size: 13px; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--brand); }
-    .feedback-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 200; pointer-events: none; }
-    .feedback-badge { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 700; padding: 20px 40px; border-radius: var(--rxl); animation: pop 0.4s ease-out; }
-    @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+/* ============================================================
+   PAGES (single-page routing)
+============================================================ */
+.page { display: none; min-height: 100vh; padding-top: 64px; }
+.page.active { display: block; }
 
-    /* ─── PROFILE ────────────────────────────────────────────────────────── */
-    .profile-wrap { max-width: 600px; margin: 0 auto; padding: 32px 24px; display: flex; flex-direction: column; gap: 20px; }
-    .profile-avatar { display: flex; align-items: center; gap: 20px; }
-    .profile-avatar-circle { width: 72px; height: 72px; border-radius: 50%; background: var(--brand-light); color: var(--brand); font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid var(--brand); }
-    .profile-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); overflow: hidden; }
-    .profile-section-title { font-size: 14px; font-weight: 700; padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-    .profile-section-title svg { width: 16px; height: 16px; color: var(--brand); }
-    .profile-field { display: flex; align-items: center; padding: 12px 18px; border-bottom: 1px solid var(--border); }
-    .profile-field:last-child { border-bottom: none; }
-    .profile-field label { font-size: 13px; color: var(--text2); width: 130px; flex-shrink: 0; }
-    .profile-field input { flex: 1; border: none; outline: none; font-size: 14px; color: var(--text1); background: transparent; }
-    .profile-field input:focus { color: var(--brand); }
+/* ---- HOME ---- */
+#page-home { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 80px 24px 60px; text-align: center; }
+.home-hero { max-width: 700px; }
+.home-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: rgba(124,92,252,.1); border: 1px solid rgba(124,92,252,.25); border-radius: 99px; padding: 6px 14px; font-size: .8rem; color: var(--accent2); margin-bottom: 24px; letter-spacing: .04em; }
+.home-title { font-family: var(--font-head); font-size: clamp(2.8rem, 7vw, 5.2rem); font-weight: 800; line-height: 1; letter-spacing: -.04em; margin-bottom: 20px; }
+.home-title .grad { background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.home-sub { font-size: 1.1rem; color: var(--muted); max-width: 480px; margin: 0 auto 40px; line-height: 1.6; }
+.home-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.home-join-box { margin-top: 60px; background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 440px; width: 100%; }
+.home-join-box h3 { font-family: var(--font-head); font-size: 1.1rem; margin-bottom: 16px; }
+.code-input-wrap { display: flex; gap: 10px; }
+.code-input-wrap input { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 1.1rem; letter-spacing: .2em; text-transform: uppercase; font-family: 'Courier New', monospace; }
+.code-input-wrap input:focus { border-color: var(--accent); }
 
-    /* ─── MODAL ──────────────────────────────────────────────────────────── */
-    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; display: none; align-items: center; justify-content: center; padding: 20px; }
-    .modal-bg.open { display: flex; }
-    .modal { background: var(--surface); border-radius: var(--rxl); padding: 28px; width: 100%; max-width: 460px; }
-    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .modal-header h2 { font-size: 20px; font-weight: 700; }
-    .modal-field { margin-bottom: 14px; }
-    .modal-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
-    .modal-field input, .modal-field select { width: 100%; border: 1px solid var(--border2); border-radius: var(--r); padding: 10px 14px; font-size: 14px; color: var(--text1); background: var(--surface2); outline: none; }
-    .modal-field input:focus { border-color: var(--brand); }
-    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-    .modal-actions .btn { flex: 1; justify-content: center; }
+/* ---- DASHBOARD ---- */
+#page-dashboard { padding-top: 64px; }
+.dash-header { padding: 40px 40px 0; display: flex; align-items: flex-end; justify-content: space-between; }
+.dash-header h1 { font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; }
+.dash-header p { color: var(--muted); font-size: .9rem; margin-top: 4px; }
+.quiz-grid { padding: 28px 40px; display: grid; gap: 16px; }
+.quiz-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; display: flex; align-items: center; gap: 20px; transition: border-color .2s; }
+.quiz-card:hover { border-color: rgba(124,92,252,.3); }
+.quiz-card-thumb { width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 800; font-size: 1.2rem; color: #fff; flex-shrink: 0; }
+.quiz-card-info { flex: 1; min-width: 0; }
+.quiz-card-title { font-family: var(--font-head); font-weight: 700; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.quiz-card-meta { display: flex; align-items: center; gap: 16px; margin-top: 6px; font-size: .8rem; color: var(--muted); }
+.quiz-card-meta span { display: flex; align-items: center; gap: 5px; }
+.code-pill { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 3px 10px; font-family: monospace; font-size: .85rem; color: var(--accent2); letter-spacing: .08em; cursor: pointer; transition: border-color .2s; }
+.code-pill:hover { border-color: var(--accent); }
+.quiz-card-actions { display: flex; gap: 8px; }
+.empty-state { text-align: center; padding: 80px 24px; color: var(--muted); }
+.empty-state .big-icon { font-size: 3rem; margin-bottom: 16px; }
+.empty-state h2 { font-family: var(--font-head); color: var(--text); margin-bottom: 8px; }
 
-    /* ─── TOAST ──────────────────────────────────────────────────────────── */
-    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text1); color: #fff; padding: 12px 22px; border-radius: 100px; font-size: 14px; font-weight: 500; z-index: 500; transition: transform 0.3s; white-space: nowrap; }
-    #toast.show { transform: translateX(-50%) translateY(0); }
+/* ---- EDITOR ---- */
+#page-editor { display: none; padding-top: 64px; flex-direction: column; height: 100vh; overflow: hidden; }
+#page-editor.active { display: flex; }
+.editor-top { flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--bg2); }
+.editor-top input.quiz-title-input { background: transparent; font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; flex: 1; border-bottom: 1px solid transparent; padding-bottom: 2px; transition: border-color .2s; }
+.editor-top input.quiz-title-input:focus { border-color: var(--accent); }
+.editor-body { flex: 1; display: flex; overflow: hidden; }
+.editor-sidebar { width: 280px; flex-shrink: 0; border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; background: var(--bg2); }
+.sidebar-qs { flex: 1; overflow-y: auto; padding: 12px; }
+.sidebar-q { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: .85rem; border: 1px solid transparent; transition: all .15s; margin-bottom: 6px; }
+.sidebar-q:hover { background: var(--bg3); }
+.sidebar-q.active { background: rgba(124,92,252,.12); border-color: rgba(124,92,252,.3); }
+.sidebar-q .q-num { width: 22px; height: 22px; border-radius: 6px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; flex-shrink: 0; }
+.sidebar-q .q-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar-q .q-type-badge { font-size: .65rem; background: var(--bg3); padding: 2px 7px; border-radius: 6px; color: var(--muted); flex-shrink: 0; }
+.sidebar-add { padding: 12px; border-top: 1px solid var(--border); }
+.add-q-btn { width: 100%; background: rgba(124,92,252,.1); border: 1px dashed rgba(124,92,252,.3); border-radius: 10px; color: var(--accent); padding: 10px; font-size: .875rem; transition: all .2s; }
+.add-q-btn:hover { background: rgba(124,92,252,.2); }
+.editor-main { flex: 1; overflow-y: auto; padding: 32px; }
+.q-editor-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 18px; padding: 28px; max-width: 800px; margin: 0 auto; }
+.q-type-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
+.q-type-tab { padding: 6px 13px; border-radius: 8px; font-size: .78rem; background: var(--bg3); border: 1px solid transparent; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.q-type-tab:hover { border-color: var(--accent); color: var(--accent); }
+.q-type-tab.active { background: rgba(124,92,252,.15); border-color: var(--accent); color: var(--accent); }
+.q-sep { width: 100%; height: 1px; background: var(--border); margin: 24px 0; }
+.q-block-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 10px; }
+.choices-list { display: flex; flex-direction: column; gap: 10px; }
+.choice-row { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; cursor: grab; transition: border-color .2s; }
+.choice-row.correct { border-color: var(--green); background: rgba(34,197,94,.07); }
+.choice-row .drag-handle { color: var(--muted); cursor: grab; font-size: .85rem; flex-shrink: 0; }
+.choice-row input { flex: 1; font-size: .9rem; }
+.choice-correct-btn { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; transition: all .15s; background: transparent; }
+.choice-correct-btn.on { background: var(--green); border-color: var(--green); }
+.choice-del { color: var(--muted); font-size: .85rem; }
+.choice-del:hover { color: var(--red); }
+.add-choice-btn { background: transparent; border: 1px dashed var(--border); border-radius: 8px; padding: 9px; font-size: .825rem; color: var(--muted); width: 100%; transition: all .15s; }
+.add-choice-btn:hover { border-color: var(--accent); color: var(--accent); }
+.msg-field { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: .875rem; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.msg-field .label { font-size: .75rem; color: var(--muted); min-width: 90px; }
+.msg-field input { flex: 1; font-size: .875rem; }
+.q-empty { text-align: center; color: var(--muted); padding: 80px 24px; font-size: .95rem; }
+/* Drag & drop ordering */
+.ordering-item { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; cursor: grab; margin-bottom: 8px; }
+.ordering-item input { flex: 1; }
+/* Connect pairs */
+.pairs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pair-row { display: contents; }
+.pair-cell { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.pair-cell input { width: 100%; }
+/* Slider */
+.slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.slider-row label { font-size: .8rem; color: var(--muted); min-width: 60px; }
+.slider-row input[type=number] { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; width: 80px; }
+/* Image map preview */
+.imgmap-wrap { position: relative; display: inline-block; }
+.imgmap-wrap img { max-width: 100%; border-radius: 10px; display: block; }
+.imgmap-pin { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; transform: translate(-50%, -50%); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; color: #fff; }
+/* Code editor */
+.code-editor-area { background: #0d0d17; border: 1px solid var(--border); border-radius: 10px; padding: 16px; font-family: 'Courier New', monospace; font-size: .875rem; color: #e2e8f0; min-height: 120px; resize: vertical; width: 100%; }
+/* Equation */
+.eq-wrap { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.eq-preview { font-size: 1.1rem; min-width: 60px; color: var(--accent2); }
+/* Timeline */
+.timeline-items { display: flex; flex-direction: column; gap: 8px; }
+.timeline-item { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.timeline-item input { flex: 1; }
+/* Color picker */
+.color-choices { display: flex; flex-wrap: wrap; gap: 10px; }
+.color-choice { width: 44px; height: 44px; border-radius: 10px; cursor: pointer; border: 3px solid transparent; transition: all .15s; }
+.color-choice.selected { border-color: #fff; transform: scale(1.1); }
+/* Grid question */
+.grid-q { display: grid; gap: 4px; }
+.grid-cell { width: 40px; height: 40px; border-radius: 6px; border: 2px solid var(--border); cursor: pointer; transition: all .15s; }
+.grid-cell.selected { background: var(--accent); border-color: var(--accent); }
+/* Flashcard */
+.flashcard-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+/* Photo response */
+.photo-thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
 
-    /* ─── Responsive ─────────────────────────────────────────────────────── */
-    @media (max-width: 768px) {
-      .stats-row { grid-template-columns: 1fr 1fr; }
-      .dash-layout { grid-template-columns: 1fr; }
-      .editor-wrap { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; height: auto; }
-      .player-wrap { grid-template-columns: 1fr; }
-      .player-side { display: none; }
-      .choices-grid { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 36px; }
-      .qt-header, .qt-row { grid-template-columns: 40px 1fr 90px 160px; }
-      .qt-header > :nth-child(3), .qt-row > :nth-child(3) { display: none; }
-    }
-  </style>
+/* ---- PLAY PAGE ---- */
+#page-play { padding: 0; background: var(--bg); }
+.play-header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--bg2); position: sticky; top: 64px; z-index: 10; }
+.play-progress { flex: 1; max-width: 400px; margin: 0 16px; }
+.play-progress-bar { height: 6px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
+.play-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width .4s; }
+.play-timer { font-family: 'Courier New', monospace; font-size: 1rem; font-weight: 700; width: 44px; text-align: center; }
+.play-timer.warning { color: var(--red); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+.play-area { display: flex; align-items: flex-start; justify-content: center; padding: 48px 24px; min-height: calc(100vh - 128px); }
+.play-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 24px; padding: 40px; width: min(720px, 100%); }
+.play-q-num { font-size: .8rem; color: var(--muted); margin-bottom: 16px; }
+.play-q-text { font-family: var(--font-head); font-size: 1.5rem; font-weight: 700; margin-bottom: 32px; line-height: 1.3; }
+.play-q-media { margin-bottom: 24px; }
+.play-q-media img { max-width: 100%; border-radius: 12px; }
+.play-choices { display: grid; gap: 12px; }
+.play-choice { background: var(--bg3); border: 2px solid var(--border); border-radius: 12px; padding: 16px 20px; cursor: pointer; font-size: .95rem; transition: all .2s; text-align: left; display: flex; align-items: center; gap: 12px; width: 100%; }
+.play-choice:hover:not(:disabled) { border-color: var(--accent); background: rgba(124,92,252,.08); }
+.play-choice.selected { border-color: var(--accent); background: rgba(124,92,252,.12); }
+.play-choice.correct { border-color: var(--green) !important; background: rgba(34,197,94,.1) !important; }
+.play-choice.wrong { border-color: var(--red) !important; background: rgba(239,68,68,.1) !important; }
+.play-choice:disabled { cursor: not-allowed; }
+.play-choice .choice-letter { width: 28px; height: 28px; border-radius: 8px; background: var(--bg2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.play-input { width: 100%; background: var(--bg3); border: 2px solid var(--border); border-radius: 12px; padding: 16px 20px; font-size: 1.1rem; color: var(--text); transition: border-color .2s; }
+.play-input:focus { border-color: var(--accent); }
+.play-feedback { margin-top: 24px; padding: 16px 20px; border-radius: 12px; font-size: .95rem; font-weight: 500; display: none; }
+.play-feedback.ok { background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3); color: var(--green); display: block; }
+.play-feedback.bad { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); color: var(--red); display: block; }
+.play-next { margin-top: 24px; width: 100%; }
+/* Results */
+.result-card { text-align: center; max-width: 560px; margin: 0 auto; padding: 48px 24px; }
+.result-score-circle { width: 140px; height: 140px; border-radius: 50%; border: 4px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 24px; }
+.result-score-circle .num { font-family: var(--font-head); font-size: 2.4rem; font-weight: 800; }
+.result-score-circle .den { font-size: .8rem; color: var(--muted); }
+.result-msg { font-size: 1.1rem; margin-bottom: 32px; }
+
+/* ---- PROFILE / SETTINGS ---- */
+#page-profile { padding: 80px 24px; }
+.settings-wrap { max-width: 560px; margin: 0 auto; }
+.settings-wrap h1 { font-family: var(--font-head); font-size: 1.6rem; margin-bottom: 32px; }
+.settings-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+.settings-section h2 { font-family: var(--font-head); font-size: 1rem; margin-bottom: 20px; color: var(--muted); }
+
+/* ---- TYPE PICKER MODAL ---- */
+.type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: 60vh; overflow-y: auto; }
+.type-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 16px 12px; cursor: pointer; text-align: center; transition: all .15s; }
+.type-item:hover { border-color: var(--accent); background: rgba(124,92,252,.1); }
+.type-item .t-icon { font-size: 1.6rem; margin-bottom: 8px; }
+.type-item .t-name { font-size: .8rem; font-weight: 600; }
+.type-item .t-desc { font-size: .7rem; color: var(--muted); margin-top: 4px; }
+
+/* ---- QUIZ JOIN MODAL ---- */
+.pseudo-modal { max-width: 380px; }
+
+/* ---- ANIMATIONS ---- */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.fade-up { animation: fadeUp .4s ease forwards; }
+.drag-over { opacity: .5; border: 2px dashed var(--accent) !important; }
+
+/* ---- RESPONSIVE ---- */
+@media(max-width:768px) {
+  nav { padding: 0 16px; }
+  .nav-search { max-width: 180px; margin: 0 12px; }
+  .editor-body { flex-direction: column; }
+  .editor-sidebar { width: 100%; height: 160px; border-right: none; border-bottom: 1px solid var(--border); }
+  .sidebar-qs { display: flex; flex-direction: row; overflow-x: auto; padding: 8px; }
+  .sidebar-q { flex-shrink: 0; min-width: 120px; }
+  .type-grid { grid-template-columns: repeat(2,1fr); }
+  .dash-header, .quiz-grid { padding: 20px 16px; }
+}
+</style>
 </head>
 <body>
 
-<!-- ═══ NAVBAR ═══════════════════════════════════════════════════════════════ -->
-<nav class="navbar" id="navbar">
-  <div class="navbar-inner">
-    <div class="logo" onclick="goTo('home')">Qubrix<span>.</span></div>
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input id="search-input" placeholder="Chercher un quiz..." oninput="searchQuizzes(this.value)" />
-    </div>
-    <div class="nav-actions">
-      <button class="btn btn-ghost" id="nav-login-btn" onclick="openModal('modal-auth')">Connexion</button>
-      <button class="btn btn-primary" id="nav-create-btn" onclick="goTo('editor')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
-        Créer
-      </button>
-      <div class="avatar-btn" id="nav-avatar" style="display:none" onclick="goTo('profile')">C</div>
-    </div>
+<!-- LOADER -->
+<div id="loader"><div class="spin"></div></div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ============================================================
+     NAVBAR
+============================================================ -->
+<nav>
+  <div class="nav-logo" onclick="navigate('home')" style="cursor:pointer">Qu<span>b</span>rix</div>
+
+  <div class="nav-search">
+    <span class="ico">⌕</span>
+    <input id="nav-search-input" type="text" placeholder="Rechercher un quiz…" autocomplete="off"/>
+    <div id="nav-search-results" class="nav-search-results"></div>
+  </div>
+
+  <div class="nav-right">
+    <button class="nav-join btn-ghost btn btn-sm" onclick="openJoinModal()">
+      <span>🎮</span> Rejoindre
+    </button>
+    <div id="nav-auth-area"></div>
   </div>
 </nav>
 
-<!-- ═══ PAGE : HOME ═══════════════════════════════════════════════════════════ -->
-<div class="page active" id="page-home">
-  <div class="hero">
-    <div class="hero-pill">✨ Nouvelle plateforme de quiz</div>
-    <h1>Créez des quiz<br><span class="accent">inoubliables.</span></h1>
-    <p>22 types de questions · Mode live · Stats détaillées · 100% gratuit</p>
-    <div class="hero-actions">
-      <button class="btn btn-primary" style="padding:12px 24px;font-size:15px" onclick="goTo('editor')">Créer un quiz</button>
-      <div class="code-join">
-        <input id="hero-code" placeholder="Code du quiz..." maxlength="6" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')joinByCode()" />
-        <button onclick="joinByCode()">Jouer →</button>
-      </div>
+<!-- ============================================================
+     PAGE : HOME
+============================================================ -->
+<div id="page-home" class="page active">
+  <div class="home-hero fade-up">
+    <div class="home-eyebrow">✦ Créez. Partagez. Jouez.</div>
+    <h1 class="home-title">La plateforme de quiz <span class="grad">qui déchire.</span></h1>
+    <p class="home-sub">22 types de questions, éditeur visuel complet, codes de partage instantanés — sans publicité, sans limite.</p>
+    <div class="home-ctas">
+      <button class="btn btn-primary" onclick="requireAuth(() => navigate('editor-new'))">🚀 Créer un quiz</button>
+      <button class="btn btn-ghost" onclick="navigate('dashboard')">📁 Mes quiz</button>
     </div>
-  </div>
-  <div class="container">
-    <div class="section">
-      <div class="section-header">
-        <div class="section-title">Quiz populaires</div>
-        <button class="btn btn-ghost btn-sm">Voir tout →</button>
-      </div>
-      <div class="quiz-grid" id="home-grid"></div>
-    </div>
-    <div class="section" id="search-results-section" style="display:none">
-      <div class="section-header">
-        <div class="section-title">Résultats de recherche</div>
-      </div>
-      <div class="quiz-grid" id="search-grid"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ PAGE : DASHBOARD ══════════════════════════════════════════════════════ -->
-<div class="page" id="page-dashboard">
-  <div class="dash-layout">
-    <aside class="dash-sidebar">
-      <div class="sidebar-item active" onclick="dashTab('quizzes',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Mes quiz
-      </div>
-      <div class="sidebar-item" onclick="dashTab('stats',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        Statistiques
-      </div>
-      <div class="sidebar-item" onclick="dashTab('favorites',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        Favoris
-      </div>
-      <div class="sidebar-item" style="margin-top:auto" onclick="goTo('profile')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        Profil
-      </div>
-    </aside>
-    <div class="dash-content">
-      <div class="dash-header">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div>
-            <h2>Bonjour, <span id="dash-username">Caroline</span> 👋</h2>
-            <p style="color:var(--text2);font-size:14px;margin-top:4px">Bienvenue dans votre espace créateur</p>
-          </div>
-          <button class="btn btn-primary" onclick="goTo('editor')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
-            Nouveau quiz
-          </button>
-        </div>
-      </div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="label">Quiz créés</div><div class="value" id="stat-quizzes">7</div><div class="sub">+2 ce mois</div></div>
-        <div class="stat-card"><div class="label">Parties jouées</div><div class="value" id="stat-games">234</div><div class="sub">+18 cette semaine</div></div>
-        <div class="stat-card"><div class="label">Joueurs uniques</div><div class="value" id="stat-players">1 024</div><div class="sub">+87 ce mois</div></div>
-        <div class="stat-card"><div class="label">Taux de réussite</div><div class="value" id="stat-rate">72%</div><div class="sub">Moy. sur tous les quiz</div></div>
-      </div>
-      <!-- Mes quiz tab -->
-      <div id="dash-tab-quizzes">
-        <div class="quiz-table">
-          <div class="qt-header">
-            <div></div>
-            <div>Nom</div>
-            <div>Questions</div>
-            <div>Code</div>
-            <div>Parties</div>
-            <div>Actions</div>
-          </div>
-          <div id="dash-quiz-rows"></div>
-        </div>
-      </div>
-      <!-- Stats tab -->
-      <div id="dash-tab-stats" style="display:none">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div class="settings-block">
-            <div class="settings-block-title">Top quiz par parties</div>
-            <div id="stats-top-quizzes" style="padding:16px;display:flex;flex-direction:column;gap:10px"></div>
-          </div>
-          <div class="settings-block">
-            <div class="settings-block-title">Répartition par type de question</div>
-            <div style="padding:16px;color:var(--text2);font-size:13px">Disponible après 10 parties jouées.</div>
-          </div>
-        </div>
-      </div>
-      <!-- Favoris tab -->
-      <div id="dash-tab-favorites" style="display:none">
-        <p style="color:var(--text2);font-size:14px">Vous n'avez pas encore de quiz favoris.</p>
+    <div class="home-join-box" style="margin:60px auto 0;">
+      <h3>🎮 Rejoindre un quiz</h3>
+      <div class="code-input-wrap">
+        <input id="home-code" type="text" maxlength="6" placeholder="CODE" oninput="this.value=this.value.toUpperCase()"/>
+        <button class="btn btn-primary" onclick="joinByCode(document.getElementById('home-code').value)">Go</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ PAGE : EDITOR ══════════════════════════════════════════════════════════ -->
-<div class="page" id="page-editor">
-  <div class="editor-topbar">
-    <button class="btn btn-ghost btn-sm" onclick="goTo('dashboard')">← Retour</button>
-    <input class="quiz-title-input" id="quiz-title" value="Nouveau quiz" />
-    <button class="btn btn-sm" onclick="saveQuiz()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-      Sauvegarder
-    </button>
-    <button class="btn btn-primary btn-sm" onclick="previewQuiz()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      Aperçu
-    </button>
+<!-- ============================================================
+     PAGE : DASHBOARD
+============================================================ -->
+<div id="page-dashboard" class="page" style="padding-top:64px">
+  <div class="dash-header">
+    <div>
+      <h1>Mes quiz</h1>
+      <p id="dash-count"></p>
+    </div>
+    <button class="btn btn-primary" onclick="navigate('editor-new')">+ Nouveau quiz</button>
   </div>
-  <div class="editor-wrap">
-    <!-- Sidebar questions -->
-    <div class="editor-left">
-      <div class="editor-left-header">
-        <span id="q-count-label">0 question</span>
-        <button class="btn btn-sm btn-primary" onclick="addQuestion()">+ Ajouter</button>
+  <div id="quiz-grid" class="quiz-grid"></div>
+</div>
+
+<!-- ============================================================
+     PAGE : EDITOR
+============================================================ -->
+<div id="page-editor" class="page">
+  <div class="editor-top">
+    <button class="btn btn-ghost btn-sm" onclick="navigate('dashboard')">← Retour</button>
+    <input class="quiz-title-input" id="quiz-title-input" type="text" placeholder="Nom du quiz…" value="Quiz sans titre"/>
+    <button class="btn btn-ghost btn-sm" id="btn-preview">👁 Aperçu</button>
+    <button class="btn btn-primary btn-sm" id="btn-save" onclick="saveQuiz()">💾 Sauvegarder</button>
+  </div>
+  <div class="editor-body">
+    <div class="editor-sidebar">
+      <div id="sidebar-qs" class="sidebar-qs"></div>
+      <div class="sidebar-add">
+        <button class="add-q-btn" onclick="openTypePicker()">+ Ajouter une question</button>
       </div>
-      <div class="q-sidebar" id="q-sidebar"></div>
     </div>
-    <!-- Main editor -->
-    <div class="editor-main" id="editor-main">
-      <div id="editor-empty" style="text-align:center;padding:60px 20px;color:var(--text2)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="margin:0 auto 16px;display:block;color:var(--text3)"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg>
-        <p>Ajoutez votre première question</p>
-        <button class="btn btn-primary" style="margin-top:16px" onclick="addQuestion()">Créer une question</button>
-      </div>
-      <div id="editor-q-form" style="display:none"></div>
-    </div>
-    <!-- Panneau droit : réglages quiz -->
-    <div class="editor-right">
-      <div style="font-size:14px;font-weight:700;margin-bottom:4px">Réglages du quiz</div>
-      <div class="settings-block">
-        <div class="settings-block-title">Visibilité</div>
-        <div class="settings-row">
-          <div><div class="settings-label">Quiz public</div><div class="settings-hint">Visible dans la recherche</div></div>
-          <div class="toggle on" id="toggle-public" onclick="this.classList.toggle('on')"></div>
-        </div>
-        <div class="settings-row">
-          <div><div class="settings-label">Mode live</div><div class="settings-hint">Tous jouent ensemble</div></div>
-          <div class="toggle" id="toggle-live" onclick="this.classList.toggle('on')"></div>
-        </div>
-      </div>
-      <div class="settings-block">
-        <div class="settings-block-title">Aléatoire</div>
-        <div class="settings-row">
-          <div class="settings-label">Mélanger questions</div>
-          <div class="toggle" onclick="this.classList.toggle('on')"></div>
-        </div>
-        <div class="settings-row">
-          <div class="settings-label">Mélanger réponses</div>
-          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-        </div>
-      </div>
-      <div class="settings-block">
-        <div class="settings-block-title">Thème</div>
-        <div class="theme-swatches">
-          <div class="swatch active" style="background:#6C47FF" onclick="selectTheme(this,'purple')"></div>
-          <div class="swatch" style="background:#1D9E75" onclick="selectTheme(this,'teal')"></div>
-          <div class="swatch" style="background:#D85A30" onclick="selectTheme(this,'coral')"></div>
-          <div class="swatch" style="background:#D4537E" onclick="selectTheme(this,'pink')"></div>
-          <div class="swatch" style="background:#378ADD" onclick="selectTheme(this,'blue')"></div>
-          <div class="swatch" style="background:#BA7517" onclick="selectTheme(this,'amber')"></div>
-          <div class="swatch" style="background:#000000" onclick="selectTheme(this,'dark')"></div>
-        </div>
-      </div>
-      <div class="settings-block">
-        <div class="settings-block-title">Langue</div>
-        <div style="padding:12px 16px">
-          <select style="width:100%;border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;font-size:13px;outline:none;background:var(--surface2);color:var(--text1)">
-            <option>🇫🇷 Français</option>
-            <option>🇬🇧 English</option>
-            <option>🇪🇸 Español</option>
-            <option>🇩🇪 Deutsch</option>
-            <option>🇮🇹 Italiano</option>
-          </select>
-        </div>
-      </div>
-      <div class="settings-block">
-        <div class="settings-block-title">Programmation</div>
-        <div style="padding:12px 16px;display:flex;flex-direction:column;gap:10px">
-          <div>
-            <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">Ouverture</label>
-            <input type="datetime-local" style="width:100%;border:1px solid var(--border2);border-radius:var(--r);padding:8px;font-size:12px;outline:none;background:var(--surface2);color:var(--text1)" />
-          </div>
-          <div>
-            <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">Fermeture</label>
-            <input type="datetime-local" style="width:100%;border:1px solid var(--border2);border-radius:var(--r);padding:8px;font-size:12px;outline:none;background:var(--surface2);color:var(--text1)" />
-          </div>
-        </div>
-      </div>
-      <div class="settings-block">
-        <div class="settings-block-title">Import</div>
-        <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
-          <button class="btn btn-sm" style="width:100%;justify-content:center" onclick="document.getElementById('csv-file').click()">📋 Importer CSV</button>
-          <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="importCSV(this)" />
-          <p style="font-size:11px;color:var(--text3)">Format : type,question,opt1,opt2,opt3,opt4,index_correct,points,timer</p>
-        </div>
-      </div>
-      <div id="quiz-code-display" style="display:none;background:var(--brand-light);border-radius:var(--rl);padding:16px;text-align:center">
-        <p style="font-size:12px;color:var(--text2);margin-bottom:6px">Code de partage</p>
-        <p id="quiz-code-val" style="font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--brand);letter-spacing:4px"></p>
-        <button class="btn btn-sm" style="margin-top:8px;width:100%;justify-content:center" onclick="copyCode()">Copier le code</button>
-      </div>
+    <div class="editor-main">
+      <div id="q-editor-area"></div>
     </div>
   </div>
 </div>
 
-<!-- ═══ PAGE : JOIN ════════════════════════════════════════════════════════════ -->
-<div class="page" id="page-join">
-  <div class="join-wrap">
-    <div class="join-card">
-      <div style="font-size:40px;margin-bottom:12px">🎮</div>
-      <h2>Rejoindre un quiz</h2>
-      <p>Entrez le code ou scannez le QR</p>
-      <div class="join-form">
-        <input class="field-input join-code-input" id="join-code" placeholder="ABCDEF" maxlength="6" oninput="this.value=this.value.toUpperCase()" />
-        <input class="field-input" id="join-pseudo" placeholder="Votre pseudo" maxlength="20" />
-        <button class="btn btn-primary" style="justify-content:center;padding:12px" onclick="startPlaying()">Rejoindre la partie →</button>
-        <div class="join-divider">ou</div>
-        <div class="qr-box" onclick="toast('Scanner QR — fonctionnalité mobile')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="9" y="9" width="2" height="2"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          Scanner le QR
-        </div>
-        <p style="font-size:12px;color:var(--text3)">Pas besoin de compte pour jouer</p>
-      </div>
+<!-- ============================================================
+     PAGE : PLAY
+============================================================ -->
+<div id="page-play" class="page" style="padding-top:64px">
+  <div class="play-header">
+    <div id="play-quiz-title" style="font-family:var(--font-head);font-weight:700"></div>
+    <div class="play-progress">
+      <div class="play-progress-bar"><div class="play-progress-fill" id="play-progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="play-timer" id="play-timer">–</div>
+  </div>
+  <div class="play-area">
+    <div id="play-card" class="play-card"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PAGE : PROFILE / SETTINGS
+============================================================ -->
+<div id="page-profile" class="page">
+  <div class="settings-wrap">
+    <h1>⚙️ Mon profil</h1>
+    <div class="settings-section">
+      <h2>IDENTITÉ</h2>
+      <div class="field"><label>Nom d'utilisateur</label><input id="set-username" type="text"/></div>
+      <div class="field"><label>Email</label><input id="set-email" type="email"/></div>
+      <div class="field"><label>Téléphone (optionnel)</label><input id="set-phone" type="tel"/></div>
+      <button class="btn btn-primary btn-sm" onclick="saveProfile()">Sauvegarder</button>
+    </div>
+    <div class="settings-section">
+      <h2>MOT DE PASSE</h2>
+      <div class="field"><label>Mot de passe actuel</label><input id="set-cur-pw" type="password"/></div>
+      <div class="field"><label>Nouveau mot de passe</label><input id="set-new-pw" type="password"/></div>
+      <button class="btn btn-ghost btn-sm" onclick="savePassword()">Changer le mot de passe</button>
+    </div>
+    <div class="settings-section">
+      <button class="btn btn-danger btn-sm" onclick="logout()">Se déconnecter</button>
     </div>
   </div>
 </div>
 
-<!-- ═══ PAGE : PLAYER ═════════════════════════════════════════════════════════ -->
-<div class="page" id="page-player">
-  <div class="player-wrap">
-    <div class="player-main">
-      <div class="player-header">
-        <div class="progress-bar"><div class="progress-fill" id="player-progress"></div></div>
-        <span style="font-size:13px;color:var(--text2);white-space:nowrap" id="player-qnum">Q1/10</span>
-        <div class="timer-wrap">
-          <svg class="timer-circle"><circle class="track" cx="24" cy="24" r="20"/><circle class="fill" id="timer-ring" cx="24" cy="24" r="20"/></svg>
-          <div class="timer-label" id="timer-label">30</div>
-        </div>
-      </div>
-      <div class="q-card" id="player-card">
-        <div class="q-num-label" id="player-q-label">Question 1</div>
-        <h2 id="player-q-text">Chargement...</h2>
-        <div id="player-media"></div>
-        <div id="player-choices"></div>
-      </div>
-      <div id="player-explanation" style="display:none;background:var(--brand-light);border-radius:var(--rl);padding:16px;max-width:640px;width:100%">
-        <p style="font-size:12px;font-weight:700;color:var(--brand);margin-bottom:4px">EXPLICATION</p>
-        <p id="player-exp-text" style="font-size:14px;color:var(--text1)"></p>
-        <button class="btn btn-primary" style="margin-top:12px" onclick="nextQuestion()">Question suivante →</button>
-      </div>
-    </div>
-    <div class="player-side">
-      <div class="lb-title">🏆 Classement</div>
-      <div id="player-lb"></div>
-      <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border)">
-        <p style="font-size:12px;color:var(--text2)">Joueur : <strong id="player-pseudo-display"></strong></p>
-        <p style="font-size:12px;color:var(--text2)">Score : <strong id="player-score-display">0</strong> pts</p>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- ============================================================
+     MODALS
+============================================================ -->
 
-<!-- ═══ PAGE : RESULTS ════════════════════════════════════════════════════════ -->
-<div class="page" id="page-results">
-  <div style="display:flex;flex-direction:column;align-items:center;padding:60px 24px;gap:24px;text-align:center">
-    <div style="font-size:64px">🎉</div>
-    <h1 style="font-size:36px;font-weight:700">Quiz terminé !</h1>
-    <p style="color:var(--text2)">Voici votre score final</p>
-    <div style="background:var(--brand-light);border-radius:var(--rxl);padding:32px 48px">
-      <div style="font-size:56px;font-weight:700;font-family:'Syne',sans-serif;color:var(--brand)" id="final-score">0</div>
-      <div style="color:var(--text2);margin-top:4px" id="final-label">points</div>
-    </div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-      <button class="btn btn-primary" onclick="replayQuiz()">Rejouer</button>
-      <button class="btn" onclick="goTo('home')">Retour à l'accueil</button>
-    </div>
-    <div style="width:100%;max-width:480px">
-      <p style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.4px">Classement final</p>
-      <div id="final-lb" style="display:flex;flex-direction:column;gap:6px"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ PAGE : PROFILE ════════════════════════════════════════════════════════ -->
-<div class="page" id="page-profile">
-  <div class="profile-wrap">
-    <div class="profile-avatar">
-      <div class="profile-avatar-circle" id="profile-avatar-circle">C</div>
-      <div>
-        <h2 style="font-size:20px;font-weight:700" id="profile-name">Caroline</h2>
-        <p style="color:var(--text2);font-size:13px">Membre depuis janvier 2024</p>
-      </div>
-      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="goTo('dashboard')">← Tableau de bord</button>
-    </div>
-    <div class="profile-section">
-      <div class="profile-section-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        Informations personnelles
-      </div>
-      <div class="profile-field"><label>Nom d'affichage</label><input id="pf-username" value="Caroline" /></div>
-      <div class="profile-field"><label>Email</label><input id="pf-email" type="email" value="caroline@exemple.fr" /></div>
-      <div class="profile-field"><label>Téléphone</label><input id="pf-phone" type="tel" value="+33 6 12 34 56 78" /></div>
-    </div>
-    <div class="profile-section">
-      <div class="profile-section-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        Mot de passe
-      </div>
-      <div class="profile-field"><label>Nouveau mot de passe</label><input id="pf-password" type="password" placeholder="••••••••" /></div>
-      <div class="profile-field"><label>Confirmer</label><input id="pf-password2" type="password" placeholder="••••••••" /></div>
-    </div>
-    <div class="profile-section">
-      <div class="profile-section-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-        Préférences
-      </div>
-      <div style="padding:0 18px">
-        <div class="settings-row">
-          <div><div class="settings-label">Notifications email</div><div class="settings-hint">Recevoir les résultats</div></div>
-          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-        </div>
-        <div class="settings-row">
-          <div><div class="settings-label">Quiz publics par défaut</div></div>
-          <div class="toggle" onclick="this.classList.toggle('on')"></div>
-        </div>
-        <div class="settings-row">
-          <div><div class="settings-label">Sons de jeu</div></div>
-          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-        </div>
-      </div>
-    </div>
-    <div style="display:flex;justify-content:flex-end">
-      <button class="btn btn-primary" onclick="saveProfile()">Sauvegarder les modifications</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ MODAL : AUTH (login / register) ══════════════════════════════════════ -->
+<!-- Auth Modal -->
 <div class="modal-bg" id="modal-auth">
   <div class="modal">
-    <div class="modal-header">
-      <h2 id="auth-title">Connexion</h2>
-      <button class="btn btn-icon btn-ghost" onclick="closeModal('modal-auth')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
+    <button class="modal-close" onclick="closeModal('modal-auth')">✕</button>
+    <div id="auth-tabs" style="display:flex;gap:8px;margin-bottom:24px">
+      <button class="btn btn-primary btn-sm" id="tab-login-btn" onclick="switchAuthTab('login')">Connexion</button>
+      <button class="btn btn-ghost btn-sm" id="tab-reg-btn" onclick="switchAuthTab('register')">Inscription</button>
     </div>
-    <div id="auth-register-fields" style="display:none">
-      <div class="modal-field"><label>Nom d'affichage</label><input id="reg-username" placeholder="Votre pseudo" /></div>
+    <div id="auth-login">
+      <h2>Connexion</h2>
+      <div class="field"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Mot de passe</label><input id="login-pw" type="password" placeholder="••••••"/></div>
+      <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Se connecter</button>
     </div>
-    <div class="modal-field"><label>Email</label><input id="auth-email" type="email" placeholder="vous@exemple.fr" /></div>
-    <div class="modal-field"><label>Mot de passe</label><input id="auth-password" type="password" placeholder="••••••••" /></div>
-    <div class="modal-actions">
-      <button class="btn" onclick="toggleAuthMode()"><span id="auth-switch-label">Créer un compte</span></button>
-      <button class="btn btn-primary" onclick="submitAuth()" id="auth-submit-btn">Se connecter</button>
-    </div>
-    <p id="auth-error" style="color:var(--danger);font-size:13px;margin-top:8px;display:none"></p>
-  </div>
-</div>
-
-<!-- ═══ MODAL : Renommer quiz ════════════════════════════════════════════════ -->
-<div class="modal-bg" id="modal-rename">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>Renommer le quiz</h2>
-      <button class="btn btn-icon btn-ghost" onclick="closeModal('modal-rename')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <div class="modal-field"><label>Nouveau nom</label><input id="rename-input" placeholder="Nom du quiz..." /></div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-rename')">Annuler</button>
-      <button class="btn btn-primary" onclick="confirmRename()">Renommer</button>
+    <div id="auth-register" style="display:none">
+      <h2>Créer un compte</h2>
+      <div class="field"><label>Nom d'utilisateur</label><input id="reg-username" type="text" placeholder="tonpseudo"/></div>
+      <div class="field"><label>Email</label><input id="reg-email" type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Mot de passe</label><input id="reg-pw" type="password" placeholder="min. 6 caractères"/></div>
+      <button class="btn btn-primary" style="width:100%" onclick="doRegister()">Créer mon compte</button>
     </div>
   </div>
 </div>
 
-<!-- ═══ TOAST ═════════════════════════════════════════════════════════════════ -->
-<div id="toast"></div>
-
-<!-- ═══ FEEDBACK OVERLAY ══════════════════════════════════════════════════════ -->
-<div class="feedback-overlay" id="feedback-overlay" style="display:none">
-  <div class="feedback-badge" id="feedback-badge"></div>
+<!-- Type Picker Modal -->
+<div class="modal-bg" id="modal-type">
+  <div class="modal" style="max-width:660px">
+    <button class="modal-close" onclick="closeModal('modal-type')">✕</button>
+    <h2>Choisir un type de question</h2>
+    <div class="type-grid" id="type-grid"></div>
+  </div>
 </div>
 
+<!-- Join Modal (pseudo) -->
+<div class="modal-bg" id="modal-join">
+  <div class="modal pseudo-modal">
+    <button class="modal-close" onclick="closeModal('modal-join')">✕</button>
+    <h2>🎮 Rejoindre</h2>
+    <div class="field"><label>Ton pseudo</label><input id="join-pseudo" type="text" placeholder="MonPseudo" maxlength="24"/></div>
+    <button class="btn btn-primary" style="width:100%" onclick="startPlay()">Jouer !</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
 <script>
-// ─── State ───────────────────────────────────────────────────────────────────
-const API = 'https://api.qubrix.app'; // Remplacer par ton Worker URL en dev : http://localhost:8787
-let STATE = {
-  user: null,
-  token: localStorage.getItem('qubrix_token'),
-  currentQuizId: null,
-  currentSessionId: null,
-  currentPlayerId: null,
+// ============================================================
+// CONFIG — remplace par l'URL de ton Worker déployé
+// ============================================================
+const API = "https://qubrix-worker.capkychannel.workers.dev";
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  token: localStorage.getItem("qbx_token") || null,
+  user: JSON.parse(localStorage.getItem("qbx_user") || "null"),
+  currentPage: "home",
+  // Editor
+  editQuizId: null,
   questions: [],
-  activeQIndex: 0,
-  playerPseudo: '',
-  playerScore: 0,
-  playerAnswers: [],
-  currentQuestionIndex: 0,
-  timerInterval: null,
-  timeLeft: 30,
+  activeQ: 0,
+  // Play
+  playQuiz: null,
+  playIndex: 0,
+  playPseudo: "",
+  playAnswers: [],
+  playScore: 0,
+  playTimer: null,
+  pendingJoinCode: null,
 };
 
-const DEMO_QUIZZES = [
-  {id:'1', title:'Capitales du monde', cover_emoji:'🌍', play_count:4820, tags:'["Géographie"]', description:'Testez vos connaissances !'},
-  {id:'2', title:'Chimie terminale', cover_emoji:'🧪', play_count:2130, tags:'["Sciences"]', description:'Réactions et éléments'},
-  {id:'3', title:'Verbes irréguliers', cover_emoji:'📚', play_count:8900, tags:'["Langues"]', description:'Anglais — niveau B2'},
-  {id:'4', title:'Musique 2020s', cover_emoji:'🎵', play_count:6700, tags:'["Culture"]', description:'Pop, rap, électro...'},
-  {id:'5', title:'Champions League 2024', cover_emoji:'⚽', play_count:3200, tags:'["Sport"]', description:'Résultats et stats'},
-  {id:'6', title:'Recettes françaises', cover_emoji:'🍳', play_count:1400, tags:'["Cuisine"]', description:'Cuisine régionale'},
+// ============================================================
+// QUESTION TYPES
+// ============================================================
+const QTYPES = [
+  { id:"truefalse",   icon:"✅",  name:"Vrai / Faux",         desc:"Deux choix, image/vidéo possible" },
+  { id:"freetext",    icon:"✍️",  name:"Texte libre",          desc:"Réponse tapée à la main" },
+  { id:"qcm",         icon:"🔘",  name:"QCM classique",        desc:"4 choix, une bonne réponse" },
+  { id:"qcmmulti",    icon:"☑️",  name:"QCM multiple",         desc:"Plusieurs bonnes réponses" },
+  { id:"dragdrop",    icon:"🔀",  name:"Glisser-déposer",      desc:"Associer des éléments" },
+  { id:"ordering",    icon:"📋",  name:"Remettre en ordre",    desc:"Reclasser des mots/phrases" },
+  { id:"connect",     icon:"🔗",  name:"Relier",               desc:"Relier deux colonnes" },
+  { id:"fillblank",   icon:"🕳️",  name:"Compléter la phrase",  desc:"Texte à trous" },
+  { id:"slider",      icon:"🎚️",  name:"Curseur",              desc:"Placer une valeur sur une échelle" },
+  { id:"imagemap",    icon:"🗺️",  name:"Carte cliquable",      desc:"Cliquer sur une zone d'image" },
+  { id:"audio",       icon:"🎵",  name:"Audio",                desc:"Écouter puis répondre" },
+  { id:"drawing",     icon:"✏️",  name:"Dessin",               desc:"Dessiner la réponse" },
+  { id:"code",        icon:"💻",  name:"Code",                 desc:"Écrire du code avec coloration" },
+  { id:"equation",    icon:"🧮",  name:"Équation",             desc:"Saisir une formule mathématique" },
+  { id:"timeline",    icon:"⏳",  name:"Chronologie",          desc:"Classer des événements dans le temps" },
+  { id:"priority",    icon:"🏆",  name:"Priorité",             desc:"Ranger par ordre d'importance" },
+  { id:"color",       icon:"🎨",  name:"Couleur",              desc:"Choisir une couleur" },
+  { id:"grid",        icon:"⬜",  name:"Grille",               desc:"Sélectionner des cases" },
+  { id:"poll",        icon:"📊",  name:"Sondage",              desc:"Sans bonne/mauvaise réponse" },
+  { id:"flashcard",   icon:"🃏",  name:"Flash card",           desc:"Voir un mot, deviner la définition" },
+  { id:"photo",       icon:"📷",  name:"Photo réponse",        desc:"Uploader une image comme réponse" },
+  { id:"location",    icon:"📍",  name:"Localisation",         desc:"Pointer sur une carte du monde" },
 ];
 
-const DEMO_QUESTIONS = [
-  {id:'q1', type:'qcm', text:'Quelle est la capitale de la France ?', options:JSON.stringify([{text:'Paris',isCorrect:true},{text:'Londres',isCorrect:false},{text:'Berlin',isCorrect:false},{text:'Madrid',isCorrect:false}]), timer:30, points:100, explanation:'Paris est la capitale de la France depuis le 10ème siècle.'},
-  {id:'q2', type:'tf', text:'La Terre est la troisième planète du système solaire.', options:JSON.stringify([{text:'Vrai',isCorrect:true},{text:'Faux',isCorrect:false}]), timer:15, points:50, explanation:'Oui ! Mercure, Vénus, puis la Terre.'},
-  {id:'q3', type:'text', text:'Quel est le participe passé du verbe "survenir" ?', options:JSON.stringify([{text:'survenu',isCorrect:true}]), timer:45, points:150, explanation:'Survenir → survenu (auxiliaire être).'},
-  {id:'q4', type:'qcm', text:'Quel élément chimique a pour symbole "Au" ?', options:JSON.stringify([{text:'Argent',isCorrect:false},{text:'Or',isCorrect:true},{text:'Aluminium',isCorrect:false},{text:'Cuivre',isCorrect:false}]), timer:30, points:100, explanation:'Au vient du latin "aurum" (or).'},
-  {id:'q5', type:'tf', text:'Le soleil est une étoile de type naine rouge.', options:JSON.stringify([{text:'Vrai',isCorrect:false},{text:'Faux',isCorrect:true}]), timer:15, points:50, explanation:'Le soleil est une naine jaune (type G).'},
-];
+// ============================================================
+// API HELPER
+// ============================================================
+async function api(method, path, body) {
+  const opts = { method, headers: { "Content-Type": "application/json" } };
+  if (state.token) opts.headers["Authorization"] = "Bearer " + state.token;
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(API + path, opts);
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || "Erreur serveur");
+  return data;
+}
 
-const DEMO_DASH_QUIZZES = [
-  {id:'1', cover_emoji:'🌍', title:'Capitales du monde', play_count:47, question_count:20, code:'CAP22A'},
-  {id:'2', cover_emoji:'🧪', title:'Chimie terminale', play_count:23, question_count:15, code:'CHM5T3'},
-  {id:'3', cover_emoji:'📚', title:'Verbes irréguliers', play_count:89, question_count:30, code:'VRB99Z'},
-];
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, type = "") {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = type ? `show ${type}` : "show";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = "", 3000);
+}
 
-const QUESTION_TYPES = [
-  {id:'qcm',    label:'QCM'},
-  {id:'tf',     label:'Vrai/Faux'},
-  {id:'text',   label:'Texte libre'},
-  {id:'multi',  label:'Multi-choix'},
-  {id:'order',  label:'Remettre en ordre'},
-  {id:'match',  label:'Relier'},
-  {id:'fill',   label:'Texte à trous'},
-  {id:'slider', label:'Curseur'},
-  {id:'map',    label:'Carte cliquable'},
-  {id:'audio',  label:'Audio'},
-  {id:'draw',   label:'Dessin'},
-  {id:'code',   label:'Code'},
-  {id:'math',   label:'Équation'},
-  {id:'timeline',label:'Chronologie'},
-  {id:'priority',label:'Priorité'},
-  {id:'color',  label:'Couleur'},
-  {id:'grid',   label:'Grille'},
-  {id:'poll',   label:'Sondage'},
-  {id:'flash',  label:'Flash card'},
-  {id:'photo',  label:'Photo réponse'},
-  {id:'geo',    label:'Géolocalisation'},
-  {id:'drag',   label:'Glisser-déposer'},
-];
-
-// ─── Navigation ──────────────────────────────────────────────────────────────
-function goTo(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const el = document.getElementById('page-' + page);
-  if (el) el.classList.add('active');
+// ============================================================
+// ROUTING
+// ============================================================
+function navigate(page, data) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  const pages = {
+    "home": "page-home",
+    "dashboard": "page-dashboard",
+    "editor": "page-editor",
+    "editor-new": "page-editor",
+    "play": "page-play",
+    "profile": "page-profile",
+  };
+  const target = pages[page] || "page-home";
+  const el = document.getElementById(target);
+  if (el) el.classList.add("active");
+  state.currentPage = page;
   window.scrollTo(0, 0);
 
-  if (page === 'home')      renderHome();
-  if (page === 'dashboard') renderDashboard();
-  if (page === 'editor')    renderEditor();
-  if (page === 'player')    renderPlayerPage();
+  if (page === "dashboard") loadDashboard();
+  if (page === "editor-new") initEditor(null);
+  if (page === "editor" && data) initEditor(data);
+  if (page === "play" && data) initPlay(data);
+  if (page === "profile") loadProfile();
 }
 
-// ─── Toast ───────────────────────────────────────────────────────────────────
-function toast(msg, duration = 2800) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), duration);
+function requireAuth(cb) {
+  if (!state.user) { openModal("modal-auth"); return; }
+  cb();
 }
 
-// ─── Modals ──────────────────────────────────────────────────────────────────
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-bg').forEach(bg => {
-  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
-});
-
-// ─── HOME ─────────────────────────────────────────────────────────────────────
-function renderHome() {
-  const grid = document.getElementById('home-grid');
-  grid.innerHTML = DEMO_QUIZZES.map(q => quizCardHtml(q, true)).join('');
-}
-
-function quizCardHtml(q, clickToPlay = false) {
-  const tags = Array.isArray(q.tags) ? q.tags : JSON.parse(q.tags || '[]');
-  const tag = tags[0] || '';
-  const tagColors = {Géographie:'',Sciences:'tag-green',Langues:'',Culture:'tag-amber',Sport:'tag-green',Cuisine:'tag-amber'};
-  return `<div class="quiz-card" onclick="${clickToPlay ? `playQuizDirect('${q.id}')` : `openModal('modal-auth')`}">
-    <div class="quiz-card-cover">${q.cover_emoji || '📝'}</div>
-    <div class="quiz-card-body">
-      <h3>${q.title}</h3>
-      <p>${q.description || ''}</p>
-    </div>
-    <div class="quiz-card-footer">
-      ${tag ? `<span class="tag ${tagColors[tag]||''}">${tag}</span>` : '<span></span>'}
-      <span class="plays">▶ ${Number(q.play_count||0).toLocaleString('fr-FR')} parties</span>
-    </div>
-  </div>`;
-}
-
-// Clic sur un quiz public → demander pseudo direct (pas code)
-function playQuizDirect(quizId) {
-  STATE.currentQuizId = quizId;
-  // Remplir le code si on a un quiz demo
-  const demo = DEMO_QUIZZES.find(q => q.id === quizId);
-  if (demo) document.getElementById('join-code').value = 'CAP22A';
-  goTo('join');
-}
-
-function searchQuizzes(val) {
-  const section = document.getElementById('search-results-section');
-  if (!val.trim()) { section.style.display = 'none'; return; }
-  section.style.display = '';
-  const results = DEMO_QUIZZES.filter(q => q.title.toLowerCase().includes(val.toLowerCase()));
-  document.getElementById('search-grid').innerHTML = results.length
-    ? results.map(q => quizCardHtml(q, true)).join('')
-    : '<p style="color:var(--text2);font-size:14px">Aucun quiz trouvé.</p>';
-}
-
-function joinByCode() {
-  const code = document.getElementById('hero-code').value.trim();
-  if (!code) { toast('Entrez un code de quiz'); return; }
-  document.getElementById('join-code').value = code;
-  goTo('join');
-}
-
-// ─── AUTH ─────────────────────────────────────────────────────────────────────
-let authMode = 'login';
-function toggleAuthMode() {
-  authMode = authMode === 'login' ? 'register' : 'login';
-  document.getElementById('auth-title').textContent = authMode === 'login' ? 'Connexion' : 'Créer un compte';
-  document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'Se connecter' : 'Créer mon compte';
-  document.getElementById('auth-switch-label').textContent = authMode === 'login' ? 'Créer un compte' : 'Déjà inscrit ? Connexion';
-  document.getElementById('auth-register-fields').style.display = authMode === 'register' ? '' : 'none';
-}
-
-async function submitAuth() {
-  const email = document.getElementById('auth-email').value;
-  const password = document.getElementById('auth-password').value;
-  const errEl = document.getElementById('auth-error');
-
-  if (!email || !password) { errEl.textContent = 'Remplissez tous les champs'; errEl.style.display = ''; return; }
-
-  // Mode démo : simuler connexion
-  STATE.user = { id: 'demo', username: 'Caroline', email };
-  STATE.token = 'demo-token';
-  localStorage.setItem('qubrix_token', 'demo-token');
-  updateNavAuth();
-  closeModal('modal-auth');
-  toast('Connexion réussie ! Bienvenue 👋');
-
-  /* En prod — décommenter :
-  try {
-    const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
-    const body = authMode === 'login' ? { email, password }
-      : { email, password, username: document.getElementById('reg-username').value };
-    const res = await fetch(API + endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
-    const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error; errEl.style.display = ''; return; }
-    STATE.token = data.token;
-    STATE.user = data.user;
-    localStorage.setItem('qubrix_token', data.token);
-    updateNavAuth();
-    closeModal('modal-auth');
-    toast('Bienvenue ' + data.user.username + ' !');
-  } catch (e) { errEl.textContent = 'Erreur réseau'; errEl.style.display = ''; }
-  */
-}
-
-function updateNavAuth() {
-  const isLogged = !!STATE.user;
-  document.getElementById('nav-login-btn').style.display = isLogged ? 'none' : '';
-  document.getElementById('nav-avatar').style.display = isLogged ? '' : 'none';
-  if (STATE.user) {
-    document.getElementById('nav-avatar').textContent = (STATE.user.username || 'U')[0].toUpperCase();
-    document.getElementById('dash-username').textContent = STATE.user.username || '';
+// ============================================================
+// AUTH
+// ============================================================
+function renderNavAuth() {
+  const area = document.getElementById("nav-auth-area");
+  if (state.user) {
+    const initials = state.user.username.substring(0, 2).toUpperCase();
+    area.innerHTML = `
+      <div class="avatar-wrap">
+        <div class="avatar-btn">${initials}</div>
+        <div class="avatar-menu">
+          <a onclick="navigate('dashboard')">📁 Mes quiz</a>
+          <a onclick="navigate('profile')">⚙️ Profil & Paramètres</a>
+          <hr/>
+          <button class="danger" onclick="logout()">Déconnexion</button>
+        </div>
+      </div>`;
+  } else {
+    area.innerHTML = `<button class="btn btn-ghost btn-sm" onclick="openModal('modal-auth')">Connexion</button>`;
   }
 }
 
-// ─── DASHBOARD ───────────────────────────────────────────────────────────────
-function renderDashboard() {
-  if (!STATE.user) { openModal('modal-auth'); return; }
-  renderDashQuizRows();
+function switchAuthTab(tab) {
+  document.getElementById("auth-login").style.display = tab === "login" ? "" : "none";
+  document.getElementById("auth-register").style.display = tab === "register" ? "" : "none";
+  document.getElementById("tab-login-btn").className = tab === "login" ? "btn btn-primary btn-sm" : "btn btn-ghost btn-sm";
+  document.getElementById("tab-reg-btn").className = tab === "register" ? "btn btn-primary btn-sm" : "btn btn-ghost btn-sm";
 }
 
-function renderDashQuizRows() {
-  const el = document.getElementById('dash-quiz-rows');
-  el.innerHTML = DEMO_DASH_QUIZZES.map(q => `
-    <div class="qt-row">
-      <div class="qt-emoji">${q.cover_emoji}</div>
-      <div><div class="qt-title">${q.title}</div><div class="qt-sub">${q.question_count} questions · il y a 2 jours</div></div>
-      <div style="color:var(--text2);font-size:13px">${q.question_count} Q</div>
-      <div><span class="qt-code">${q.code}</span></div>
-      <div style="color:var(--text2);font-size:13px">${q.play_count} parties</div>
-      <div class="qt-actions">
-        <button class="icon-btn" title="Modifier" onclick="editQuiz('${q.id}')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </button>
-        <button class="icon-btn" title="Statistiques" onclick="toast('Stats pour ${q.title}')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        </button>
-        <button class="icon-btn" title="Renommer" onclick="openRenameModal('${q.id}','${q.title}')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-        </button>
-        <button class="icon-btn danger" title="Supprimer" onclick="deleteQuiz('${q.id}')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-        </button>
-      </div>
-    </div>
-  `).join('');
-
-  // Stats tab
-  document.getElementById('stats-top-quizzes').innerHTML = DEMO_DASH_QUIZZES.map((q,i) => `
-    <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:18px">${['🥇','🥈','🥉'][i]||'  '}</span>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600">${q.title}</div>
-        <div style="font-size:12px;color:var(--text2)">${q.play_count} parties</div>
-      </div>
-    </div>
-  `).join('');
+async function doLogin() {
+  try {
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-pw").value;
+    const data = await api("POST", "/api/auth/login", { email, password });
+    state.token = data.token; state.user = data.user;
+    localStorage.setItem("qbx_token", data.token);
+    localStorage.setItem("qbx_user", JSON.stringify(data.user));
+    closeModal("modal-auth"); renderNavAuth();
+    toast("Bienvenue " + data.user.username + " !", "ok");
+  } catch(e) { toast(e.message, "bad"); }
 }
 
-function dashTab(tab, el) {
-  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-  el.classList.add('active');
-  ['quizzes','stats','favorites'].forEach(t => {
-    const div = document.getElementById('dash-tab-'+t);
-    if (div) div.style.display = t === tab ? '' : 'none';
+async function doRegister() {
+  try {
+    const username = document.getElementById("reg-username").value;
+    const email = document.getElementById("reg-email").value;
+    const password = document.getElementById("reg-pw").value;
+    const data = await api("POST", "/api/auth/register", { username, email, password });
+    state.token = data.token; state.user = data.user;
+    localStorage.setItem("qbx_token", data.token);
+    localStorage.setItem("qbx_user", JSON.stringify(data.user));
+    closeModal("modal-auth"); renderNavAuth();
+    toast("Compte créé avec succès 🎉", "ok");
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+async function logout() {
+  try { await api("POST", "/api/auth/logout"); } catch(_) {}
+  state.token = null; state.user = null;
+  localStorage.removeItem("qbx_token"); localStorage.removeItem("qbx_user");
+  renderNavAuth(); navigate("home"); toast("À bientôt !");
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add("open"); }
+function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+document.querySelectorAll(".modal-bg").forEach(bg => bg.addEventListener("click", e => { if (e.target === bg) bg.classList.remove("open"); }));
+
+// ============================================================
+// SEARCH
+// ============================================================
+let searchTimer;
+document.getElementById("nav-search-input").addEventListener("input", function() {
+  clearTimeout(searchTimer);
+  const q = this.value.trim();
+  const res = document.getElementById("nav-search-results");
+  if (!q) { res.classList.remove("open"); return; }
+  searchTimer = setTimeout(async () => {
+    try {
+      const results = await api("GET", `/api/search?q=${encodeURIComponent(q)}`);
+      if (!results.length) { res.classList.remove("open"); return; }
+      res.innerHTML = results.map(r => `
+        <div class="search-item" onclick="joinByCode('${r.code}')">
+          <div style="flex:1">
+            <div style="font-weight:600">${r.title}</div>
+            <div style="font-size:.75rem;color:var(--muted)">${r.questionCount} questions</div>
+          </div>
+          <span class="code-badge">${r.code}</span>
+        </div>`).join("");
+      res.classList.add("open");
+    } catch(_) {}
+  }, 350);
+});
+document.addEventListener("click", e => {
+  if (!e.target.closest(".nav-search")) document.getElementById("nav-search-results").classList.remove("open");
+});
+
+// ============================================================
+// JOIN BY CODE
+// ============================================================
+function openJoinModal() { openModal("modal-join"); }
+
+function joinByCode(code) {
+  if (!code) return toast("Entre un code", "bad");
+  state.pendingJoinCode = code.toUpperCase();
+  document.getElementById("join-pseudo").value = state.user ? state.user.username : "";
+  openModal("modal-join");
+}
+
+async function startPlay() {
+  const pseudo = document.getElementById("join-pseudo").value.trim();
+  if (!pseudo) return toast("Entre un pseudo", "bad");
+  const code = state.pendingJoinCode;
+  if (!code) return;
+  try {
+    showLoader();
+    const quiz = await api("GET", `/api/join?code=${code}`);
+    closeModal("modal-join");
+    state.playPseudo = pseudo;
+    navigate("play", quiz);
+  } catch(e) { toast(e.message, "bad"); } finally { hideLoader(); }
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function loadDashboard() {
+  if (!state.user) { openModal("modal-auth"); navigate("home"); return; }
+  showLoader();
+  try {
+    const quizzes = await api("GET", "/api/myquizzes");
+    document.getElementById("dash-count").textContent = quizzes.length + " quiz" + (quizzes.length !== 1 ? "s" : "");
+    const grid = document.getElementById("quiz-grid");
+    if (!quizzes.length) {
+      grid.innerHTML = `<div class="empty-state"><div class="big-icon">🧩</div><h2>Aucun quiz pour l'instant</h2><p>Crée ton premier quiz !</p><br><button class="btn btn-primary" onclick="navigate('editor-new')">+ Créer un quiz</button></div>`;
+      return;
+    }
+    grid.innerHTML = quizzes.map(q => `
+      <div class="quiz-card fade-up" id="qcard-${q.qid}">
+        <div class="quiz-card-thumb">${q.title.substring(0,2).toUpperCase()}</div>
+        <div class="quiz-card-info">
+          <div class="quiz-card-title">${esc(q.title)}</div>
+          <div class="quiz-card-meta">
+            <span>📋 ${q.questionCount} question${q.questionCount>1?'s':''}</span>
+            <span>🎮 ${q.playCount} partie${q.playCount>1?'s':''}</span>
+            <span class="code-pill" onclick="copyCode('${q.code}')" title="Cliquer pour copier">📋 ${q.code}</span>
+          </div>
+        </div>
+        <div class="quiz-card-actions">
+          <button class="btn btn-ghost btn-sm btn-icon" title="Modifier" onclick="editQuiz('${q.qid}')">✏️</button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="Renommer" onclick="renameQuiz('${q.qid}','${esc(q.title)}')">🏷️</button>
+          <button class="btn btn-danger btn-sm btn-icon" title="Supprimer" onclick="deleteQuiz('${q.qid}')">🗑️</button>
+        </div>
+      </div>`).join("");
+  } catch(e) { toast(e.message, "bad"); } finally { hideLoader(); }
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(() => toast("Code " + code + " copié !", "ok"));
+}
+
+async function editQuiz(qid) {
+  showLoader();
+  try {
+    const quiz = await api("GET", `/api/quiz/${qid}`);
+    state.editQuizId = qid;
+    navigate("editor", quiz);
+  } catch(e) { toast(e.message, "bad"); } finally { hideLoader(); }
+}
+
+async function deleteQuiz(qid) {
+  if (!confirm("Supprimer ce quiz ?")) return;
+  try {
+    await api("DELETE", `/api/quiz/${qid}`);
+    document.getElementById("qcard-" + qid)?.remove();
+    toast("Quiz supprimé", "ok");
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+async function renameQuiz(qid, currentTitle) {
+  const newTitle = prompt("Nouveau nom :", currentTitle);
+  if (!newTitle || newTitle === currentTitle) return;
+  try {
+    await api("PUT", `/api/quiz/${qid}`, { title: newTitle });
+    toast("Renommé ✓", "ok");
+    loadDashboard();
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+// ============================================================
+// EDITOR
+// ============================================================
+function initEditor(quiz) {
+  if (!state.user) { openModal("modal-auth"); navigate("home"); return; }
+  if (quiz) {
+    state.editQuizId = quiz.qid;
+    state.questions = JSON.parse(JSON.stringify(quiz.questions || []));
+    document.getElementById("quiz-title-input").value = quiz.title || "Quiz sans titre";
+  } else {
+    state.editQuizId = null;
+    state.questions = [];
+    document.getElementById("quiz-title-input").value = "Quiz sans titre";
+  }
+  state.activeQ = 0;
+  renderSidebar();
+  renderQEditor();
+}
+
+function renderSidebar() {
+  const el = document.getElementById("sidebar-qs");
+  if (!state.questions.length) {
+    el.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:.8rem">Aucune question.<br>Ajoute-en une !</div>`;
+    return;
+  }
+  el.innerHTML = state.questions.map((q, i) => {
+    const type = QTYPES.find(t => t.id === q.type) || QTYPES[0];
+    return `<div class="sidebar-q ${i === state.activeQ ? 'active' : ''}" onclick="selectQ(${i})" draggable="true" data-idx="${i}">
+      <div class="q-num">${i+1}</div>
+      <div class="q-title">${esc(q.question || "Question " + (i+1))}</div>
+      <div class="q-type-badge">${type.icon}</div>
+    </div>`;
+  }).join("");
+  // Drag-to-reorder sidebar
+  el.querySelectorAll(".sidebar-q").forEach(row => {
+    row.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", row.dataset.idx); row.classList.add("drag-over"); });
+    row.addEventListener("dragend", () => row.classList.remove("drag-over"));
+    row.addEventListener("dragover", e => e.preventDefault());
+    row.addEventListener("drop", e => {
+      const from = parseInt(e.dataTransfer.getData("text/plain"));
+      const to = parseInt(row.dataset.idx);
+      if (from === to) return;
+      const qs = state.questions;
+      const [moved] = qs.splice(from, 1);
+      qs.splice(to, 0, moved);
+      state.activeQ = to;
+      renderSidebar(); renderQEditor();
+    });
   });
 }
 
-let renamingId = null;
-function openRenameModal(id, currentName) {
-  renamingId = id;
-  document.getElementById('rename-input').value = currentName;
-  openModal('modal-rename');
-}
-function confirmRename() {
-  const newName = document.getElementById('rename-input').value.trim();
-  if (!newName) { toast('Entrez un nom'); return; }
-  const q = DEMO_DASH_QUIZZES.find(q => q.id === renamingId);
-  if (q) q.title = newName;
-  renderDashQuizRows();
-  closeModal('modal-rename');
-  toast('Quiz renommé !');
-}
-function editQuiz(id) { STATE.currentQuizId = id; goTo('editor'); }
-function deleteQuiz(id) {
-  if (!confirm('Supprimer ce quiz ? Cette action est irréversible.')) return;
-  const idx = DEMO_DASH_QUIZZES.findIndex(q => q.id === id);
-  if (idx > -1) DEMO_DASH_QUIZZES.splice(idx, 1);
-  renderDashQuizRows();
-  toast('Quiz supprimé.');
-}
+function selectQ(i) { state.activeQ = i; renderSidebar(); renderQEditor(); }
 
-// ─── EDITOR ───────────────────────────────────────────────────────────────────
-function renderEditor() {
-  if (STATE.questions.length === 0) STATE.questions = JSON.parse(JSON.stringify(DEMO_QUESTIONS));
-  renderQSidebar();
-  renderQForm();
-  // Afficher code si quiz existant
-  if (STATE.currentQuizId) {
-    document.getElementById('quiz-code-display').style.display = '';
-    document.getElementById('quiz-code-val').textContent = 'CAP22A';
+function renderQEditor() {
+  const area = document.getElementById("q-editor-area");
+  if (!state.questions.length) {
+    area.innerHTML = `<div class="q-empty">📋 Aucune question — clique sur "+ Ajouter une question"</div>`;
+    return;
   }
-}
-
-function renderQSidebar() {
-  const el = document.getElementById('q-sidebar');
-  el.innerHTML = STATE.questions.map((q, i) => `
-    <div class="q-item ${i === STATE.activeQIndex ? 'active' : ''}" onclick="selectQ(${i})">
-      <div class="q-num">${i + 1}</div>
-      <div style="flex:1;overflow:hidden">
-        <div class="q-label">${q.text || 'Nouvelle question'}</div>
-        <div class="q-type-badge">${QUESTION_TYPES.find(t=>t.id===q.type)?.label || 'QCM'}</div>
-      </div>
-      <button style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px 4px;flex-shrink:0" onclick="removeQ(event,${i})">✕</button>
-    </div>
-  `).join('');
-  document.getElementById('q-count-label').textContent = `${STATE.questions.length} question${STATE.questions.length > 1 ? 's' : ''}`;
-}
-
-function selectQ(i) {
-  STATE.activeQIndex = i;
-  renderQSidebar();
-  renderQForm();
-}
-
-function addQuestion() {
-  STATE.questions.push({ id: 'new-'+Date.now(), type: 'qcm', text: '', options: JSON.stringify([{text:'',isCorrect:true},{text:'',isCorrect:false},{text:'',isCorrect:false},{text:'',isCorrect:false}]), timer: 30, points: 100, explanation: '' });
-  STATE.activeQIndex = STATE.questions.length - 1;
-  renderQSidebar();
-  renderQForm();
-  document.getElementById('editor-empty').style.display = 'none';
-  document.getElementById('editor-q-form').style.display = '';
-}
-
-function removeQ(e, i) {
-  e.stopPropagation();
-  STATE.questions.splice(i, 1);
-  if (STATE.activeQIndex >= STATE.questions.length) STATE.activeQIndex = Math.max(0, STATE.questions.length - 1);
-  renderQSidebar();
-  if (STATE.questions.length === 0) {
-    document.getElementById('editor-empty').style.display = '';
-    document.getElementById('editor-q-form').style.display = 'none';
-  } else renderQForm();
-}
-
-function renderQForm() {
-  const q = STATE.questions[STATE.activeQIndex];
+  const q = state.questions[state.activeQ];
   if (!q) return;
-  const form = document.getElementById('editor-q-form');
-  form.style.display = '';
-  document.getElementById('editor-empty').style.display = 'none';
+  area.innerHTML = buildQEditorHTML(q, state.activeQ);
+  attachQEditorEvents(q, state.activeQ);
+}
 
-  const options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+function buildQEditorHTML(q, idx) {
+  const typeTabs = QTYPES.map(t =>
+    `<button class="q-type-tab ${q.type===t.id?'active':''}" onclick="changeQType(${idx},'${t.id}')">${t.icon} ${t.name}</button>`
+  ).join("");
 
-  const typeGrid = QUESTION_TYPES.map(t => `
-    <div class="type-chip ${q.type === t.id ? 'active' : ''}" onclick="changeType('${t.id}')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 5px;display:block;width:18px;height:18px;color:var(--brand)"><circle cx="12" cy="12" r="9"/></svg>
-      <span>${t.label}</span>
-    </div>
-  `).join('');
+  const msgFields = `
+    <div class="q-sep"></div>
+    <div class="q-block-label">Messages de correction</div>
+    <div class="msg-field"><span class="label">✅ Bonne rép.</span><input type="text" placeholder="Ex : Oui, exact !" value="${esc(q.msgCorrect||'')}" onchange="updateQField(${idx},'msgCorrect',this.value)"/></div>
+    <div class="msg-field"><span class="label">❌ Mauvaise rép.</span><input type="text" placeholder="Ex : Non, c'était…" value="${esc(q.msgWrong||'')}" onchange="updateQField(${idx},'msgWrong',this.value)"/></div>
+    <div class="q-sep"></div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="field" style="margin:0"><label>⏱ Timer (sec)</label><input type="number" min="5" max="300" style="width:80px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px" value="${q.timer||30}" onchange="updateQField(${idx},'timer',parseInt(this.value))"/></div>
+      <div class="field" style="margin:0"><label>🏅 Points</label><input type="number" min="0" max="100" style="width:70px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px" value="${q.points||1}" onchange="updateQField(${idx},'points',parseInt(this.value))"/></div>
+      <button class="btn btn-danger btn-sm" onclick="deleteQ(${idx})">🗑️ Supprimer</button>
+    </div>`;
 
-  let answersHtml = '';
-  if (q.type === 'tf') {
-    answersHtml = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-        <div class="tf-btn vrai ${options[0]?.isCorrect ? 'active' : ''}" onclick="setTFCorrect(0)" style="border:1px solid var(--border2);border-radius:var(--rl);padding:20px;cursor:pointer;transition:all 0.15s">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:28px;height:28px;color:var(--success)"><polyline points="20 6 9 17 4 12"/></svg>
-          Vrai
+  const mediaField = `
+    <div class="q-block-label">Média (URL image ou vidéo)</div>
+    <div class="field"><input type="url" placeholder="https://…" value="${esc(q.media||'')}" onchange="updateQField(${idx},'media',this.value)"/></div>`;
+
+  let typeHTML = "";
+  switch(q.type) {
+    case "truefalse":
+      typeHTML = `
+        <div class="q-block-label">La bonne réponse est</div>
+        <div style="display:flex;gap:12px">
+          <button class="btn ${q.answer===true?'btn-primary':'btn-ghost'}" onclick="updateQField(${idx},'answer',true)">✅ Vrai</button>
+          <button class="btn ${q.answer===false?'btn-primary':'btn-ghost'}" onclick="updateQField(${idx},'answer',false)">❌ Faux</button>
         </div>
-        <div class="tf-btn faux ${options[1]?.isCorrect ? 'active' : ''}" onclick="setTFCorrect(1)" style="border:1px solid var(--border2);border-radius:var(--rl);padding:20px;cursor:pointer;transition:all 0.15s">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:28px;height:28px;color:var(--danger)"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          Faux
+        ${mediaField}`;
+      break;
+    case "freetext":
+      typeHTML = `
+        <div class="q-block-label">Réponse attendue</div>
+        <div class="field"><input type="text" placeholder="La bonne réponse…" value="${esc(q.answer||'')}" onchange="updateQField(${idx},'answer',this.value)"/></div>
+        <div class="field"><label>Sensible à la casse ?</label><input type="checkbox" ${q.caseSensitive?'checked':''} onchange="updateQField(${idx},'caseSensitive',this.checked)"/></div>`;
+      break;
+    case "qcm":
+    case "qcmmulti":
+    case "poll":
+    case "priority":
+      const isMulti = q.type === "qcmmulti";
+      const isPoll = q.type === "poll";
+      const choices = q.choices || ["","","",""];
+      const corrects = q.corrects || [];
+      typeHTML = `
+        <div class="q-block-label">${isPoll ? "Options" : "Choix (cliquer le ✓ pour marquer correct)"}</div>
+        <div class="choices-list" id="choices-${idx}">
+          ${choices.map((c, ci) => `
+            <div class="choice-row ${!isPoll && corrects.includes(ci) ? 'correct':''}" draggable="true" data-ci="${ci}">
+              <span class="drag-handle">⠿</span>
+              <input type="text" placeholder="Choix ${ci+1}" value="${esc(c)}" oninput="updateChoice(${idx},${ci},this.value)"/>
+              ${!isPoll ? `<button class="choice-correct-btn ${corrects.includes(ci)?'on':''}" onclick="toggleCorrect(${idx},${ci},${isMulti})" title="Marquer comme correct"></button>` : ''}
+              <button class="choice-del" onclick="removeChoice(${idx},${ci})">✕</button>
+            </div>`).join("")}
         </div>
-      </div>`;
-  } else if (q.type === 'text') {
-    const val = options[0]?.text || '';
-    answersHtml = `<input class="field-input answer-input" placeholder="Réponse attendue..." value="${val}" oninput="updateTextAnswer(this.value)" />`;
-  } else if (q.type === 'slider') {
-    answersHtml = `
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">Min</label><input type="number" class="field-input" value="0" style="width:80px" /></div>
-        <div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">Max</label><input type="number" class="field-input" value="100" style="width:80px" /></div>
-        <div><label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">Réponse</label><input type="number" class="field-input" value="50" style="width:80px" /></div>
-      </div>`;
-  } else if (q.type === 'color') {
-    answersHtml = `<div style="display:flex;align-items:center;gap:12px"><label style="font-size:13px;color:var(--text2)">Couleur correcte :</label><input type="color" value="#6C47FF" style="width:48px;height:36px;border:1px solid var(--border2);border-radius:6px;cursor:pointer" /></div>`;
-  } else {
-    answersHtml = `
-      <div class="answer-list" id="answer-list">
-        ${options.map((o, i) => `
-          <div class="answer-row" id="opt-${i}">
-            <div class="drag-handle" title="Déplacer">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="1"/><circle cx="15" cy="7" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="17" r="1"/><circle cx="15" cy="17" r="1"/></svg>
-            </div>
-            <input class="field-input answer-input" value="${o.text}" placeholder="Option ${i+1}..." oninput="updateOption(${i},this.value)" />
-            <div class="correct-check ${o.isCorrect ? 'on' : ''}" onclick="setCorrect(${i})" title="Marquer comme correct">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <button style="background:transparent;border:none;color:var(--text3);cursor:pointer;padding:4px;font-size:18px;line-height:1" onclick="removeOption(${i})">✕</button>
-          </div>
-        `).join('')}
-      </div>
-      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="addOption()">+ Ajouter une option</button>`;
+        <button class="add-choice-btn" onclick="addChoice(${idx})">+ Ajouter un choix</button>`;
+      break;
+    case "ordering":
+    case "dragdrop":
+      const items = q.items || ["","",""];
+      typeHTML = `
+        <div class="q-block-label">Éléments à remettre dans l'ordre</div>
+        <div id="ordering-${idx}">
+          ${items.map((it, ii) => `
+            <div class="ordering-item" draggable="true" data-oi="${ii}">
+              <span class="drag-handle">⠿</span>
+              <input type="text" placeholder="Élément ${ii+1}" value="${esc(it)}" oninput="updateOrderItem(${idx},${ii},this.value)"/>
+              <button class="choice-del" onclick="removeOrderItem(${idx},${ii})">✕</button>
+            </div>`).join("")}
+        </div>
+        <button class="add-choice-btn" onclick="addOrderItem(${idx})">+ Ajouter un élément</button>`;
+      break;
+    case "connect":
+      const pairs = q.pairs || [{a:"",b:""},{a:"",b:""}];
+      typeHTML = `
+        <div class="q-block-label">Paires à relier</div>
+        <div class="pairs-grid">
+          ${pairs.map((p, pi) => `
+            <input class="pair-cell" type="text" placeholder="Gauche ${pi+1}" value="${esc(p.a)}" oninput="updatePair(${idx},${pi},'a',this.value)" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px"/>
+            <input class="pair-cell" type="text" placeholder="Droite ${pi+1}" value="${esc(p.b)}" oninput="updatePair(${idx},${pi},'b',this.value)" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px"/>
+          `).join("")}
+        </div>
+        <button class="add-choice-btn" style="margin-top:10px" onclick="addPair(${idx})">+ Ajouter une paire</button>`;
+      break;
+    case "fillblank":
+      typeHTML = `
+        <div class="q-block-label">Phrase avec [crochets] pour les blancs</div>
+        <div class="field"><textarea placeholder="Ex : La [capitale] de la France est [Paris]." onchange="updateQField(${idx},'sentence',this.value)">${esc(q.sentence||'')}</textarea></div>
+        <div style="font-size:.8rem;color:var(--muted)">Les mots entre [crochets] sont les blancs. Le contenu entre crochets est la réponse attendue.</div>`;
+      break;
+    case "slider":
+      typeHTML = `
+        <div class="q-block-label">Paramètres du curseur</div>
+        <div class="slider-row"><label>Min</label><input type="number" value="${q.min??0}" onchange="updateQField(${idx},'min',+this.value)"/></div>
+        <div class="slider-row"><label>Max</label><input type="number" value="${q.max??100}" onchange="updateQField(${idx},'max',+this.value)"/></div>
+        <div class="slider-row"><label>Réponse</label><input type="number" value="${q.answer??50}" onchange="updateQField(${idx},'answer',+this.value)"/></div>
+        <div class="slider-row"><label>Tolérance ±</label><input type="number" value="${q.tolerance??5}" onchange="updateQField(${idx},'tolerance',+this.value)"/></div>`;
+      break;
+    case "imagemap":
+      typeHTML = `
+        <div class="q-block-label">Image (URL)</div>
+        <div class="field"><input type="url" placeholder="https://image.jpg" value="${esc(q.media||'')}" onchange="updateQField(${idx},'media',this.value)"/></div>
+        <div class="q-block-label">Zone correcte (% de l'image)</div>
+        <div class="slider-row"><label>X %</label><input type="number" min="0" max="100" value="${q.targetX??50}" onchange="updateQField(${idx},'targetX',+this.value)"/></div>
+        <div class="slider-row"><label>Y %</label><input type="number" min="0" max="100" value="${q.targetY??50}" onchange="updateQField(${idx},'targetY',+this.value)"/></div>
+        <div class="slider-row"><label>Rayon %</label><input type="number" min="1" max="50" value="${q.targetR??10}" onchange="updateQField(${idx},'targetR',+this.value)"/></div>`;
+      break;
+    case "audio":
+      typeHTML = `
+        <div class="q-block-label">URL du fichier audio</div>
+        <div class="field"><input type="url" placeholder="https://…/audio.mp3" value="${esc(q.audioUrl||'')}" onchange="updateQField(${idx},'audioUrl',this.value)"/></div>
+        <div class="q-block-label">Réponse attendue</div>
+        <div class="field"><input type="text" placeholder="Réponse…" value="${esc(q.answer||'')}" onchange="updateQField(${idx},'answer',this.value)"/></div>`;
+      break;
+    case "drawing":
+      typeHTML = `<div style="color:var(--muted);font-size:.875rem;padding:16px;background:var(--bg3);border-radius:10px">✏️ Les dessins sont évalués manuellement par le créateur. Pas de réponse correcte automatique.</div>`;
+      break;
+    case "code":
+      typeHTML = `
+        <div class="q-block-label">Langage</div>
+        <div class="field"><select onchange="updateQField(${idx},'lang',this.value)">
+          ${["javascript","python","java","c","cpp","html","css","sql","rust","go"].map(l => `<option ${q.lang===l?'selected':''} value="${l}">${l}</option>`).join("")}
+        </select></div>
+        <div class="q-block-label">Réponse attendue</div>
+        <textarea class="code-editor-area" placeholder="// Code de référence…" onchange="updateQField(${idx},'answer',this.value)">${esc(q.answer||'')}</textarea>`;
+      break;
+    case "equation":
+      typeHTML = `
+        <div class="q-block-label">Réponse (LaTeX ou texte mathématique)</div>
+        <div class="field"><input type="text" placeholder="Ex : x² + y² = r²" value="${esc(q.answer||'')}" onchange="updateQField(${idx},'answer',this.value)"/></div>`;
+      break;
+    case "timeline":
+    case "chronologie":
+      const tevents = q.events || ["","",""];
+      typeHTML = `
+        <div class="q-block-label">Événements (dans l'ordre chronologique correct)</div>
+        <div class="timeline-items" id="timeline-${idx}">
+          ${tevents.map((ev, ei) => `
+            <div class="timeline-item" draggable="true">
+              <span class="drag-handle">⠿</span>
+              <span style="font-size:.8rem;color:var(--muted);min-width:20px">${ei+1}.</span>
+              <input type="text" placeholder="Événement ${ei+1}" value="${esc(ev)}" oninput="updateTimelineEvent(${idx},${ei},this.value)"/>
+              <button class="choice-del" onclick="removeTimelineEvent(${idx},${ei})">✕</button>
+            </div>`).join("")}
+        </div>
+        <button class="add-choice-btn" onclick="addTimelineEvent(${idx})">+ Ajouter un événement</button>`;
+      break;
+    case "color":
+      const colors = q.choices || ["#ef4444","#f97316","#eab308","#22c55e","#3b82f6","#8b5cf6","#ec4899","#000000","#ffffff","#6b7280"];
+      const correctColor = q.answer || "";
+      typeHTML = `
+        <div class="q-block-label">Couleurs disponibles</div>
+        <div class="color-choices">
+          ${colors.map(c => `<div class="color-choice ${c===correctColor?'selected':''}" style="background:${c}" onclick="updateQField(${idx},'answer','${c}')" title="${c}"></div>`).join("")}
+        </div>
+        <div class="q-block-label" style="margin-top:16px">Couleur correcte sélectionnée : <strong style="color:${correctColor||'var(--muted)'}">${correctColor||'Aucune'}</strong></div>`;
+      break;
+    case "grid":
+      const gridW = q.gridW || 5; const gridH = q.gridH || 5;
+      const correctCells = q.correctCells || [];
+      typeHTML = `
+        <div style="display:flex;gap:12px;margin-bottom:16px;align-items:center">
+          <label style="font-size:.8rem;color:var(--muted)">Colonnes</label>
+          <input type="number" min="2" max="10" value="${gridW}" style="width:60px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px" onchange="updateQField(${idx},'gridW',+this.value);renderQEditor()"/>
+          <label style="font-size:.8rem;color:var(--muted)">Lignes</label>
+          <input type="number" min="2" max="10" value="${gridH}" style="width:60px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px" onchange="updateQField(${idx},'gridH',+this.value);renderQEditor()"/>
+        </div>
+        <div class="q-grid" style="display:grid;grid-template-columns:repeat(${gridW},40px);gap:4px">
+          ${Array.from({length:gridW*gridH},(_,ci)=>`
+            <div class="grid-cell ${correctCells.includes(ci)?'selected':''}" onclick="toggleGridCell(${idx},${ci})"></div>`).join("")}
+        </div>`;
+      break;
+    case "flashcard":
+      typeHTML = `
+        <div class="flashcard-edit">
+          <div class="field"><label>Recto (mot/question)</label><input type="text" placeholder="Ex : Bonjour" value="${esc(q.front||'')}" onchange="updateQField(${idx},'front',this.value)"/></div>
+          <div class="field"><label>Verso (définition/réponse)</label><input type="text" placeholder="Ex : Hello" value="${esc(q.back||'')}" onchange="updateQField(${idx},'back',this.value)"/></div>
+        </div>`;
+      break;
+    case "photo":
+      typeHTML = `<div style="color:var(--muted);font-size:.875rem;padding:16px;background:var(--bg3);border-radius:10px">📷 Les photos uploadées sont affichées et évaluées manuellement.</div>`;
+      break;
+    case "location":
+      typeHTML = `
+        <div class="q-block-label">Coordonnées de la bonne réponse</div>
+        <div class="slider-row"><label>Latitude</label><input type="number" step="0.0001" value="${q.lat??48.8566}" onchange="updateQField(${idx},'lat',+this.value)"/></div>
+        <div class="slider-row"><label>Longitude</label><input type="number" step="0.0001" value="${q.lng??2.3522}" onchange="updateQField(${idx},'lng',+this.value)"/></div>
+        <div class="slider-row"><label>Tolérance km</label><input type="number" min="1" max="5000" value="${q.toleranceKm??50}" onchange="updateQField(${idx},'toleranceKm',+this.value)"/></div>
+        <div style="font-size:.8rem;color:var(--muted);margin-top:8px">💡 Le joueur devra cliquer sur une carte du monde.</div>`;
+      break;
+    default:
+      typeHTML = `<div style="color:var(--muted)">Type en cours de développement…</div>`;
   }
 
-  const timerVal = q.timer ?? 30;
-  const pointsVal = q.points ?? 100;
-
-  form.innerHTML = `
-    <div class="editor-top">
-      <div class="editor-field">
-        <span class="field-label">Type de question</span>
-        <div class="type-grid">${typeGrid}</div>
+  return `
+    <div class="q-editor-card fade-up">
+      <div class="q-block-label">TYPE DE QUESTION</div>
+      <div class="q-type-tabs">${typeTabs}</div>
+      <div class="q-sep"></div>
+      <div class="field">
+        <label>Question</label>
+        <textarea placeholder="Écris ta question ici…" rows="2" onchange="updateQField(${idx},'question',this.value)">${esc(q.question||'')}</textarea>
       </div>
-      <div class="editor-field">
-        <span class="field-label">Question</span>
-        <textarea class="field-input" rows="2" placeholder="Entrez votre question..." oninput="updateQText(this.value)">${q.text || ''}</textarea>
-      </div>
-      <div class="editor-field">
-        <span class="field-label">Médias</span>
-        <div class="media-btns">
-          <button class="btn btn-sm" onclick="toast('Upload image — connectez le R2 Cloudflare')">📷 Image</button>
-          <button class="btn btn-sm" onclick="toast('Upload vidéo — connectez le R2 Cloudflare')">🎬 Vidéo</button>
-          <button class="btn btn-sm" onclick="toast('Upload audio — connectez le R2 Cloudflare')">🎧 Audio</button>
-        </div>
-        ${q.media_url ? `<img src="${q.media_url}" style="margin-top:8px;max-height:140px;border-radius:var(--r);width:100%;object-fit:cover">` : ''}
-      </div>
-      <div class="editor-field">
-        <span class="field-label">Réponses ${q.type !== 'tf' && q.type !== 'text' && q.type !== 'slider' && q.type !== 'color' ? '<span style="font-size:11px;font-weight:400;color:var(--text3)">(✓ = bonne réponse)</span>' : ''}</span>
-        ${answersHtml}
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div class="editor-field" style="margin:0">
-          <span class="field-label">Timer (secondes)</span>
-          <input type="number" class="field-input" value="${timerVal}" min="0" max="300" style="width:100%" oninput="updateQTimer(this.value)" />
-        </div>
-        <div class="editor-field" style="margin:0">
-          <span class="field-label">Points</span>
-          <input type="number" class="field-input" value="${pointsVal}" min="0" style="width:100%" oninput="updateQPoints(this.value)" />
-        </div>
-      </div>
-      <div class="editor-field" style="margin-top:16px">
-        <span class="field-label">Explication (après réponse)</span>
-        <textarea class="field-input" rows="2" placeholder="Optionnel..." oninput="updateQExplanation(this.value)">${q.explanation || ''}</textarea>
-      </div>
-    </div>
-  `;
+      ${typeHTML}
+      ${msgFields}
+    </div>`;
 }
 
-function currentQ() { return STATE.questions[STATE.activeQIndex]; }
-function currentOptions() {
-  const q = currentQ();
-  return typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+function attachQEditorEvents() { /* event listeners are inline for simplicity */ }
+
+// Question field updates
+function updateQField(idx, field, value) { state.questions[idx][field] = value; }
+function changeQType(idx, type) { state.questions[idx] = { ...defaultQ(type), question: state.questions[idx].question, timer: state.questions[idx].timer || 30 }; state.questions[idx].type = type; renderSidebar(); renderQEditor(); }
+function updateChoice(idx, ci, value) { state.questions[idx].choices = state.questions[idx].choices || []; state.questions[idx].choices[ci] = value; }
+function toggleCorrect(idx, ci, multi) {
+  const q = state.questions[idx];
+  q.corrects = q.corrects || [];
+  if (multi) { const i = q.corrects.indexOf(ci); if(i===-1) q.corrects.push(ci); else q.corrects.splice(i,1); }
+  else { q.corrects = [ci]; }
+  renderQEditor();
 }
-function saveOptions(opts) { currentQ().options = JSON.stringify(opts); }
-
-function changeType(type) { currentQ().type = type; renderQSidebar(); renderQForm(); }
-function updateQText(v) { currentQ().text = v; renderQSidebar(); }
-function updateQTimer(v) { currentQ().timer = parseInt(v) || 0; }
-function updateQPoints(v) { currentQ().points = parseInt(v) || 0; }
-function updateQExplanation(v) { currentQ().explanation = v; }
-
-function setCorrect(i) {
-  const opts = currentOptions();
-  const q = currentQ();
-  if (q.type === 'multi') {
-    opts[i].isCorrect = !opts[i].isCorrect;
-  } else {
-    opts.forEach((o, j) => o.isCorrect = j === i);
-  }
-  saveOptions(opts);
-  renderQForm();
+function removeChoice(idx, ci) { state.questions[idx].choices.splice(ci, 1); if(state.questions[idx].corrects) state.questions[idx].corrects = state.questions[idx].corrects.filter(c=>c!==ci).map(c=>c>ci?c-1:c); renderQEditor(); }
+function addChoice(idx) { state.questions[idx].choices = state.questions[idx].choices || []; state.questions[idx].choices.push(""); renderQEditor(); }
+function updateOrderItem(idx, ii, val) { state.questions[idx].items[ii] = val; }
+function removeOrderItem(idx, ii) { state.questions[idx].items.splice(ii, 1); renderQEditor(); }
+function addOrderItem(idx) { state.questions[idx].items = state.questions[idx].items || []; state.questions[idx].items.push(""); renderQEditor(); }
+function updatePair(idx, pi, side, val) { state.questions[idx].pairs = state.questions[idx].pairs || []; state.questions[idx].pairs[pi] = state.questions[idx].pairs[pi] || {a:"",b:""}; state.questions[idx].pairs[pi][side] = val; }
+function addPair(idx) { state.questions[idx].pairs = state.questions[idx].pairs || []; state.questions[idx].pairs.push({a:"",b:""}); renderQEditor(); }
+function updateTimelineEvent(idx, ei, val) { state.questions[idx].events[ei] = val; }
+function removeTimelineEvent(idx, ei) { state.questions[idx].events.splice(ei, 1); renderQEditor(); }
+function addTimelineEvent(idx) { state.questions[idx].events = state.questions[idx].events || []; state.questions[idx].events.push(""); renderQEditor(); }
+function toggleGridCell(idx, ci) {
+  const q = state.questions[idx];
+  q.correctCells = q.correctCells || [];
+  const i = q.correctCells.indexOf(ci);
+  if (i === -1) q.correctCells.push(ci); else q.correctCells.splice(i, 1);
+  renderQEditor();
 }
-
-function setTFCorrect(i) {
-  const opts = [{text:'Vrai',isCorrect:i===0},{text:'Faux',isCorrect:i===1}];
-  saveOptions(opts);
-  renderQForm();
-}
-
-function updateOption(i, v) {
-  const opts = currentOptions();
-  opts[i].text = v;
-  saveOptions(opts);
-}
-
-function updateTextAnswer(v) {
-  saveOptions([{text:v, isCorrect:true}]);
+function deleteQ(idx) {
+  state.questions.splice(idx, 1);
+  state.activeQ = Math.min(state.activeQ, state.questions.length - 1);
+  renderSidebar(); renderQEditor();
 }
 
-function addOption() {
-  const opts = currentOptions();
-  opts.push({ text: '', isCorrect: false });
-  saveOptions(opts);
-  renderQForm();
+function defaultQ(type) {
+  const base = { type, question: "", timer: 30, points: 1, msgCorrect: "", msgWrong: "" };
+  const defaults = {
+    truefalse: { ...base, answer: true },
+    freetext: { ...base, answer: "", caseSensitive: false },
+    qcm: { ...base, choices: ["","","",""], corrects: [] },
+    qcmmulti: { ...base, choices: ["","","",""], corrects: [] },
+    dragdrop: { ...base, items: ["","",""] },
+    ordering: { ...base, items: ["","",""] },
+    connect: { ...base, pairs: [{a:"",b:""},{a:"",b:""}] },
+    fillblank: { ...base, sentence: "" },
+    slider: { ...base, min: 0, max: 100, answer: 50, tolerance: 5 },
+    imagemap: { ...base, media: "", targetX: 50, targetY: 50, targetR: 10 },
+    audio: { ...base, audioUrl: "", answer: "" },
+    drawing: { ...base },
+    code: { ...base, lang: "javascript", answer: "" },
+    equation: { ...base, answer: "" },
+    timeline: { ...base, events: ["","",""] },
+    priority: { ...base, choices: ["","",""], corrects: [] },
+    color: { ...base, choices: ["#ef4444","#f97316","#eab308","#22c55e","#3b82f6","#8b5cf6"], answer: "" },
+    grid: { ...base, gridW: 5, gridH: 5, correctCells: [] },
+    poll: { ...base, choices: ["",""] },
+    flashcard: { ...base, front: "", back: "" },
+    photo: { ...base },
+    location: { ...base, lat: 48.8566, lng: 2.3522, toleranceKm: 50 },
+  };
+  return defaults[type] || base;
 }
 
-function removeOption(i) {
-  const opts = currentOptions();
-  if (opts.length <= 2) { toast('Minimum 2 options'); return; }
-  opts.splice(i, 1);
-  saveOptions(opts);
-  renderQForm();
+// ---- TYPE PICKER ----
+function openTypePicker() {
+  if (!state.user) { openModal("modal-auth"); return; }
+  const grid = document.getElementById("type-grid");
+  grid.innerHTML = QTYPES.map(t => `
+    <div class="type-item" onclick="addQuestion('${t.id}')">
+      <div class="t-icon">${t.icon}</div>
+      <div class="t-name">${t.name}</div>
+      <div class="t-desc">${t.desc}</div>
+    </div>`).join("");
+  openModal("modal-type");
 }
 
-function selectTheme(el, theme) {
-  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
-  el.classList.add('active');
-  if (STATE.currentQuizId || true) { /* appliquer thème */ }
+function addQuestion(type) {
+  const q = defaultQ(type);
+  state.questions.push(q);
+  state.activeQ = state.questions.length - 1;
+  closeModal("modal-type");
+  renderSidebar(); renderQEditor();
 }
 
-function saveQuiz() {
-  toast('Quiz sauvegardé ! ✓');
-  document.getElementById('quiz-code-display').style.display = '';
-  const code = 'QBX' + Math.random().toString(36).substr(2,3).toUpperCase();
-  document.getElementById('quiz-code-val').textContent = code;
+// ---- SAVE QUIZ ----
+async function saveQuiz() {
+  if (!state.user) return openModal("modal-auth");
+  const title = document.getElementById("quiz-title-input").value || "Quiz sans titre";
+  try {
+    showLoader();
+    let quiz;
+    if (state.editQuizId) {
+      quiz = await api("PUT", `/api/quiz/${state.editQuizId}`, { title, questions: state.questions });
+    } else {
+      quiz = await api("POST", "/api/quiz", { title, questions: state.questions });
+      state.editQuizId = quiz.qid;
+    }
+    toast(`Sauvegardé ! Code : ${quiz.code}`, "ok");
+  } catch(e) { toast(e.message, "bad"); } finally { hideLoader(); }
 }
 
-function previewQuiz() {
-  STATE.questions = STATE.questions.length ? STATE.questions : JSON.parse(JSON.stringify(DEMO_QUESTIONS));
-  goTo('player');
+// ============================================================
+// PLAY ENGINE
+// ============================================================
+function initPlay(quiz) {
+  state.playQuiz = quiz;
+  state.playIndex = 0;
+  state.playAnswers = [];
+  state.playScore = 0;
+  document.getElementById("play-quiz-title").textContent = quiz.title;
+  renderPlayQ();
 }
 
-function copyCode() {
-  const code = document.getElementById('quiz-code-val').textContent;
-  navigator.clipboard.writeText(code).then(() => toast('Code copié !'));
-}
-
-function importCSV(input) {
-  const file = input.files[0];
-  if (!file) return;
-  toast(`Import de "${file.name}" en cours...`);
-  // Envoyer au Worker POST /quizzes/:id/import-csv
-  setTimeout(() => toast('Import réussi ! 5 questions ajoutées.'), 1200);
-}
-
-// ─── JOIN ─────────────────────────────────────────────────────────────────────
-function startPlaying() {
-  const code = document.getElementById('join-code').value.trim();
-  const pseudo = document.getElementById('join-pseudo').value.trim();
-  if (!code) { toast('Entrez un code de quiz'); return; }
-  if (!pseudo) { toast('Entrez votre pseudo'); return; }
-  STATE.playerPseudo = pseudo;
-  STATE.playerScore = 0;
-  STATE.playerAnswers = [];
-  STATE.currentQuestionIndex = 0;
-  STATE.questions = JSON.parse(JSON.stringify(DEMO_QUESTIONS));
-  goTo('player');
-}
-
-// ─── PLAYER ──────────────────────────────────────────────────────────────────
-function renderPlayerPage() {
-  STATE.currentQuestionIndex = 0;
-  document.getElementById('player-pseudo-display').textContent = STATE.playerPseudo || 'Joueur';
-  document.getElementById('player-score-display').textContent = '0';
-  renderLeaderboard();
-  renderCurrentQuestion();
-}
-
-function renderCurrentQuestion() {
-  const idx = STATE.currentQuestionIndex;
-  const questions = STATE.questions;
-  if (idx >= questions.length) { endGame(); return; }
-
-  const q = questions[idx];
-  const total = questions.length;
-  const opts = typeof q.options === 'string' ? JSON.parse(q.options) : (q.options || []);
-
-  // Progress
-  document.getElementById('player-progress').style.width = `${(idx / total) * 100}%`;
-  document.getElementById('player-qnum').textContent = `Q${idx+1}/${total}`;
-  document.getElementById('player-q-label').textContent = `Question ${idx+1} sur ${total}`;
-  document.getElementById('player-q-text').textContent = q.text;
-
-  // Media
-  const mediaEl = document.getElementById('player-media');
-  mediaEl.innerHTML = q.media_url ? `<img src="${q.media_url}" class="q-media" />` : '';
-
-  // Masquer explication
-  document.getElementById('player-explanation').style.display = 'none';
-
-  // Choices
-  const choicesEl = document.getElementById('player-choices');
-
-  if (q.type === 'tf') {
-    choicesEl.innerHTML = `
-      <div class="tf-choices">
-        <div class="tf-btn vrai" onclick="answerTF(0)" style="border:1px solid var(--border2);border-radius:var(--rl);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px;font-family:'Syne',sans-serif;font-weight:700;font-size:16px">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:32px;height:32px;color:var(--success)"><polyline points="20 6 9 17 4 12"/></svg>
-          VRAI
-        </div>
-        <div class="tf-btn faux" onclick="answerTF(1)" style="border:1px solid var(--border2);border-radius:var(--rl);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px;font-family:'Syne',sans-serif;font-weight:700;font-size:16px">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:32px;height:32px;color:var(--danger)"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          FAUX
-        </div>
-      </div>`;
-  } else if (q.type === 'text') {
-    choicesEl.innerHTML = `
-      <div class="text-answer-wrap">
-        <input class="text-answer-input" id="text-answer-val" placeholder="Votre réponse..." onkeydown="if(event.key==='Enter')submitText()" />
-        <button class="btn btn-primary" onclick="submitText()">Valider →</button>
-      </div>`;
-  } else {
-    choicesEl.innerHTML = `<div class="choices-grid">${opts.map((o, i) => `
-      <div class="choice-btn" onclick="answerMCQ(this, ${o.isCorrect})">
-        <div class="choice-letter">${String.fromCharCode(65+i)}</div>
-        ${o.text}
-      </div>
-    `).join('')}</div>`;
-  }
-
-  // Timer
+function renderPlayQ() {
+  clearInterval(state.playTimer);
+  const quiz = state.playQuiz;
+  const idx = state.playIndex;
+  if (idx >= quiz.questions.length) { showResults(); return; }
+  const q = quiz.questions[idx];
+  const total = quiz.questions.length;
+  document.getElementById("play-progress-fill").style.width = (idx / total * 100) + "%";
+  const card = document.getElementById("play-card");
+  let bodyHTML = buildPlayBody(q, idx);
+  card.innerHTML = `
+    <div class="play-q-num">Question ${idx+1} / ${total}</div>
+    ${q.media ? `<div class="play-q-media"><img src="${esc(q.media)}" alt="" loading="lazy"/></div>` : ""}
+    ${q.audioUrl ? `<div class="play-q-media"><audio controls src="${esc(q.audioUrl)}" style="width:100%"></audio></div>` : ""}
+    <div class="play-q-text">${esc(q.question || "")}</div>
+    ${bodyHTML}
+    <div class="play-feedback" id="play-feedback"></div>
+    <button class="btn btn-primary play-next" id="play-next-btn" style="display:none" onclick="nextQ()">
+      ${idx + 1 === total ? "Voir les résultats 🏁" : "Question suivante →"}
+    </button>`;
+  attachPlayEvents(q, idx);
   startTimer(q.timer || 30);
 }
 
-function startTimer(seconds) {
-  clearInterval(STATE.timerInterval);
-  STATE.timeLeft = seconds;
-  const label = document.getElementById('timer-label');
-  const ring = document.getElementById('timer-ring');
-  const circumference = 125.6;
+function buildPlayBody(q, idx) {
+  switch(q.type) {
+    case "truefalse":
+      return `<div class="play-choices" style="grid-template-columns:1fr 1fr">
+        <button class="play-choice" data-val="true" onclick="submitAnswer(${idx},'true')">✅ Vrai</button>
+        <button class="play-choice" data-val="false" onclick="submitAnswer(${idx},'false')">❌ Faux</button>
+      </div>`;
+    case "qcm": case "qcmmulti": case "poll":
+      const letters = "ABCDEFGHIJKLMNOP";
+      return `<div class="play-choices">
+        ${(q.choices||[]).map((c,i) => `<button class="play-choice" data-ci="${i}" onclick="${q.type==='qcmmulti'?'toggleMulti':'submitChoice'}(${idx},${i})"><span class="choice-letter">${letters[i]}</span>${esc(c)}</button>`).join("")}
+      </div>
+      ${q.type==='qcmmulti'?`<button class="btn btn-primary play-next" id="multi-confirm" onclick="confirmMulti(${idx})" style="margin-top:16px;width:100%">Confirmer</button>`:''}`;
+    case "freetext": case "audio": case "equation": case "code":
+      return `<input class="play-input" id="play-text-input" type="text" placeholder="Ta réponse…" onkeydown="if(event.key==='Enter')submitText(${idx})"/>
+        <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="submitText(${idx})">Valider</button>`;
+    case "fillblank":
+      const parts = (q.sentence||"").split(/\[([^\]]+)\]/g);
+      let blanks = []; let html = "<div style='font-size:1.1rem;line-height:2.2'>";
+      parts.forEach((p,i) => {
+        if (i%2===0) html += esc(p);
+        else { html += `<input type="text" data-blank="${blanks.length}" style="border:none;border-bottom:2px solid var(--accent);background:transparent;color:var(--text);width:100px;text-align:center;font-size:1rem;margin:0 4px"/>`; blanks.push(p); }
+      });
+      html += "</div>";
+      return html + `<button class="btn btn-primary" style="margin-top:16px;width:100%" onclick="submitFillBlank(${idx},'${btoa(JSON.stringify(blanks))}')">Valider</button>`;
+    case "slider":
+      return `<div style="padding:20px 0">
+        <input type="range" id="play-slider" min="${q.min??0}" max="${q.max??100}" value="${((q.min??0)+(q.max??100))/2}" style="width:100%;accent-color:var(--accent)" oninput="document.getElementById('slider-val').textContent=this.value"/>
+        <div style="text-align:center;font-size:1.4rem;font-family:var(--font-head);margin-top:8px" id="slider-val">${Math.round(((q.min??0)+(q.max??100))/2)}</div>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="submitSlider(${idx})">Valider</button>`;
+    case "ordering": case "dragdrop":
+      const shuffled = shuffle([...(q.items||[])]);
+      return `<div id="play-ordering" style="display:flex;flex-direction:column;gap:8px">
+        ${shuffled.map((it,i) => `<div class="play-choice" draggable="true" data-item="${esc(it)}" style="cursor:grab">⠿ ${esc(it)}</div>`).join("")}
+      </div>
+      <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="submitOrdering(${idx})">Valider l'ordre</button>`;
+    case "connect":
+      const lefts = (q.pairs||[]).map(p=>p.a);
+      const rights = shuffle((q.pairs||[]).map(p=>p.b));
+      return `<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center">
+        ${lefts.map((l,i)=>`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px">${esc(l)}</div>
+        <div style="color:var(--muted)">↔</div>
+        <select data-li="${i}" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text)"><option value="">Choisir…</option>${rights.map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join("")}</select>`).join("")}
+      </div>
+      <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="submitConnect(${idx})">Valider</button>`;
+    case "flashcard":
+      return `<div id="flashcard-play" onclick="flipCard()" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;min-height:120px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-family:var(--font-head);transition:all .3s" data-flipped="0">
+        <div id="fc-content">${esc(q.front||"")}</div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:16px">
+        <button class="btn btn-danger" style="flex:1" onclick="flashcardAnswer(${idx},false)">❌ Je ne savais pas</button>
+        <button class="btn btn-primary" style="flex:1;background:var(--green)" onclick="flashcardAnswer(${idx},true)">✅ Je savais</button>
+      </div>`;
+    case "drawing":
+      return `<canvas id="draw-canvas" width="600" height="220" style="background:var(--bg3);border-radius:12px;cursor:crosshair;border:1px solid var(--border);width:100%;touch-action:none"></canvas>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-ghost btn-sm" onclick="clearCanvas()">🗑️ Effacer</button>
+        <button class="btn btn-primary btn-sm" onclick="submitDrawing(${idx})" style="flex:1">Envoyer</button>
+      </div>`;
+    case "color":
+      return `<div class="color-choices" style="justify-content:center">
+        ${(q.choices||[]).map(c => `<div class="color-choice" style="background:${c};width:56px;height:56px" onclick="submitAnswer(${idx},'${c}')"></div>`).join("")}
+      </div>`;
+    case "grid":
+      const gW = q.gridW||5; const gH = q.gridH||5;
+      return `<div class="q-grid" id="play-grid" style="display:grid;grid-template-columns:repeat(${gW},44px);gap:6px;justify-content:center">
+        ${Array.from({length:gW*gH},(_,ci)=>`<div class="grid-cell" data-ci="${ci}" onclick="togglePlayCell(${ci})" style="width:44px;height:44px"></div>`).join("")}
+      </div>
+      <button class="btn btn-primary" style="margin-top:16px;width:100%" onclick="submitGrid(${idx})">Valider</button>`;
+    case "imagemap":
+      return `<div class="imgmap-wrap" id="imgmap-wrap" onclick="handleImageMapClick(event,${idx})" style="cursor:crosshair;display:block">
+        <img src="${esc(q.media||'https://via.placeholder.com/600x360?text=Image')}" style="width:100%;border-radius:12px" id="imgmap-img"/>
+        <div id="imgmap-pin" style="display:none" class="imgmap-pin">📍</div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:12px;width:100%" id="imgmap-confirm" onclick="confirmImageMap(${idx})" style="display:none">Confirmer</button>`;
+    case "location":
+      return `<div id="play-map" style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;height:260px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.9rem;position:relative;overflow:hidden">
+        <div style="text-align:center"><div style="font-size:2rem;margin-bottom:8px">🗺️</div>Clique sur la carte pour pointer ta réponse<br/><small>Intégration Leaflet recommandée en production</small></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="submitAnswer(${idx},'skipped')">Valider (approximatif)</button>`;
+    case "photo":
+      return `<div class="field"><label>Uploader ta photo</label><input type="file" accept="image/*" id="photo-input" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px"/></div>
+      <button class="btn btn-primary" style="width:100%" onclick="submitPhoto(${idx})">Envoyer la photo</button>`;
+    default:
+      return `<div style="color:var(--muted)">Type de question non supporté en lecture.</div>`;
+  }
+}
 
-  const update = () => {
-    if (label) label.textContent = STATE.timeLeft;
-    if (ring) ring.style.strokeDashoffset = circumference * (1 - STATE.timeLeft / seconds);
-    if (STATE.timeLeft <= 5 && ring) ring.style.stroke = 'var(--danger)';
-    else if (ring) ring.style.stroke = 'var(--brand)';
-    if (STATE.timeLeft <= 0) {
-      clearInterval(STATE.timerInterval);
-      timeUp();
+function attachPlayEvents(q, idx) {
+  // Drawing canvas
+  const canvas = document.getElementById("draw-canvas");
+  if (canvas) {
+    let drawing = false;
+    const ctx = canvas.getContext("2d");
+    ctx.strokeStyle = "#a78bfa"; ctx.lineWidth = 3; ctx.lineCap = "round";
+    canvas.addEventListener("pointerdown", e => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+    canvas.addEventListener("pointermove", e => { if (!drawing) return; ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); });
+    canvas.addEventListener("pointerup", () => drawing = false);
+  }
+  // Drag ordering
+  const ord = document.getElementById("play-ordering");
+  if (ord) setupDragOrdering(ord);
+}
+
+function setupDragOrdering(container) {
+  let dragged = null;
+  container.querySelectorAll(".play-choice").forEach(el => {
+    el.addEventListener("dragstart", () => { dragged = el; setTimeout(() => el.style.opacity = ".5", 0); });
+    el.addEventListener("dragend", () => { el.style.opacity = "1"; dragged = null; });
+    el.addEventListener("dragover", e => { e.preventDefault(); });
+    el.addEventListener("drop", () => {
+      if (dragged && dragged !== el) {
+        const children = [...container.children];
+        const di = children.indexOf(dragged); const ei = children.indexOf(el);
+        if (di < ei) el.after(dragged); else el.before(dragged);
+      }
+    });
+  });
+}
+
+let playMultiSelected = [];
+function toggleMulti(idx, ci) {
+  const btn = document.querySelector(`.play-choice[data-ci="${ci}"]`);
+  const i = playMultiSelected.indexOf(ci);
+  if (i === -1) { playMultiSelected.push(ci); btn.classList.add("selected"); }
+  else { playMultiSelected.splice(i, 1); btn.classList.remove("selected"); }
+}
+function confirmMulti(idx) {
+  const q = state.playQuiz.questions[idx];
+  const correct = JSON.stringify([...(q.corrects||[])].sort()) === JSON.stringify([...playMultiSelected].sort());
+  playMultiSelected = [];
+  showFeedback(idx, correct);
+}
+
+function submitAnswer(idx, val) {
+  const q = state.playQuiz.questions[idx];
+  let correct = false;
+  if (q.type === "truefalse") correct = String(q.answer) === String(val);
+  else if (q.type === "color") correct = q.answer === val;
+  else correct = false;
+  state.playAnswers.push({ idx, val, correct });
+  if (correct) state.playScore += (q.points || 1);
+  showFeedback(idx, correct);
+}
+
+function submitChoice(idx, ci) {
+  const q = state.playQuiz.questions[idx];
+  if (q.type === "poll") { showFeedback(idx, null); return; }
+  const correct = (q.corrects||[]).includes(ci);
+  document.querySelectorAll(".play-choice").forEach((b,i) => {
+    if (q.type === "qcm") {
+      if ((q.corrects||[]).includes(i)) b.classList.add("correct");
+      else if (i === ci && !correct) b.classList.add("wrong");
+      b.disabled = true;
     }
-    STATE.timeLeft--;
-  };
-  update();
-  STATE.timerInterval = setInterval(update, 1000);
-}
-
-function timeUp() {
-  const q = STATE.questions[STATE.currentQuestionIndex];
-  showFeedback(false, 0, q);
-}
-
-function answerMCQ(el, isCorrect) {
-  clearInterval(STATE.timerInterval);
-  document.querySelectorAll('.choice-btn').forEach(b => b.classList.add('disabled'));
-  el.classList.remove('disabled');
-  el.classList.add(isCorrect ? 'correct' : 'wrong');
-  const timeTaken = (STATE.questions[STATE.currentQuestionIndex]?.timer - STATE.timeLeft) * 1000;
-  const pts = calcPoints(isCorrect, timeTaken);
-  showFeedback(isCorrect, pts, STATE.questions[STATE.currentQuestionIndex]);
-}
-
-function answerTF(idx) {
-  clearInterval(STATE.timerInterval);
-  const q = STATE.questions[STATE.currentQuestionIndex];
-  const opts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
-  const isCorrect = opts[idx]?.isCorrect || false;
-  const timeTaken = (q.timer - STATE.timeLeft) * 1000;
-  const pts = calcPoints(isCorrect, timeTaken);
-  const btns = document.querySelectorAll('.tf-btn');
-  btns.forEach((b, i) => {
-    if (opts[i]?.isCorrect) { b.style.background = 'var(--success-bg)'; b.style.borderColor = 'var(--success)'; }
-    else if (i === idx && !isCorrect) { b.style.background = 'var(--danger-bg)'; b.style.borderColor = 'var(--danger)'; }
-    b.style.pointerEvents = 'none';
   });
-  showFeedback(isCorrect, pts, q);
+  state.playAnswers.push({ idx, val: ci, correct });
+  if (correct) state.playScore += (q.points || 1);
+  showFeedbackRaw(idx, correct);
 }
 
-function submitText() {
-  clearInterval(STATE.timerInterval);
-  const val = (document.getElementById('text-answer-val')?.value || '').trim().toLowerCase();
-  const q = STATE.questions[STATE.currentQuestionIndex];
-  const opts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
-  const correct = (opts[0]?.text || '').toLowerCase().trim();
-  const isCorrect = val === correct;
-  const pts = calcPoints(isCorrect, (q.timer - STATE.timeLeft) * 1000);
-  showFeedback(isCorrect, pts, q);
+function submitText(idx) {
+  const q = state.playQuiz.questions[idx];
+  const val = document.getElementById("play-text-input").value.trim();
+  const ans = q.answer || "";
+  const correct = q.caseSensitive ? val === ans : val.toLowerCase() === ans.toLowerCase();
+  state.playAnswers.push({ idx, val, correct });
+  if (correct) state.playScore += (q.points || 1);
+  showFeedback(idx, correct);
 }
 
-function calcPoints(isCorrect, timeTakenMs) {
-  if (!isCorrect) return 0;
-  const q = STATE.questions[STATE.currentQuestionIndex];
-  const pts = q.points || 100;
-  if (!q.timer) return pts;
-  const bonus = Math.round((1 - timeTakenMs / (q.timer * 1000)) * 0.5 * pts);
-  return pts + Math.max(0, bonus);
-}
-
-function showFeedback(isCorrect, pts, q) {
-  STATE.playerScore += pts;
-  STATE.playerAnswers.push({ isCorrect, pts });
-  document.getElementById('player-score-display').textContent = STATE.playerScore.toLocaleString('fr-FR');
-
-  const overlay = document.getElementById('feedback-overlay');
-  const badge = document.getElementById('feedback-badge');
-
-  if (isCorrect) {
-    badge.textContent = '+' + pts + ' pts !';
-    badge.style.background = 'var(--success-bg)';
-    badge.style.color = 'var(--success)';
-    if (typeof confetti !== 'undefined') confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
-  } else {
-    badge.textContent = '✗ Raté';
-    badge.style.background = 'var(--danger-bg)';
-    badge.style.color = 'var(--danger)';
-  }
-
-  overlay.style.display = 'flex';
-  setTimeout(() => overlay.style.display = 'none', 900);
-
-  // Explication
-  if (q.explanation) {
-    document.getElementById('player-exp-text').textContent = q.explanation;
-    document.getElementById('player-explanation').style.display = '';
-  } else {
-    setTimeout(nextQuestion, 1200);
-  }
-
-  updateLeaderboard();
-}
-
-function nextQuestion() {
-  STATE.currentQuestionIndex++;
-  if (STATE.currentQuestionIndex >= STATE.questions.length) {
-    endGame();
-  } else {
-    renderCurrentQuestion();
-  }
-}
-
-function updateLeaderboard() {
-  renderLeaderboard();
-}
-
-function renderLeaderboard() {
-  const DEMO_PLAYERS = [
-    { pseudo: STATE.playerPseudo || 'Vous', score: STATE.playerScore },
-    { pseudo: 'Alexandre', score: Math.max(0, STATE.playerScore - 150 + Math.floor(Math.random()*100)) },
-    { pseudo: 'Marie', score: Math.max(0, STATE.playerScore - 80 + Math.floor(Math.random()*60)) },
-    { pseudo: 'Thomas', score: Math.max(0, STATE.playerScore - 200) },
-  ].sort((a,b) => b.score - a.score);
-
-  const icons = ['🥇','🥈','🥉','4️⃣'];
-  document.getElementById('player-lb').innerHTML = DEMO_PLAYERS.map((p,i) => `
-    <div class="lb-item">
-      <div class="lb-rank">${icons[i]||''}</div>
-      <div class="lb-name" style="font-weight:${p.pseudo===STATE.playerPseudo?700:400}">${p.pseudo}</div>
-      <div class="lb-score">${p.score.toLocaleString('fr-FR')}</div>
-    </div>
-  `).join('');
-}
-
-function endGame() {
-  clearInterval(STATE.timerInterval);
-  document.getElementById('final-score').textContent = STATE.playerScore.toLocaleString('fr-FR');
-  const correct = STATE.playerAnswers.filter(a => a.isCorrect).length;
-  const total = STATE.playerAnswers.length;
-  document.getElementById('final-label').textContent = `${correct}/${total} bonnes réponses`;
-
-  const FINAL_BOARD = [
-    { pseudo: STATE.playerPseudo || 'Vous', score: STATE.playerScore },
-    { pseudo: 'Alexandre', score: STATE.playerScore + Math.floor(Math.random()*200) },
-    { pseudo: 'Marie', score: STATE.playerScore - Math.floor(Math.random()*150) },
-  ].sort((a,b)=>b.score-a.score);
-
-  const icons = ['🥇','🥈','🥉'];
-  document.getElementById('final-lb').innerHTML = FINAL_BOARD.map((p,i) => `
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);${i===0?'border-color:var(--brand);background:var(--brand-light)':''}">
-      <div style="font-size:20px">${icons[i]||''}</div>
-      <div style="flex:1;font-weight:${p.pseudo===STATE.playerPseudo?700:400}">${p.pseudo}</div>
-      <div style="font-weight:700;color:var(--brand);font-family:'Syne',sans-serif">${p.score.toLocaleString('fr-FR')} pts</div>
-    </div>
-  `).join('');
-
-  if (typeof confetti !== 'undefined') {
-    confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 } });
-  }
-  goTo('results');
-}
-
-function replayQuiz() {
-  STATE.playerScore = 0;
-  STATE.playerAnswers = [];
-  STATE.currentQuestionIndex = 0;
-  goTo('player');
-}
-
-// ─── PROFILE ─────────────────────────────────────────────────────────────────
-function saveProfile() {
-  const username = document.getElementById('pf-username').value.trim();
-  const p1 = document.getElementById('pf-password').value;
-  const p2 = document.getElementById('pf-password2').value;
-  if (p1 && p1 !== p2) { toast('Les mots de passe ne correspondent pas'); return; }
-  if (STATE.user) STATE.user.username = username;
-  updateNavAuth();
-  toast('Profil mis à jour ! ✓');
-
-  /* En prod :
-  await fetch(API + '/profile', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + STATE.token },
-    body: JSON.stringify({ username, email, phone, password: p1 || undefined })
+function submitFillBlank(idx, b64) {
+  const blanks = JSON.parse(atob(b64));
+  const inputs = document.querySelectorAll("[data-blank]");
+  let allCorrect = true;
+  inputs.forEach((inp, i) => {
+    if (inp.value.toLowerCase().trim() !== blanks[i].toLowerCase().trim()) allCorrect = false;
   });
-  */
+  state.playAnswers.push({ idx, val: [...inputs].map(i=>i.value), correct: allCorrect });
+  if (allCorrect) state.playScore += (state.playQuiz.questions[idx].points || 1);
+  showFeedback(idx, allCorrect);
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
-if (STATE.token && STATE.token !== 'demo-token') {
-  // Restaurer session
-  fetch(API + '/auth/me', { headers: { Authorization: 'Bearer ' + STATE.token } })
-    .then(r => r.json())
-    .then(d => { if (d.user) { STATE.user = d.user; updateNavAuth(); } })
-    .catch(() => {});
-} else if (STATE.token === 'demo-token') {
-  STATE.user = { id: 'demo', username: 'Caroline', email: 'caroline@exemple.fr' };
-  updateNavAuth();
+function submitSlider(idx) {
+  const q = state.playQuiz.questions[idx];
+  const val = parseInt(document.getElementById("play-slider").value);
+  const correct = Math.abs(val - q.answer) <= (q.tolerance || 5);
+  state.playAnswers.push({ idx, val, correct });
+  if (correct) state.playScore += (q.points || 1);
+  showFeedback(idx, correct);
 }
 
-renderHome();
+function submitOrdering(idx) {
+  const q = state.playQuiz.questions[idx];
+  const items = [...document.querySelectorAll("#play-ordering .play-choice")].map(el => el.dataset.item);
+  const correct = JSON.stringify(items) === JSON.stringify(q.items||[]);
+  state.playAnswers.push({ idx, val: items, correct });
+  if (correct) state.playScore += (q.points || 1);
+  showFeedback(idx, correct);
+}
+
+function submitConnect(idx) {
+  const q = state.playQuiz.questions[idx];
+  const selects = document.querySelectorAll("[data-li]");
+  let correct = true;
+  selects.forEach((sel, i) => { if (sel.value !== (q.pairs||[])[i]?.b) correct = false; });
+  state.playAnswers.push({ idx, correct });
+  if (correct) state.playScore += (q.points || 1);
+  showFeedback(idx, correct);
+}
+
+let playGridSelected = [];
+function togglePlayCell(ci) {
+  const el = document.querySelector(`#play-grid [data-ci="${ci}"]`);
+  const i = playGridSelected.indexOf(ci);
+  if (i === -1) { playGridSelected.push(ci); el.classList.add("selected"); }
+  else { playGridSelected.splice(i, 1); el.classList.remove("selected"); }
+}
+function submitGrid(idx) {
+  const q = state.playQuiz.questions[idx];
+  const correct = JSON.stringify([...playGridSelected].sort()) === JSON.stringify([...(q.correctCells||[])].sort());
+  playGridSelected = [];
+  state.playAnswers.push({ idx, correct });
+  if (correct) state.playScore += (q.points || 1);
+  showFeedback(idx, correct);
+}
+
+let imgMapClick = null;
+function handleImageMapClick(e, idx) {
+  const img = document.getElementById("imgmap-img");
+  const rect = img.getBoundingClientRect();
+  const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+  const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+  imgMapClick = { x: parseFloat(x), y: parseFloat(y) };
+  const pin = document.getElementById("imgmap-pin");
+  pin.style.display = "flex"; pin.style.left = x + "%"; pin.style.top = y + "%";
+}
+function confirmImageMap(idx) {
+  if (!imgMapClick) return;
+  const q = state.playQuiz.questions[idx];
+  const dx = imgMapClick.x - (q.targetX||50); const dy = imgMapClick.y - (q.targetY||50);
+  const correct = Math.sqrt(dx*dx + dy*dy) <= (q.targetR||10);
+  state.playAnswers.push({ idx, val: imgMapClick, correct });
+  if (correct) state.playScore += (q.points || 1);
+  showFeedback(idx, correct);
+}
+
+function flipCard() {
+  const fc = document.getElementById("flashcard-play");
+  const content = document.getElementById("fc-content");
+  const flipped = fc.dataset.flipped === "1";
+  fc.dataset.flipped = flipped ? "0" : "1";
+  content.textContent = flipped ? state.playQuiz.questions[state.playIndex].front || "" : state.playQuiz.questions[state.playIndex].back || "";
+  fc.style.background = flipped ? "var(--bg3)" : "rgba(124,92,252,.12)";
+}
+function flashcardAnswer(idx, knew) {
+  state.playAnswers.push({ idx, correct: knew });
+  if (knew) state.playScore += (state.playQuiz.questions[idx].points || 1);
+  showFeedback(idx, knew);
+}
+
+function clearCanvas() { const c = document.getElementById("draw-canvas"); if(c) c.getContext("2d").clearRect(0,0,c.width,c.height); }
+function submitDrawing(idx) {
+  state.playAnswers.push({ idx, val: "drawing", correct: null });
+  showFeedback(idx, null);
+}
+function submitPhoto(idx) {
+  state.playAnswers.push({ idx, val: "photo", correct: null });
+  showFeedback(idx, null);
+}
+
+function showFeedback(idx, correct) {
+  clearInterval(state.playTimer);
+  document.getElementById("play-timer").textContent = "–";
+  const q = state.playQuiz.questions[idx];
+  showFeedbackRaw(idx, correct, q);
+}
+
+function showFeedbackRaw(idx, correct, q) {
+  if (!q) q = state.playQuiz.questions[idx];
+  const fb = document.getElementById("play-feedback");
+  if (correct === null) {
+    fb.className = "play-feedback ok";
+    fb.textContent = "Réponse envoyée ✓ (évaluation manuelle)";
+  } else if (correct) {
+    fb.className = "play-feedback ok";
+    fb.textContent = q.msgCorrect || "✅ Correct !";
+  } else {
+    fb.className = "play-feedback bad";
+    fb.textContent = q.msgWrong || "❌ Incorrect.";
+  }
+  document.getElementById("play-next-btn").style.display = "";
+  document.querySelectorAll(".play-choice, .play-input, button.btn-primary:not(#play-next-btn)").forEach(el => el.disabled = true);
+}
+
+function nextQ() {
+  state.playIndex++;
+  renderPlayQ();
+}
+
+function startTimer(sec) {
+  const el = document.getElementById("play-timer");
+  let t = sec;
+  el.textContent = t;
+  el.className = "play-timer";
+  state.playTimer = setInterval(() => {
+    t--;
+    el.textContent = t;
+    if (t <= 5) el.className = "play-timer warning";
+    if (t <= 0) {
+      clearInterval(state.playTimer);
+      const idx = state.playIndex;
+      state.playAnswers.push({ idx, val: null, correct: false, timeout: true });
+      showFeedbackRaw(idx, false);
+    }
+  }, 1000);
+}
+
+async function showResults() {
+  clearInterval(state.playTimer);
+  const quiz = state.playQuiz;
+  const total = quiz.questions.filter(q => q.type !== "poll" && q.type !== "drawing" && q.type !== "photo").length;
+  const score = state.playScore;
+  const pct = total ? Math.round(score / total * 100) : 0;
+  const emoji = pct >= 80 ? "🏆" : pct >= 50 ? "🎉" : "💪";
+
+  // Save score
+  try {
+    await api("POST", "/api/score", { qid: quiz.qid, pseudo: state.playPseudo, score, total, answers: state.playAnswers });
+  } catch(_) {}
+
+  const card = document.getElementById("play-card");
+  card.innerHTML = `
+    <div class="result-card fade-up">
+      <div style="font-size:3rem;margin-bottom:16px">${emoji}</div>
+      <div class="result-score-circle">
+        <div class="num">${score}</div>
+        <div class="den">/ ${total}</div>
+      </div>
+      <h2 style="font-family:var(--font-head);margin-bottom:8px">${state.playPseudo}</h2>
+      <div class="result-msg">${pct}% de bonnes réponses</div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="initPlay(state.playQuiz)">🔄 Rejouer</button>
+        <button class="btn btn-ghost" onclick="navigate('home')">🏠 Accueil</button>
+      </div>
+    </div>`;
+  document.getElementById("play-progress-fill").style.width = "100%";
+  document.getElementById("play-timer").textContent = "–";
+}
+
+// ============================================================
+// PROFILE / SETTINGS
+// ============================================================
+function loadProfile() {
+  if (!state.user) { navigate("home"); return; }
+  document.getElementById("set-username").value = state.user.username || "";
+  document.getElementById("set-email").value = state.user.email || "";
+}
+
+async function saveProfile() {
+  try {
+    const body = {
+      username: document.getElementById("set-username").value,
+      email: document.getElementById("set-email").value,
+      phone: document.getElementById("set-phone").value,
+    };
+    const updated = await api("PUT", "/api/user/update", body);
+    state.user = { ...state.user, ...updated };
+    localStorage.setItem("qbx_user", JSON.stringify(state.user));
+    renderNavAuth();
+    toast("Profil mis à jour ✓", "ok");
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+async function savePassword() {
+  try {
+    const body = { currentPassword: document.getElementById("set-cur-pw").value, newPassword: document.getElementById("set-new-pw").value };
+    await api("PUT", "/api/user/update", body);
+    document.getElementById("set-cur-pw").value = "";
+    document.getElementById("set-new-pw").value = "";
+    toast("Mot de passe changé ✓", "ok");
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr; }
+function showLoader() { document.getElementById("loader").classList.remove("hide"); }
+function hideLoader() { document.getElementById("loader").classList.add("hide"); }
+
+// ============================================================
+// BOOT
+// ============================================================
+async function boot() {
+  renderNavAuth();
+  if (state.token && state.user) {
+    try {
+      const fresh = await api("GET", "/api/auth/me");
+      state.user = fresh;
+      localStorage.setItem("qbx_user", JSON.stringify(fresh));
+      renderNavAuth();
+    } catch(_) {
+      state.token = null; state.user = null;
+      localStorage.removeItem("qbx_token"); localStorage.removeItem("qbx_user");
+      renderNavAuth();
+    }
+  }
+  hideLoader();
+}
+boot();
 </script>
 </body>
 </html>
