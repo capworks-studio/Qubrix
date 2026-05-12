@@ -2,1600 +2,1243 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Qubrix</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
-  <link rel="icon" type="image/png" href="Logo_Qubrix.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="icon" type="image/png" href="Logo_Qubrix.png">
 <style>
-:root {
-  --bg: #09090f;
-  --bg2: #111118;
-  --bg3: #1a1a24;
-  --border: rgba(255,255,255,0.07);
-  --accent: #7c5cfc;
-  --accent2: #c084fc;
-  --green: #22c55e;
-  --red: #ef4444;
-  --yellow: #eab308;
-  --text: #f0f0fa;
-  --muted: #6b6b8a;
-  --radius: 14px;
-  --font-head: 'Syne', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
+:root{
+  --bg:#09090f;--bg2:#111118;--bg3:#1a1a24;--bg4:#22222f;
+  --border:rgba(255,255,255,0.07);
+  --accent:#7c5cfc;--accent2:#c084fc;
+  --green:#22c55e;--red:#ef4444;--yellow:#eab308;--blue:#3b82f6;
+  --text:#f0f0fa;--muted:#6b6b8a;
+  --r:14px;--fh:'Syne',sans-serif;--fb:'DM Sans',sans-serif;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; overflow-x: hidden; }
-button { cursor: pointer; font-family: var(--font-body); border: none; outline: none; }
-input, textarea, select { font-family: var(--font-body); outline: none; border: none; background: transparent; color: var(--text); }
-a { color: inherit; text-decoration: none; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden}
+button{cursor:pointer;font-family:var(--fb);border:none;outline:none}
+input,textarea,select{font-family:var(--fb);outline:none;border:none;background:transparent;color:var(--text)}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:99px}
 
-/* ---- SCROLLBAR ---- */
-::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 99px; }
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:11px 22px;border-radius:99px;font-size:.85rem;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:var(--green);color:var(--green)}
+#toast.bad{border-color:var(--red);color:var(--red)}
 
-/* ---- TOAST ---- */
-#toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--bg3); border: 1px solid var(--border); color: var(--text); padding: 12px 24px; border-radius: 99px; font-size: .875rem; z-index: 9999; transition: transform .3s cubic-bezier(.34,1.56,.64,1); pointer-events: none; white-space: nowrap; }
-#toast.show { transform: translateX(-50%) translateY(0); }
-#toast.ok { border-color: var(--green); color: var(--green); }
-#toast.bad { border-color: var(--red); color: var(--red); }
+/* LOADER */
+#loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9998;transition:opacity .3s}
+#loader.hide{opacity:0;pointer-events:none}
+.spin{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ---- LOADER ---- */
-#loader { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9998; transition: opacity .4s; }
-#loader.hide { opacity: 0; pointer-events: none; }
-.spin { width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+/* MODAL */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);z-index:900;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.mbg.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:34px;width:min(480px,93vw);position:relative;transform:scale(.95);transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.mbg.open .modal{transform:scale(1)}
+.modal h2{font-family:var(--fh);font-size:1.3rem;margin-bottom:22px}
+.mclose{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:8px;background:var(--bg3);color:var(--muted);font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.mclose:hover{color:var(--text)}
 
-/* ---- MODAL ---- */
-.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(8px); z-index: 900; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
-.modal-bg.open { opacity: 1; pointer-events: all; }
-.modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 36px; width: min(500px, 92vw); position: relative; transform: scale(.95); transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
-.modal-bg.open .modal { transform: scale(1); }
-.modal h2 { font-family: var(--font-head); font-size: 1.4rem; margin-bottom: 24px; }
-.modal-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 8px; background: var(--bg3); color: var(--muted); font-size: 1rem; display: flex; align-items: center; justify-content: center; }
-.modal-close:hover { color: var(--text); }
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input,.field textarea,.field select{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 13px;font-size:.92rem;color:var(--text);transition:border-color .2s;width:100%}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent)}
+.field textarea{resize:vertical;min-height:72px}
+.field select option{background:var(--bg2)}
 
-/* ---- INPUTS ---- */
-.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-.field label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
-.field input, .field textarea, .field select { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; font-size: .95rem; color: var(--text); transition: border-color .2s; width: 100%; }
-.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
-.field textarea { resize: vertical; min-height: 80px; }
-.field select option { background: var(--bg2); }
+/* BTN */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:10px;font-size:.88rem;font-weight:500;transition:all .18s}
+.btn-p{background:var(--accent);color:#fff}
+.btn-p:hover{background:#6b48f0;transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,92,252,.35)}
+.btn-g{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-g:hover{border-color:var(--accent);color:var(--accent)}
+.btn-d{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.btn-d:hover{background:rgba(239,68,68,.22)}
+.btn-sm{padding:7px 13px;font-size:.8rem;border-radius:8px}
+.btn-ic{padding:8px;border-radius:8px}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#16a34a}
 
-/* ---- BUTTONS ---- */
-.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border-radius: 10px; font-size: .9rem; font-weight: 500; transition: all .2s; }
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { background: #6b48f0; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,92,252,.3); }
-.btn-ghost { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
-.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-.btn-danger { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.2); }
-.btn-danger:hover { background: rgba(239,68,68,.25); }
-.btn-sm { padding: 7px 14px; font-size: .8rem; border-radius: 8px; }
-.btn-icon { padding: 9px; border-radius: 8px; }
+/* NAVBAR */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;padding:0 26px;height:62px;background:rgba(9,9,15,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--fh);font-size:1.35rem;font-weight:800;letter-spacing:-.02em;background:linear-gradient(135deg,#fff 30%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer}
+.nav-logo span{-webkit-text-fill-color:var(--accent)}
+.nav-search{flex:1;max-width:380px;margin:0 28px;position:relative}
+.nav-search input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:99px;padding:8px 15px 8px 38px;font-size:.85rem;transition:border-color .2s}
+.nav-search input:focus{border-color:var(--accent)}
+.nav-search .sico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.sresults{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:none;z-index:600}
+.sresults.open{display:block}
+.sitem{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:.85rem}
+.sitem:hover{background:var(--bg3)}
+.codebadge{font-family:monospace;background:var(--bg3);padding:2px 7px;border-radius:6px;font-size:.72rem;color:var(--muted)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.avatar-wrap{position:relative}
+.avatar-btn{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));font-family:var(--fh);font-weight:700;font-size:.82rem;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer}
+.avatar-menu{position:absolute;top:calc(100% + 6px);right:0;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:7px;min-width:195px;z-index:600;display:none}
+.avatar-wrap.open .avatar-menu{display:block}
+.avatar-menu a,.avatar-menu button{display:flex;align-items:center;gap:9px;width:100%;padding:8px 11px;border-radius:8px;font-size:.85rem;color:var(--text);background:transparent;text-align:left}
+.avatar-menu a:hover,.avatar-menu button:hover{background:var(--bg3)}
+.avatar-menu hr{border:none;border-top:1px solid var(--border);margin:5px 0}
+.avatar-menu .danger{color:var(--red)}
+.codepill{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:3px 9px;font-family:monospace;font-size:.82rem;color:var(--accent2);letter-spacing:.08em;cursor:pointer;transition:border-color .2s}
+.codepill:hover{border-color:var(--accent)}
 
-/* ============================================================
-   NAVBAR
-============================================================ */
-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 500; display: flex; align-items: center; padding: 0 28px; height: 64px; background: rgba(9,9,15,.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
-.nav-logo { font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; letter-spacing: -.02em; background: linear-gradient(135deg, #fff 30%, var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.nav-logo span { color: var(--accent); -webkit-text-fill-color: var(--accent); }
-.nav-search { flex: 1; max-width: 400px; margin: 0 32px; position: relative; }
-.nav-search input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 99px; padding: 8px 16px 8px 40px; font-size: .875rem; transition: border-color .2s; }
-.nav-search input:focus { border-color: var(--accent); }
-.nav-search .ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .875rem; }
-.nav-search-results { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: none; z-index: 600; }
-.nav-search-results.open { display: block; }
-.search-item { padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: .875rem; }
-.search-item:hover { background: var(--bg3); }
-.search-item .code-badge { font-family: monospace; background: var(--bg3); padding: 2px 8px; border-radius: 6px; font-size: .75rem; color: var(--muted); }
-.nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-.nav-join { background: var(--bg3); border: 1px solid var(--border); border-radius: 99px; padding: 7px 16px; font-size: .85rem; display: flex; align-items: center; gap: 8px; transition: border-color .2s; }
-.nav-join:hover { border-color: var(--accent); color: var(--accent); }
-.avatar-btn { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--accent2)); font-family: var(--font-head); font-weight: 700; font-size: .85rem; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; }
-.avatar-menu { position: absolute; top: calc(100% + 8px); right: 0; background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 8px; min-width: 200px; z-index: 600; display: none; }
-.avatar-wrap { position: relative; }
-.avatar-wrap:hover .avatar-menu, .avatar-wrap.open .avatar-menu { display: block; }
-.avatar-menu a, .avatar-menu button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border-radius: 8px; font-size: .875rem; color: var(--text); background: transparent; text-align: left; }
-.avatar-menu a:hover, .avatar-menu button:hover { background: var(--bg3); }
-.avatar-menu hr { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
-.avatar-menu .danger { color: var(--red); }
+/* PAGES */
+.page{display:none;min-height:100vh;padding-top:62px}
+.page.active{display:block}
+#page-editor.active{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-/* ============================================================
-   PAGES (single-page routing)
-============================================================ */
-.page { display: none; min-height: 100vh; padding-top: 64px; }
-.page.active { display: block; }
+/* HOME */
+#page-home{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:80px 24px 60px;text-align:center}
+.hero{max-width:680px}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.25);border-radius:99px;padding:5px 13px;font-size:.78rem;color:var(--accent2);margin-bottom:22px;letter-spacing:.04em}
+.htitle{font-family:var(--fh);font-size:clamp(2.6rem,7vw,5rem);font-weight:800;line-height:1;letter-spacing:-.04em;margin-bottom:18px}
+.grad{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hsub{font-size:1.05rem;color:var(--muted);max-width:460px;margin:0 auto 36px;line-height:1.6}
+.hctas{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.joinbox{margin:52px auto 0;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:420px;width:100%}
+.joinbox h3{font-family:var(--fh);font-size:1.05rem;margin-bottom:14px}
+.codewrap{display:flex;gap:8px}
+.codewrap input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:1.1rem;letter-spacing:.2em;text-transform:uppercase;font-family:'Courier New',monospace}
+.codewrap input:focus{border-color:var(--accent)}
 
-/* ---- HOME ---- */
-#page-home { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 80px 24px 60px; text-align: center; }
-.home-hero { max-width: 700px; }
-.home-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: rgba(124,92,252,.1); border: 1px solid rgba(124,92,252,.25); border-radius: 99px; padding: 6px 14px; font-size: .8rem; color: var(--accent2); margin-bottom: 24px; letter-spacing: .04em; }
-.home-title { font-family: var(--font-head); font-size: clamp(2.8rem, 7vw, 5.2rem); font-weight: 800; line-height: 1; letter-spacing: -.04em; margin-bottom: 20px; }
-.home-title .grad { background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.home-sub { font-size: 1.1rem; color: var(--muted); max-width: 480px; margin: 0 auto 40px; line-height: 1.6; }
-.home-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.home-join-box { margin-top: 60px; background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 440px; width: 100%; }
-.home-join-box h3 { font-family: var(--font-head); font-size: 1.1rem; margin-bottom: 16px; }
-.code-input-wrap { display: flex; gap: 10px; }
-.code-input-wrap input { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 1.1rem; letter-spacing: .2em; text-transform: uppercase; font-family: 'Courier New', monospace; }
-.code-input-wrap input:focus { border-color: var(--accent); }
+/* DASHBOARD */
+.dash-hdr{padding:36px 38px 0;display:flex;align-items:flex-end;justify-content:space-between}
+.dash-hdr h1{font-family:var(--fh);font-size:1.7rem;font-weight:800}
+.dash-hdr p{color:var(--muted);font-size:.88rem;margin-top:3px}
+.qgrid{padding:24px 38px;display:grid;gap:14px}
+.qcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;display:flex;align-items:center;gap:18px;transition:border-color .2s}
+.qcard:hover{border-color:rgba(124,92,252,.3)}
+.qthumb{width:52px;height:52px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:1.1rem;color:#fff;flex-shrink:0}
+.qinfo{flex:1;min-width:0}
+.qtitle{font-family:var(--fh);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qmeta{display:flex;align-items:center;gap:14px;margin-top:5px;font-size:.78rem;color:var(--muted);flex-wrap:wrap}
+.compbadge{background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.25);color:var(--yellow);border-radius:6px;padding:1px 7px;font-size:.7rem}
+.qactions{display:flex;gap:6px}
+.empty{text-align:center;padding:70px 24px;color:var(--muted)}
+.empty .ei{font-size:2.6rem;margin-bottom:14px}
+.empty h2{font-family:var(--fh);color:var(--text);margin-bottom:7px}
 
-/* ---- DASHBOARD ---- */
-#page-dashboard { padding-top: 64px; }
-.dash-header { padding: 40px 40px 0; display: flex; align-items: flex-end; justify-content: space-between; }
-.dash-header h1 { font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; }
-.dash-header p { color: var(--muted); font-size: .9rem; margin-top: 4px; }
-.quiz-grid { padding: 28px 40px; display: grid; gap: 16px; }
-.quiz-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; display: flex; align-items: center; gap: 20px; transition: border-color .2s; }
-.quiz-card:hover { border-color: rgba(124,92,252,.3); }
-.quiz-card-thumb { width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 800; font-size: 1.2rem; color: #fff; flex-shrink: 0; }
-.quiz-card-info { flex: 1; min-width: 0; }
-.quiz-card-title { font-family: var(--font-head); font-weight: 700; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.quiz-card-meta { display: flex; align-items: center; gap: 16px; margin-top: 6px; font-size: .8rem; color: var(--muted); }
-.quiz-card-meta span { display: flex; align-items: center; gap: 5px; }
-.code-pill { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 3px 10px; font-family: monospace; font-size: .85rem; color: var(--accent2); letter-spacing: .08em; cursor: pointer; transition: border-color .2s; }
-.code-pill:hover { border-color: var(--accent); }
-.quiz-card-actions { display: flex; gap: 8px; }
-.empty-state { text-align: center; padding: 80px 24px; color: var(--muted); }
-.empty-state .big-icon { font-size: 3rem; margin-bottom: 16px; }
-.empty-state h2 { font-family: var(--font-head); color: var(--text); margin-bottom: 8px; }
+/* EDITOR */
+.edtop{flex-shrink:0;display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.edtop input.qtinput{background:transparent;font-family:var(--fh);font-size:1.05rem;font-weight:700;flex:1;border-bottom:1px solid transparent;padding-bottom:2px;transition:border-color .2s}
+.edtop input.qtinput:focus{border-color:var(--accent)}
+.edbody{flex:1;display:flex;overflow:hidden}
+.edsidebar{width:268px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--bg2)}
+.sidebar-qs{flex:1;overflow-y:auto;padding:10px}
+.sq{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;cursor:pointer;font-size:.83rem;border:1px solid transparent;transition:all .13s;margin-bottom:5px}
+.sq:hover{background:var(--bg3)}
+.sq.active{background:rgba(124,92,252,.12);border-color:rgba(124,92,252,.3)}
+.sq .qn{width:20px;height:20px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0}
+.sq .qt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sq .qtb{font-size:.62rem;background:var(--bg3);padding:2px 6px;border-radius:6px;color:var(--muted);flex-shrink:0}
+.sidebar-add{padding:10px;border-top:1px solid var(--border)}
+.addqbtn{width:100%;background:rgba(124,92,252,.1);border:1px dashed rgba(124,92,252,.3);border-radius:10px;color:var(--accent);padding:9px;font-size:.83rem;transition:all .18s}
+.addqbtn:hover{background:rgba(124,92,252,.2)}
+.editmain{flex:1;overflow-y:auto;padding:28px}
+.qecard{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:26px;max-width:780px;margin:0 auto}
+.qlabel{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:9px}
+.qtabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:22px}
+.qtab{padding:5px 12px;border-radius:8px;font-size:.76rem;background:var(--bg3);border:1px solid transparent;cursor:pointer;transition:all .13s;white-space:nowrap}
+.qtab:hover{border-color:var(--accent);color:var(--accent)}
+.qtab.active{background:rgba(124,92,252,.15);border-color:var(--accent);color:var(--accent)}
+.qsep{width:100%;height:1px;background:var(--border);margin:22px 0}
+.choicelist{display:flex;flex-direction:column;gap:9px}
+.choicerow{display:flex;align-items:center;gap:9px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 13px;cursor:grab;transition:border-color .2s}
+.choicerow.correct{border-color:var(--green);background:rgba(34,197,94,.07)}
+.dh{color:var(--muted);cursor:grab;font-size:.83rem;flex-shrink:0}
+.choicerow input{flex:1;font-size:.88rem}
+.ccbtn{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:all .13s;background:transparent}
+.ccbtn.on{background:var(--green);border-color:var(--green)}
+.cdel{color:var(--muted);font-size:.83rem}
+.cdel:hover{color:var(--red)}
+.addcbtn{background:transparent;border:1px dashed var(--border);border-radius:8px;padding:8px;font-size:.8rem;color:var(--muted);width:100%;transition:all .13s}
+.addcbtn:hover{border-color:var(--accent);color:var(--accent)}
+.msgrow{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 13px;display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.msgrow .ml{font-size:.72rem;color:var(--muted);min-width:88px}
+.msgrow input{flex:1;font-size:.85rem}
+.qempty{text-align:center;color:var(--muted);padding:70px 24px;font-size:.92rem}
+.slrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.slrow label{font-size:.78rem;color:var(--muted);min-width:58px}
+.slrow input[type=number]{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 9px;width:76px;color:var(--text)}
+.ordering-item{display:flex;align-items:center;gap:9px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 13px;cursor:grab;margin-bottom:7px}
+.ordering-item input{flex:1}
+.pairs-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pair-inp{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 13px;color:var(--text);width:100%}
+.carea{background:#0d0d17;border:1px solid var(--border);border-radius:10px;padding:14px;font-family:'Courier New',monospace;font-size:.85rem;color:#e2e8f0;min-height:110px;resize:vertical;width:100%}
+.color-choices{display:flex;flex-wrap:wrap;gap:9px}
+.cchoice{width:42px;height:42px;border-radius:10px;cursor:pointer;border:3px solid transparent;transition:all .13s}
+.cchoice.sel{border-color:#fff;transform:scale(1.1)}
+.grid-q{display:grid;gap:4px}
+.gcell{width:38px;height:38px;border-radius:6px;border:2px solid var(--border);cursor:pointer;transition:all .13s}
+.gcell.sel{background:var(--accent);border-color:var(--accent)}
+.flashedit{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.timeline-item{display:flex;align-items:center;gap:9px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 13px;margin-bottom:7px}
+.timeline-item input{flex:1}
 
-/* ---- EDITOR ---- */
-#page-editor { display: none; padding-top: 64px; flex-direction: column; height: 100vh; overflow: hidden; }
-#page-editor.active { display: flex; }
-.editor-top { flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--bg2); }
-.editor-top input.quiz-title-input { background: transparent; font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; flex: 1; border-bottom: 1px solid transparent; padding-bottom: 2px; transition: border-color .2s; }
-.editor-top input.quiz-title-input:focus { border-color: var(--accent); }
-.editor-body { flex: 1; display: flex; overflow: hidden; }
-.editor-sidebar { width: 280px; flex-shrink: 0; border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; background: var(--bg2); }
-.sidebar-qs { flex: 1; overflow-y: auto; padding: 12px; }
-.sidebar-q { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-size: .85rem; border: 1px solid transparent; transition: all .15s; margin-bottom: 6px; }
-.sidebar-q:hover { background: var(--bg3); }
-.sidebar-q.active { background: rgba(124,92,252,.12); border-color: rgba(124,92,252,.3); }
-.sidebar-q .q-num { width: 22px; height: 22px; border-radius: 6px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; flex-shrink: 0; }
-.sidebar-q .q-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sidebar-q .q-type-badge { font-size: .65rem; background: var(--bg3); padding: 2px 7px; border-radius: 6px; color: var(--muted); flex-shrink: 0; }
-.sidebar-add { padding: 12px; border-top: 1px solid var(--border); }
-.add-q-btn { width: 100%; background: rgba(124,92,252,.1); border: 1px dashed rgba(124,92,252,.3); border-radius: 10px; color: var(--accent); padding: 10px; font-size: .875rem; transition: all .2s; }
-.add-q-btn:hover { background: rgba(124,92,252,.2); }
-.editor-main { flex: 1; overflow-y: auto; padding: 32px; }
-.q-editor-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 18px; padding: 28px; max-width: 800px; margin: 0 auto; }
-.q-type-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
-.q-type-tab { padding: 6px 13px; border-radius: 8px; font-size: .78rem; background: var(--bg3); border: 1px solid transparent; cursor: pointer; transition: all .15s; white-space: nowrap; }
-.q-type-tab:hover { border-color: var(--accent); color: var(--accent); }
-.q-type-tab.active { background: rgba(124,92,252,.15); border-color: var(--accent); color: var(--accent); }
-.q-sep { width: 100%; height: 1px; background: var(--border); margin: 24px 0; }
-.q-block-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 10px; }
-.choices-list { display: flex; flex-direction: column; gap: 10px; }
-.choice-row { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; cursor: grab; transition: border-color .2s; }
-.choice-row.correct { border-color: var(--green); background: rgba(34,197,94,.07); }
-.choice-row .drag-handle { color: var(--muted); cursor: grab; font-size: .85rem; flex-shrink: 0; }
-.choice-row input { flex: 1; font-size: .9rem; }
-.choice-correct-btn { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; transition: all .15s; background: transparent; }
-.choice-correct-btn.on { background: var(--green); border-color: var(--green); }
-.choice-del { color: var(--muted); font-size: .85rem; }
-.choice-del:hover { color: var(--red); }
-.add-choice-btn { background: transparent; border: 1px dashed var(--border); border-radius: 8px; padding: 9px; font-size: .825rem; color: var(--muted); width: 100%; transition: all .15s; }
-.add-choice-btn:hover { border-color: var(--accent); color: var(--accent); }
-.msg-field { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: .875rem; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-.msg-field .label { font-size: .75rem; color: var(--muted); min-width: 90px; }
-.msg-field input { flex: 1; font-size: .875rem; }
-.q-empty { text-align: center; color: var(--muted); padding: 80px 24px; font-size: .95rem; }
-/* Drag & drop ordering */
-.ordering-item { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; cursor: grab; margin-bottom: 8px; }
-.ordering-item input { flex: 1; }
-/* Connect pairs */
-.pairs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.pair-row { display: contents; }
-.pair-cell { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
-.pair-cell input { width: 100%; }
-/* Slider */
-.slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.slider-row label { font-size: .8rem; color: var(--muted); min-width: 60px; }
-.slider-row input[type=number] { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; width: 80px; }
-/* Image map preview */
-.imgmap-wrap { position: relative; display: inline-block; }
-.imgmap-wrap img { max-width: 100%; border-radius: 10px; display: block; }
-.imgmap-pin { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; transform: translate(-50%, -50%); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; color: #fff; }
-/* Code editor */
-.code-editor-area { background: #0d0d17; border: 1px solid var(--border); border-radius: 10px; padding: 16px; font-family: 'Courier New', monospace; font-size: .875rem; color: #e2e8f0; min-height: 120px; resize: vertical; width: 100%; }
-/* Equation */
-.eq-wrap { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.eq-preview { font-size: 1.1rem; min-width: 60px; color: var(--accent2); }
-/* Timeline */
-.timeline-items { display: flex; flex-direction: column; gap: 8px; }
-.timeline-item { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
-.timeline-item input { flex: 1; }
-/* Color picker */
-.color-choices { display: flex; flex-wrap: wrap; gap: 10px; }
-.color-choice { width: 44px; height: 44px; border-radius: 10px; cursor: pointer; border: 3px solid transparent; transition: all .15s; }
-.color-choice.selected { border-color: #fff; transform: scale(1.1); }
-/* Grid question */
-.grid-q { display: grid; gap: 4px; }
-.grid-cell { width: 40px; height: 40px; border-radius: 6px; border: 2px solid var(--border); cursor: pointer; transition: all .15s; }
-.grid-cell.selected { background: var(--accent); border-color: var(--accent); }
-/* Flashcard */
-.flashcard-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-/* Photo response */
-.photo-thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+/* TYPE PICKER */
+.typegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-height:62vh;overflow-y:auto}
+.typeitem{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;transition:all .13s}
+.typeitem:hover{border-color:var(--accent);background:rgba(124,92,252,.1)}
+.typeitem .ti{font-size:1.5rem;margin-bottom:7px}
+.typeitem .tn{font-size:.78rem;font-weight:600}
+.typeitem .td{font-size:.68rem;color:var(--muted);margin-top:3px}
 
-/* ---- PLAY PAGE ---- */
-#page-play { padding: 0; background: var(--bg); }
-.play-header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--bg2); position: sticky; top: 64px; z-index: 10; }
-.play-progress { flex: 1; max-width: 400px; margin: 0 16px; }
-.play-progress-bar { height: 6px; background: var(--bg3); border-radius: 99px; overflow: hidden; }
-.play-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width .4s; }
-.play-timer { font-family: 'Courier New', monospace; font-size: 1rem; font-weight: 700; width: 44px; text-align: center; }
-.play-timer.warning { color: var(--red); animation: pulse 1s infinite; }
-@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
-.play-area { display: flex; align-items: flex-start; justify-content: center; padding: 48px 24px; min-height: calc(100vh - 128px); }
-.play-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 24px; padding: 40px; width: min(720px, 100%); }
-.play-q-num { font-size: .8rem; color: var(--muted); margin-bottom: 16px; }
-.play-q-text { font-family: var(--font-head); font-size: 1.5rem; font-weight: 700; margin-bottom: 32px; line-height: 1.3; }
-.play-q-media { margin-bottom: 24px; }
-.play-q-media img { max-width: 100%; border-radius: 12px; }
-.play-choices { display: grid; gap: 12px; }
-.play-choice { background: var(--bg3); border: 2px solid var(--border); border-radius: 12px; padding: 16px 20px; cursor: pointer; font-size: .95rem; transition: all .2s; text-align: left; display: flex; align-items: center; gap: 12px; width: 100%; }
-.play-choice:hover:not(:disabled) { border-color: var(--accent); background: rgba(124,92,252,.08); }
-.play-choice.selected { border-color: var(--accent); background: rgba(124,92,252,.12); }
-.play-choice.correct { border-color: var(--green) !important; background: rgba(34,197,94,.1) !important; }
-.play-choice.wrong { border-color: var(--red) !important; background: rgba(239,68,68,.1) !important; }
-.play-choice:disabled { cursor: not-allowed; }
-.play-choice .choice-letter { width: 28px; height: 28px; border-radius: 8px; background: var(--bg2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
-.play-input { width: 100%; background: var(--bg3); border: 2px solid var(--border); border-radius: 12px; padding: 16px 20px; font-size: 1.1rem; color: var(--text); transition: border-color .2s; }
-.play-input:focus { border-color: var(--accent); }
-.play-feedback { margin-top: 24px; padding: 16px 20px; border-radius: 12px; font-size: .95rem; font-weight: 500; display: none; }
-.play-feedback.ok { background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3); color: var(--green); display: block; }
-.play-feedback.bad { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); color: var(--red); display: block; }
-.play-next { margin-top: 24px; width: 100%; }
-/* Results */
-.result-card { text-align: center; max-width: 560px; margin: 0 auto; padding: 48px 24px; }
-.result-score-circle { width: 140px; height: 140px; border-radius: 50%; border: 4px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 24px; }
-.result-score-circle .num { font-family: var(--font-head); font-size: 2.4rem; font-weight: 800; }
-.result-score-circle .den { font-size: .8rem; color: var(--muted); }
-.result-msg { font-size: 1.1rem; margin-bottom: 32px; }
+/* PLAY */
+#page-play{padding-top:62px}
+.playhdr{padding:14px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:62px;z-index:10}
+.playprog{flex:1;max-width:380px;margin:0 14px}
+.playprogbar{height:5px;background:var(--bg3);border-radius:99px;overflow:hidden}
+.playprogfill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .4s}
+.playtimer{font-family:'Courier New',monospace;font-size:.95rem;font-weight:700;width:40px;text-align:center}
+.playtimer.warn{color:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.playarea{display:flex;align-items:flex-start;justify-content:center;padding:44px 22px;min-height:calc(100vh - 126px)}
+.playcard{background:var(--bg2);border:1px solid var(--border);border-radius:22px;padding:36px;width:min(700px,100%)}
+.pqnum{font-size:.78rem;color:var(--muted);margin-bottom:14px}
+.pqtext{font-family:var(--fh);font-size:1.4rem;font-weight:700;margin-bottom:28px;line-height:1.3}
+.pqmedia{margin-bottom:20px}
+.pqmedia img{max-width:100%;border-radius:11px}
+.pchoices{display:grid;gap:10px}
+.pchoice{background:var(--bg3);border:2px solid var(--border);border-radius:12px;padding:14px 18px;cursor:pointer;font-size:.92rem;transition:all .18s;text-align:left;display:flex;align-items:center;gap:10px;width:100%}
+.pchoice:hover:not(:disabled){border-color:var(--accent);background:rgba(124,92,252,.08)}
+.pchoice.sel{border-color:var(--accent);background:rgba(124,92,252,.12)}
+.pchoice.correct{border-color:var(--green)!important;background:rgba(34,197,94,.1)!important}
+.pchoice.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.1)!important}
+.pchoice:disabled{cursor:not-allowed}
+.cletter{width:26px;height:26px;border-radius:7px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0}
+.pinput{width:100%;background:var(--bg3);border:2px solid var(--border);border-radius:12px;padding:14px 18px;font-size:1.05rem;color:var(--text);transition:border-color .2s}
+.pinput:focus{border-color:var(--accent)}
+.pfeedback{margin-top:20px;padding:14px 18px;border-radius:11px;font-size:.9rem;font-weight:500;display:none}
+.pfeedback.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green);display:block}
+.pfeedback.bad{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--red);display:block}
+.pnext{margin-top:20px;width:100%}
 
-/* ---- PROFILE / SETTINGS ---- */
-#page-profile { padding: 80px 24px; }
-.settings-wrap { max-width: 560px; margin: 0 auto; }
-.settings-wrap h1 { font-family: var(--font-head); font-size: 1.6rem; margin-bottom: 32px; }
-.settings-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
-.settings-section h2 { font-family: var(--font-head); font-size: 1rem; margin-bottom: 20px; color: var(--muted); }
+/* RÉSULTATS */
+.rescard{text-align:center;max-width:520px;margin:0 auto;padding:44px 22px}
+.rescircle{width:130px;height:130px;border-radius:50%;border:4px solid var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 22px}
+.rescircle .rn{font-family:var(--fh);font-size:2.2rem;font-weight:800}
+.rescircle .rd{font-size:.78rem;color:var(--muted)}
+.resmsg{font-size:1.05rem;margin-bottom:28px}
 
-/* ---- TYPE PICKER MODAL ---- */
-.type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: 60vh; overflow-y: auto; }
-.type-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 16px 12px; cursor: pointer; text-align: center; transition: all .15s; }
-.type-item:hover { border-color: var(--accent); background: rgba(124,92,252,.1); }
-.type-item .t-icon { font-size: 1.6rem; margin-bottom: 8px; }
-.type-item .t-name { font-size: .8rem; font-weight: 600; }
-.type-item .t-desc { font-size: .7rem; color: var(--muted); margin-top: 4px; }
+/* LEADERBOARD */
+.lbtable{width:100%;border-collapse:collapse;margin-top:16px}
+.lbtable th{text-align:left;padding:9px 12px;font-size:.73rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+.lbtable td{padding:10px 12px;font-size:.88rem;border-bottom:1px solid var(--border)}
+.lbtable tr:hover td{background:var(--bg3)}
+.rank1{color:var(--yellow);font-weight:700}
+.rank2{color:#9ca3af;font-weight:700}
+.rank3{color:#92400e;font-weight:700}
 
-/* ---- QUIZ JOIN MODAL ---- */
-.pseudo-modal { max-width: 380px; }
+/* CLASSROOMS */
+.clscard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;display:flex;align-items:center;gap:18px;transition:border-color .2s;margin-bottom:12px}
+.clscard:hover{border-color:rgba(59,130,246,.3)}
+.clsthumb{width:50px;height:50px;border-radius:11px;background:linear-gradient(135deg,var(--blue),#60a5fa);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.clsinfo{flex:1;min-width:0}
+.clstitle{font-family:var(--fh);font-weight:700}
+.clsmeta{font-size:.78rem;color:var(--muted);margin-top:4px}
+.grade-grid{overflow-x:auto;margin-top:16px}
+.grade-table{border-collapse:collapse;min-width:100%;font-size:.85rem}
+.grade-table th{padding:8px 12px;text-align:center;border-bottom:1px solid var(--border);font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.grade-table th:first-child{text-align:left}
+.grade-table td{padding:9px 12px;text-align:center;border-bottom:1px solid var(--border)}
+.grade-table td:first-child{text-align:left;font-weight:600}
+.grade-table tr:hover td{background:var(--bg3)}
+.note-cell{font-weight:700}
+.note-ok{color:var(--green)}
+.note-mid{color:var(--yellow)}
+.note-bad{color:var(--red)}
+.note-nd{color:var(--muted)}
+.avg-cell{font-family:var(--fh);font-weight:800;font-size:1rem}
 
-/* ---- ANIMATIONS ---- */
-@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.fade-up { animation: fadeUp .4s ease forwards; }
-.drag-over { opacity: .5; border: 2px dashed var(--accent) !important; }
+/* PROFILE */
+#page-profile{padding:72px 22px 40px}
+.settingswrap{max-width:540px;margin:0 auto}
+.settingswrap h1{font-family:var(--fh);font-size:1.5rem;margin-bottom:28px}
+.settsec{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:18px}
+.settsec h2{font-family:var(--fh);font-size:.92rem;color:var(--muted);margin-bottom:18px}
 
-/* ---- RESPONSIVE ---- */
-@media(max-width:768px) {
-  nav { padding: 0 16px; }
-  .nav-search { max-width: 180px; margin: 0 12px; }
-  .editor-body { flex-direction: column; }
-  .editor-sidebar { width: 100%; height: 160px; border-right: none; border-bottom: 1px solid var(--border); }
-  .sidebar-qs { display: flex; flex-direction: row; overflow-x: auto; padding: 8px; }
-  .sidebar-q { flex-shrink: 0; min-width: 120px; }
-  .type-grid { grid-template-columns: repeat(2,1fr); }
-  .dash-header, .quiz-grid { padding: 20px 16px; }
-}
+/* JOIN MODAL */
+.join-quiz-info{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:18px}
+.join-quiz-owner{font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.join-quiz-title{font-family:var(--fh);font-size:1.1rem;font-weight:700}
+.join-quiz-meta{font-size:.78rem;color:var(--muted);margin-top:5px}
+.join-actions{display:flex;gap:10px;margin-top:20px}
+.join-actions button{flex:1}
+
+/* TABS (dashboard) */
+.dtabs{display:flex;gap:6px;padding:22px 38px 0}
+.dtab{padding:8px 18px;border-radius:99px;font-size:.85rem;font-weight:500;background:var(--bg3);border:1px solid transparent;cursor:pointer;transition:all .15s}
+.dtab.active{background:rgba(124,92,252,.15);border-color:var(--accent);color:var(--accent)}
+
+/* SECTION HEADER */
+.sechead{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sechead h2{font-family:var(--fh);font-size:1.1rem;font-weight:700}
+
+/* COMPETIOTION BADGE */
+.leadericon{font-size:.75rem;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.25);color:var(--yellow);border-radius:6px;padding:2px 7px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .35s ease forwards}
 </style>
 </head>
 <body>
 
-<!-- LOADER -->
 <div id="loader"><div class="spin"></div></div>
-
-<!-- TOAST -->
 <div id="toast"></div>
 
-<!-- ============================================================
-     NAVBAR
-============================================================ -->
+<!-- ═══════════════════ NAVBAR ═══════════════════ -->
 <nav>
-  <div class="nav-logo" onclick="navigate('home')" style="cursor:pointer">Qu<span>b</span>rix</div>
-
+  <div class="nav-logo" onclick="go('home')">Qu<span>b</span>rix</div>
   <div class="nav-search">
-    <span class="ico">⌕</span>
-    <input id="nav-search-input" type="text" placeholder="Rechercher un quiz…" autocomplete="off"/>
-    <div id="nav-search-results" class="nav-search-results"></div>
+    <span class="sico">⌕</span>
+    <input id="nsearch" type="text" placeholder="Rechercher un quiz…" autocomplete="off"/>
+    <div id="sresults" class="sresults"></div>
   </div>
-
-  <div class="nav-right">
-    <button class="nav-join btn-ghost btn btn-sm" onclick="openJoinModal()">
-      <span>🎮</span> Rejoindre
-    </button>
-    <div id="nav-auth-area"></div>
-  </div>
+  <div class="nav-right" id="navright"></div>
 </nav>
 
-<!-- ============================================================
-     PAGE : HOME
-============================================================ -->
+<!-- ═══════════════════ HOME ═══════════════════ -->
 <div id="page-home" class="page active">
-  <div class="home-hero fade-up">
-    <div class="home-eyebrow">✦ Créez. Partagez. Jouez.</div>
-    <h1 class="home-title">La plateforme de quiz <span class="grad">qui déchire.</span></h1>
-    <p class="home-sub">22 types de questions, éditeur visuel complet, codes de partage instantanés — sans publicité, sans limite.</p>
-    <div class="home-ctas">
-      <button class="btn btn-primary" onclick="requireAuth(() => navigate('editor-new'))">🚀 Créer un quiz</button>
-      <button class="btn btn-ghost" onclick="navigate('dashboard')">📁 Mes quiz</button>
+  <div class="hero fu">
+    <div class="eyebrow">✦ Créez · Partagez · Jouez</div>
+    <h1 class="htitle">La plateforme de quiz <span class="grad">qui déchire.</span></h1>
+    <p class="hsub">22 types de questions, éditeur visuel complet, codes de partage instantanés — sans pub, sans limite.</p>
+    <div class="hctas">
+      <button class="btn btn-p" onclick="requireAuth(()=>go('editor-new'))">🚀 Créer un quiz</button>
+      <button class="btn btn-g" onclick="requireAuth(()=>go('dashboard'))">📁 Mes quiz</button>
     </div>
-    <div class="home-join-box" style="margin:60px auto 0;">
-      <h3>🎮 Rejoindre un quiz</h3>
-      <div class="code-input-wrap">
-        <input id="home-code" type="text" maxlength="6" placeholder="CODE" oninput="this.value=this.value.toUpperCase()"/>
-        <button class="btn btn-primary" onclick="joinByCode(document.getElementById('home-code').value)">Go</button>
+    <div class="joinbox">
+      <h3>🎮 Rejoindre avec un code</h3>
+      <div class="codewrap">
+        <input id="homecode" type="text" maxlength="6" placeholder="XXXXXX" oninput="this.value=this.value.toUpperCase()"/>
+        <button class="btn btn-p" onclick="lookupCode(document.getElementById('homecode').value)">Rejoindre</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ============================================================
-     PAGE : DASHBOARD
-============================================================ -->
-<div id="page-dashboard" class="page" style="padding-top:64px">
-  <div class="dash-header">
-    <div>
-      <h1>Mes quiz</h1>
-      <p id="dash-count"></p>
-    </div>
-    <button class="btn btn-primary" onclick="navigate('editor-new')">+ Nouveau quiz</button>
+<!-- ═══════════════════ DASHBOARD ═══════════════════ -->
+<div id="page-dashboard" class="page">
+  <div class="dash-hdr">
+    <div><h1 id="dash-title">Mes quiz</h1><p id="dash-sub"></p></div>
+    <div style="display:flex;gap:8px" id="dash-actions"></div>
   </div>
-  <div id="quiz-grid" class="quiz-grid"></div>
+  <div class="dtabs" id="dtabs">
+    <button class="dtab active" onclick="switchDashTab('quizzes',this)">📋 Quiz</button>
+    <button class="dtab" onclick="switchDashTab('competition',this)">🏆 Compétition</button>
+    <button class="dtab" onclick="switchDashTab('classes',this)">🎓 Classes</button>
+  </div>
+  <div id="dash-body" style="padding:22px 38px"></div>
 </div>
 
-<!-- ============================================================
-     PAGE : EDITOR
-============================================================ -->
+<!-- ═══════════════════ EDITOR ═══════════════════ -->
 <div id="page-editor" class="page">
-  <div class="editor-top">
-    <button class="btn btn-ghost btn-sm" onclick="navigate('dashboard')">← Retour</button>
-    <input class="quiz-title-input" id="quiz-title-input" type="text" placeholder="Nom du quiz…" value="Quiz sans titre"/>
-    <button class="btn btn-ghost btn-sm" id="btn-preview">👁 Aperçu</button>
-    <button class="btn btn-primary btn-sm" id="btn-save" onclick="saveQuiz()">💾 Sauvegarder</button>
+  <div class="edtop">
+    <button class="btn btn-g btn-sm" onclick="go('dashboard')">← Retour</button>
+    <input class="qtinput" id="ed-title" type="text" placeholder="Nom du quiz…" value="Quiz sans titre"/>
+    <label style="display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--muted);cursor:pointer">
+      <input type="checkbox" id="ed-competition" style="accent-color:var(--yellow)"/> 🏆 Compétition
+    </label>
+    <button class="btn btn-g btn-sm" onclick="previewQuiz()">👁 Aperçu</button>
+    <button class="btn btn-p btn-sm" onclick="saveQuiz()">💾 Sauvegarder</button>
   </div>
-  <div class="editor-body">
-    <div class="editor-sidebar">
+  <div class="edbody">
+    <div class="edsidebar">
       <div id="sidebar-qs" class="sidebar-qs"></div>
-      <div class="sidebar-add">
-        <button class="add-q-btn" onclick="openTypePicker()">+ Ajouter une question</button>
-      </div>
+      <div class="sidebar-add"><button class="addqbtn" onclick="openTypePicker()">+ Ajouter une question</button></div>
     </div>
-    <div class="editor-main">
-      <div id="q-editor-area"></div>
-    </div>
+    <div class="editmain"><div id="qarea"></div></div>
   </div>
 </div>
 
-<!-- ============================================================
-     PAGE : PLAY
-============================================================ -->
-<div id="page-play" class="page" style="padding-top:64px">
-  <div class="play-header">
-    <div id="play-quiz-title" style="font-family:var(--font-head);font-weight:700"></div>
-    <div class="play-progress">
-      <div class="play-progress-bar"><div class="play-progress-fill" id="play-progress-fill" style="width:0%"></div></div>
-    </div>
-    <div class="play-timer" id="play-timer">–</div>
+<!-- ═══════════════════ PLAY ═══════════════════ -->
+<div id="page-play" class="page">
+  <div class="playhdr">
+    <div id="play-qtitle" style="font-family:var(--fh);font-weight:700;font-size:.95rem"></div>
+    <div class="playprog"><div class="playprogbar"><div class="playprogfill" id="ppfill" style="width:0%"></div></div></div>
+    <div class="playtimer" id="ptimer">–</div>
   </div>
-  <div class="play-area">
-    <div id="play-card" class="play-card"></div>
-  </div>
+  <div class="playarea"><div id="playcard" class="playcard"></div></div>
 </div>
 
-<!-- ============================================================
-     PAGE : PROFILE / SETTINGS
-============================================================ -->
+<!-- ═══════════════════ PROFILE ═══════════════════ -->
 <div id="page-profile" class="page">
-  <div class="settings-wrap">
+  <div class="settingswrap">
     <h1>⚙️ Mon profil</h1>
-    <div class="settings-section">
-      <h2>IDENTITÉ</h2>
-      <div class="field"><label>Nom d'utilisateur</label><input id="set-username" type="text"/></div>
-      <div class="field"><label>Email</label><input id="set-email" type="email"/></div>
-      <div class="field"><label>Téléphone (optionnel)</label><input id="set-phone" type="tel"/></div>
-      <button class="btn btn-primary btn-sm" onclick="saveProfile()">Sauvegarder</button>
+    <div class="settsec"><h2>IDENTITÉ</h2>
+      <div class="field"><label>Pseudo</label><input id="s-uname" type="text"/></div>
+      <div class="field"><label>Email</label><input id="s-email" type="email"/></div>
+      <div class="field"><label>Téléphone</label><input id="s-phone" type="tel"/></div>
+      <button class="btn btn-p btn-sm" onclick="saveProfile()">Sauvegarder</button>
     </div>
-    <div class="settings-section">
-      <h2>MOT DE PASSE</h2>
-      <div class="field"><label>Mot de passe actuel</label><input id="set-cur-pw" type="password"/></div>
-      <div class="field"><label>Nouveau mot de passe</label><input id="set-new-pw" type="password"/></div>
-      <button class="btn btn-ghost btn-sm" onclick="savePassword()">Changer le mot de passe</button>
+    <div class="settsec"><h2>MOT DE PASSE</h2>
+      <div class="field"><label>Actuel</label><input id="s-cpw" type="password"/></div>
+      <div class="field"><label>Nouveau</label><input id="s-npw" type="password"/></div>
+      <button class="btn btn-g btn-sm" onclick="savePw()">Changer</button>
     </div>
-    <div class="settings-section">
-      <button class="btn btn-danger btn-sm" onclick="logout()">Se déconnecter</button>
+    <div class="settsec">
+      <button class="btn btn-d btn-sm" onclick="logout()">Se déconnecter</button>
     </div>
   </div>
 </div>
 
-<!-- ============================================================
-     MODALS
-============================================================ -->
+<!-- ═══════════════════ MODALS ═══════════════════ -->
 
-<!-- Auth Modal -->
-<div class="modal-bg" id="modal-auth">
+<!-- Auth -->
+<div class="mbg" id="modal-auth">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('modal-auth')">✕</button>
-    <div id="auth-tabs" style="display:flex;gap:8px;margin-bottom:24px">
-      <button class="btn btn-primary btn-sm" id="tab-login-btn" onclick="switchAuthTab('login')">Connexion</button>
-      <button class="btn btn-ghost btn-sm" id="tab-reg-btn" onclick="switchAuthTab('register')">Inscription</button>
+    <button class="mclose" onclick="closeM('modal-auth')">✕</button>
+    <div style="display:flex;gap:7px;margin-bottom:20px">
+      <button class="btn btn-p btn-sm" id="tab-li" onclick="authTab('login')">Connexion</button>
+      <button class="btn btn-g btn-sm" id="tab-rg" onclick="authTab('register')">Inscription</button>
     </div>
     <div id="auth-login">
       <h2>Connexion</h2>
-      <div class="field"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"/></div>
-      <div class="field"><label>Mot de passe</label><input id="login-pw" type="password" placeholder="••••••"/></div>
-      <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Se connecter</button>
+      <div class="field"><label>Email</label><input id="li-email" type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Mot de passe</label><input id="li-pw" type="password" placeholder="••••••"/></div>
+      <button class="btn btn-p" style="width:100%" onclick="doLogin()">Se connecter</button>
     </div>
-    <div id="auth-register" style="display:none">
+    <div id="auth-reg" style="display:none">
       <h2>Créer un compte</h2>
-      <div class="field"><label>Nom d'utilisateur</label><input id="reg-username" type="text" placeholder="tonpseudo"/></div>
-      <div class="field"><label>Email</label><input id="reg-email" type="email" placeholder="you@example.com"/></div>
-      <div class="field"><label>Mot de passe</label><input id="reg-pw" type="password" placeholder="min. 6 caractères"/></div>
-      <button class="btn btn-primary" style="width:100%" onclick="doRegister()">Créer mon compte</button>
+      <div class="field"><label>Pseudo</label><input id="rg-uname" type="text" placeholder="tonpseudo"/></div>
+      <div class="field"><label>Email</label><input id="rg-email" type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Mot de passe</label><input id="rg-pw" type="password" placeholder="min. 6 caractères"/></div>
+      <button class="btn btn-p" style="width:100%" onclick="doRegister()">Créer mon compte</button>
     </div>
   </div>
 </div>
 
-<!-- Type Picker Modal -->
-<div class="modal-bg" id="modal-type">
-  <div class="modal" style="max-width:660px">
-    <button class="modal-close" onclick="closeModal('modal-type')">✕</button>
-    <h2>Choisir un type de question</h2>
-    <div class="type-grid" id="type-grid"></div>
+<!-- Type Picker -->
+<div class="mbg" id="modal-type">
+  <div class="modal" style="max-width:640px">
+    <button class="mclose" onclick="closeM('modal-type')">✕</button>
+    <h2>Type de question</h2>
+    <div class="typegrid" id="typegrid"></div>
   </div>
 </div>
 
-<!-- Join Modal (pseudo) -->
-<div class="modal-bg" id="modal-join">
-  <div class="modal pseudo-modal">
-    <button class="modal-close" onclick="closeModal('modal-join')">✕</button>
-    <h2>🎮 Rejoindre</h2>
+<!-- Join (code → info quiz → pseudo) -->
+<div class="mbg" id="modal-join">
+  <div class="modal" style="max-width:400px">
+    <button class="mclose" onclick="closeM('modal-join')">✕</button>
+    <h2 style="margin-bottom:6px">🎮 Rejoindre le quiz</h2>
+    <div class="join-quiz-info" id="join-info">
+      <div class="join-quiz-owner" id="join-owner"></div>
+      <div class="join-quiz-title" id="join-title"></div>
+      <div class="join-quiz-meta" id="join-meta"></div>
+    </div>
     <div class="field"><label>Ton pseudo</label><input id="join-pseudo" type="text" placeholder="MonPseudo" maxlength="24"/></div>
-    <button class="btn btn-primary" style="width:100%" onclick="startPlay()">Jouer !</button>
+    <!-- Class selector (shown if quiz is assigned to a class the user belongs to) -->
+    <div id="join-class-wrap" style="display:none">
+      <div class="field"><label>Lier à une classe (optionnel)</label>
+        <select id="join-class-sel"><option value="">— Aucune —</option></select>
+      </div>
+    </div>
+    <div class="join-actions">
+      <button class="btn btn-g" onclick="closeM('modal-join')">Annuler</button>
+      <button class="btn btn-p" onclick="startPlay()">Rejoindre</button>
+    </div>
   </div>
 </div>
 
-<!-- ============================================================
-     JAVASCRIPT
-============================================================ -->
-<script>
-// ============================================================
-// CONFIG — remplace par l'URL de ton Worker déployé
-// ============================================================
-const API = "https://qubrix-worker.capkychannel.workers.dev";
+<!-- Create Class -->
+<div class="mbg" id="modal-cls">
+  <div class="modal">
+    <button class="mclose" onclick="closeM('modal-cls')">✕</button>
+    <h2>🎓 Nouvelle classe</h2>
+    <div class="field"><label>Nom de la classe</label><input id="cls-name" type="text" placeholder="Ex : Terminale B"/></div>
+    <div class="field"><label>Description</label><textarea id="cls-desc" placeholder="Description optionnelle…"></textarea></div>
+    <div class="field"><label>Barème (note sur…)</label><input id="cls-scale" type="number" min="1" max="100" value="20"/></div>
+    <button class="btn btn-p" style="width:100%" onclick="createClass()">Créer la classe</button>
+  </div>
+</div>
 
-// ============================================================
-// STATE
-// ============================================================
-let state = {
-  token: localStorage.getItem("qbx_token") || null,
-  user: JSON.parse(localStorage.getItem("qbx_user") || "null"),
-  currentPage: "home",
-  // Editor
-  editQuizId: null,
-  questions: [],
-  activeQ: 0,
-  // Play
-  playQuiz: null,
-  playIndex: 0,
-  playPseudo: "",
-  playAnswers: [],
-  playScore: 0,
-  playTimer: null,
-  pendingJoinCode: null,
+<!-- Join Class (élève) -->
+<div class="mbg" id="modal-joincls">
+  <div class="modal" style="max-width:380px">
+    <button class="mclose" onclick="closeM('modal-joincls')">✕</button>
+    <h2>🎓 Rejoindre une classe</h2>
+    <div class="field"><label>Code de la classe</label><input id="joincls-code" type="text" maxlength="8" placeholder="XXXXXXXX" oninput="this.value=this.value.toUpperCase()"/></div>
+    <button class="btn btn-p" style="width:100%" onclick="joinClass()">Rejoindre</button>
+  </div>
+</div>
+
+<!-- Assign Quiz to Class -->
+<div class="mbg" id="modal-assign">
+  <div class="modal">
+    <button class="mclose" onclick="closeM('modal-assign')">✕</button>
+    <h2>📌 Assigner un quiz</h2>
+    <div class="field"><label>Quiz</label><select id="assign-quiz"></select></div>
+    <div class="field"><label>Date limite (optionnel)</label><input id="assign-due" type="date"/></div>
+    <div class="field"><label>Coefficient</label><input id="assign-coeff" type="number" min="1" max="10" value="1"/></div>
+    <button class="btn btn-p" style="width:100%" onclick="doAssign()">Assigner</button>
+  </div>
+</div>
+
+<!-- Leaderboard -->
+<div class="mbg" id="modal-lb">
+  <div class="modal" style="max-width:520px">
+    <button class="mclose" onclick="closeM('modal-lb')">✕</button>
+    <h2>🏆 Classement — <span id="lb-title"></span></h2>
+    <div id="lb-body"></div>
+  </div>
+</div>
+
+<!-- Grades modal -->
+<div class="mbg" id="modal-grades">
+  <div class="modal" style="max-width:800px;width:95vw">
+    <button class="mclose" onclick="closeM('modal-grades')">✕</button>
+    <h2>📊 Carnet de notes — <span id="grades-title"></span></h2>
+    <div id="grades-body"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIG — remplace par l'URL de ton Worker
+// ═══════════════════════════════════════════════
+const API = "https://qubrix.TON-SOUS-DOMAINE.workers.dev";
+
+// ══ STATE ══
+let S = {
+  token: localStorage.getItem("qbx_tok") || null,
+  user:  JSON.parse(localStorage.getItem("qbx_usr") || "null"),
+  // editor
+  editId: null, questions: [], activeQ: 0,
+  // play
+  playQuiz: null, playIdx: 0, playPseudo: "", playAnswers: [], playScore: 0,
+  playTimer: null, playClassId: null, playClassTitle: null,
+  // join buffer
+  pendingQuiz: null,
+  // dashboard tab
+  dashTab: "quizzes",
+  // current class view
+  currentClassId: null,
 };
 
-// ============================================================
-// QUESTION TYPES
-// ============================================================
+// ══ TYPES ══
 const QTYPES = [
-  { id:"truefalse",   icon:"✅",  name:"Vrai / Faux",         desc:"Deux choix, image/vidéo possible" },
-  { id:"freetext",    icon:"✍️",  name:"Texte libre",          desc:"Réponse tapée à la main" },
-  { id:"qcm",         icon:"🔘",  name:"QCM classique",        desc:"4 choix, une bonne réponse" },
-  { id:"qcmmulti",    icon:"☑️",  name:"QCM multiple",         desc:"Plusieurs bonnes réponses" },
-  { id:"dragdrop",    icon:"🔀",  name:"Glisser-déposer",      desc:"Associer des éléments" },
-  { id:"ordering",    icon:"📋",  name:"Remettre en ordre",    desc:"Reclasser des mots/phrases" },
-  { id:"connect",     icon:"🔗",  name:"Relier",               desc:"Relier deux colonnes" },
-  { id:"fillblank",   icon:"🕳️",  name:"Compléter la phrase",  desc:"Texte à trous" },
-  { id:"slider",      icon:"🎚️",  name:"Curseur",              desc:"Placer une valeur sur une échelle" },
-  { id:"imagemap",    icon:"🗺️",  name:"Carte cliquable",      desc:"Cliquer sur une zone d'image" },
-  { id:"audio",       icon:"🎵",  name:"Audio",                desc:"Écouter puis répondre" },
-  { id:"drawing",     icon:"✏️",  name:"Dessin",               desc:"Dessiner la réponse" },
-  { id:"code",        icon:"💻",  name:"Code",                 desc:"Écrire du code avec coloration" },
-  { id:"equation",    icon:"🧮",  name:"Équation",             desc:"Saisir une formule mathématique" },
-  { id:"timeline",    icon:"⏳",  name:"Chronologie",          desc:"Classer des événements dans le temps" },
-  { id:"priority",    icon:"🏆",  name:"Priorité",             desc:"Ranger par ordre d'importance" },
-  { id:"color",       icon:"🎨",  name:"Couleur",              desc:"Choisir une couleur" },
-  { id:"grid",        icon:"⬜",  name:"Grille",               desc:"Sélectionner des cases" },
-  { id:"poll",        icon:"📊",  name:"Sondage",              desc:"Sans bonne/mauvaise réponse" },
-  { id:"flashcard",   icon:"🃏",  name:"Flash card",           desc:"Voir un mot, deviner la définition" },
-  { id:"photo",       icon:"📷",  name:"Photo réponse",        desc:"Uploader une image comme réponse" },
-  { id:"location",    icon:"📍",  name:"Localisation",         desc:"Pointer sur une carte du monde" },
+  {id:"truefalse",  icon:"✅", name:"Vrai / Faux",        desc:"Deux choix"},
+  {id:"freetext",   icon:"✍️", name:"Texte libre",         desc:"Réponse tapée"},
+  {id:"qcm",        icon:"🔘", name:"QCM classique",       desc:"1 bonne réponse"},
+  {id:"qcmmulti",   icon:"☑️", name:"QCM multiple",        desc:"Plusieurs bonnes"},
+  {id:"dragdrop",   icon:"🔀", name:"Glisser-déposer",     desc:"Associer éléments"},
+  {id:"ordering",   icon:"📋", name:"Remettre en ordre",   desc:"Reclasser"},
+  {id:"connect",    icon:"🔗", name:"Relier",              desc:"Deux colonnes"},
+  {id:"fillblank",  icon:"🕳️", name:"Compléter phrase",    desc:"Texte à trous"},
+  {id:"slider",     icon:"🎚️", name:"Curseur",             desc:"Valeur sur échelle"},
+  {id:"imagemap",   icon:"🗺️", name:"Carte cliquable",     desc:"Zone d'image"},
+  {id:"audio",      icon:"🎵", name:"Audio",               desc:"Écouter → répondre"},
+  {id:"drawing",    icon:"✏️", name:"Dessin",              desc:"Réponse dessinée"},
+  {id:"code",       icon:"💻", name:"Code",                desc:"Avec coloration"},
+  {id:"equation",   icon:"🧮", name:"Équation",            desc:"Formule mathématique"},
+  {id:"timeline",   icon:"⏳", name:"Chronologie",         desc:"Classer événements"},
+  {id:"priority",   icon:"🏆", name:"Priorité",            desc:"Ordre d'importance"},
+  {id:"color",      icon:"🎨", name:"Couleur",             desc:"Choisir une couleur"},
+  {id:"grid",       icon:"⬜", name:"Grille",              desc:"Sélectionner cases"},
+  {id:"poll",       icon:"📊", name:"Sondage",             desc:"Sans bonne réponse"},
+  {id:"flashcard",  icon:"🃏", name:"Flash card",          desc:"Mot → définition"},
+  {id:"photo",      icon:"📷", name:"Photo réponse",       desc:"Uploader une image"},
+  {id:"location",   icon:"📍", name:"Localisation",        desc:"Pointer sur carte"},
 ];
 
-// ============================================================
-// API HELPER
-// ============================================================
+// ══ API ══
 async function api(method, path, body) {
   const opts = { method, headers: { "Content-Type": "application/json" } };
-  if (state.token) opts.headers["Authorization"] = "Bearer " + state.token;
-  if (body) opts.body = JSON.stringify(body);
+  if (S.token) opts.headers["Authorization"] = "Bearer " + S.token;
+  if (body !== undefined) opts.body = JSON.stringify(body);
   const r = await fetch(API + path, opts);
-  const data = await r.json();
-  if (!r.ok) throw new Error(data.error || "Erreur serveur");
-  return data;
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || "Erreur serveur");
+  return d;
 }
 
-// ============================================================
-// TOAST
-// ============================================================
-function toast(msg, type = "") {
+// ══ TOAST ══
+function toast(msg, type="") {
   const el = document.getElementById("toast");
-  el.textContent = msg;
-  el.className = type ? `show ${type}` : "show";
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.className = "", 3000);
+  el.textContent = msg; el.className = type ? `show ${type}` : "show";
+  clearTimeout(el._t); el._t = setTimeout(() => el.className = "", 3200);
 }
 
-// ============================================================
-// ROUTING
-// ============================================================
-function navigate(page, data) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  const pages = {
-    "home": "page-home",
-    "dashboard": "page-dashboard",
-    "editor": "page-editor",
-    "editor-new": "page-editor",
-    "play": "page-play",
-    "profile": "page-profile",
-  };
-  const target = pages[page] || "page-home";
-  const el = document.getElementById(target);
-  if (el) el.classList.add("active");
-  state.currentPage = page;
-  window.scrollTo(0, 0);
+// ══ LOADER ══
+function showL() { document.getElementById("loader").classList.remove("hide"); }
+function hideL() { document.getElementById("loader").classList.add("hide"); }
 
+// ══ ROUTING ══
+const PAGEMAP = { home:"page-home", dashboard:"page-dashboard", editor:"page-editor", "editor-new":"page-editor", play:"page-play", profile:"page-profile" };
+function go(page, data) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  const id = PAGEMAP[page] || "page-home";
+  document.getElementById(id)?.classList.add("active");
+  S.currentPage = page;
+  window.scrollTo(0,0);
   if (page === "dashboard") loadDashboard();
   if (page === "editor-new") initEditor(null);
   if (page === "editor" && data) initEditor(data);
   if (page === "play" && data) initPlay(data);
   if (page === "profile") loadProfile();
 }
+function requireAuth(cb) { if (!S.user) { openM("modal-auth"); return; } cb(); }
 
-function requireAuth(cb) {
-  if (!state.user) { openModal("modal-auth"); return; }
-  cb();
-}
-
-// ============================================================
-// AUTH
-// ============================================================
-function renderNavAuth() {
-  const area = document.getElementById("nav-auth-area");
-  if (state.user) {
-    const initials = state.user.username.substring(0, 2).toUpperCase();
-    area.innerHTML = `
-      <div class="avatar-wrap">
-        <div class="avatar-btn">${initials}</div>
-        <div class="avatar-menu">
-          <a onclick="navigate('dashboard')">📁 Mes quiz</a>
-          <a onclick="navigate('profile')">⚙️ Profil & Paramètres</a>
-          <hr/>
-          <button class="danger" onclick="logout()">Déconnexion</button>
-        </div>
-      </div>`;
+// ══ NAV ══
+function renderNav() {
+  const a = document.getElementById("navright");
+  if (S.user) {
+    const ini = S.user.username.substring(0,2).toUpperCase();
+    a.innerHTML = `<div class="avatar-wrap" id="avwrap">
+      <div class="avatar-btn" onclick="document.getElementById('avwrap').classList.toggle('open')">${ini}</div>
+      <div class="avatar-menu">
+        <a onclick="go('dashboard');closeAv()">📁 Mes quiz & Classes</a>
+        <a onclick="go('profile');closeAv()">⚙️ Profil</a>
+        <hr/>
+        <button class="danger" onclick="logout()">Déconnexion</button>
+      </div>
+    </div>`;
   } else {
-    area.innerHTML = `<button class="btn btn-ghost btn-sm" onclick="openModal('modal-auth')">Connexion</button>`;
+    a.innerHTML = `<button class="btn btn-g btn-sm" onclick="openM('modal-auth')">Connexion</button>`;
   }
 }
+function closeAv() { document.getElementById("avwrap")?.classList.remove("open"); }
+document.addEventListener("click", e => { if (!e.target.closest(".avatar-wrap")) document.getElementById("avwrap")?.classList.remove("open"); });
 
-function switchAuthTab(tab) {
-  document.getElementById("auth-login").style.display = tab === "login" ? "" : "none";
-  document.getElementById("auth-register").style.display = tab === "register" ? "" : "none";
-  document.getElementById("tab-login-btn").className = tab === "login" ? "btn btn-primary btn-sm" : "btn btn-ghost btn-sm";
-  document.getElementById("tab-reg-btn").className = tab === "register" ? "btn btn-primary btn-sm" : "btn btn-ghost btn-sm";
-}
-
-async function doLogin() {
-  try {
-    const email = document.getElementById("login-email").value;
-    const password = document.getElementById("login-pw").value;
-    const data = await api("POST", "/api/auth/login", { email, password });
-    state.token = data.token; state.user = data.user;
-    localStorage.setItem("qbx_token", data.token);
-    localStorage.setItem("qbx_user", JSON.stringify(data.user));
-    closeModal("modal-auth"); renderNavAuth();
-    toast("Bienvenue " + data.user.username + " !", "ok");
-  } catch(e) { toast(e.message, "bad"); }
-}
-
-async function doRegister() {
-  try {
-    const username = document.getElementById("reg-username").value;
-    const email = document.getElementById("reg-email").value;
-    const password = document.getElementById("reg-pw").value;
-    const data = await api("POST", "/api/auth/register", { username, email, password });
-    state.token = data.token; state.user = data.user;
-    localStorage.setItem("qbx_token", data.token);
-    localStorage.setItem("qbx_user", JSON.stringify(data.user));
-    closeModal("modal-auth"); renderNavAuth();
-    toast("Compte créé avec succès 🎉", "ok");
-  } catch(e) { toast(e.message, "bad"); }
-}
-
-async function logout() {
-  try { await api("POST", "/api/auth/logout"); } catch(_) {}
-  state.token = null; state.user = null;
-  localStorage.removeItem("qbx_token"); localStorage.removeItem("qbx_user");
-  renderNavAuth(); navigate("home"); toast("À bientôt !");
-}
-
-// ============================================================
-// MODALS
-// ============================================================
-function openModal(id) { document.getElementById(id).classList.add("open"); }
-function closeModal(id) { document.getElementById(id).classList.remove("open"); }
-document.querySelectorAll(".modal-bg").forEach(bg => bg.addEventListener("click", e => { if (e.target === bg) bg.classList.remove("open"); }));
-
-// ============================================================
-// SEARCH
-// ============================================================
-let searchTimer;
-document.getElementById("nav-search-input").addEventListener("input", function() {
-  clearTimeout(searchTimer);
-  const q = this.value.trim();
-  const res = document.getElementById("nav-search-results");
+// ══ SEARCH ══
+let _st;
+document.getElementById("nsearch").addEventListener("input", function() {
+  clearTimeout(_st); const q = this.value.trim();
+  const res = document.getElementById("sresults");
   if (!q) { res.classList.remove("open"); return; }
-  searchTimer = setTimeout(async () => {
+  _st = setTimeout(async () => {
     try {
-      const results = await api("GET", `/api/search?q=${encodeURIComponent(q)}`);
-      if (!results.length) { res.classList.remove("open"); return; }
-      res.innerHTML = results.map(r => `
-        <div class="search-item" onclick="joinByCode('${r.code}')">
-          <div style="flex:1">
-            <div style="font-weight:600">${r.title}</div>
-            <div style="font-size:.75rem;color:var(--muted)">${r.questionCount} questions</div>
-          </div>
-          <span class="code-badge">${r.code}</span>
-        </div>`).join("");
+      const r = await api("GET", `/api/search?q=${encodeURIComponent(q)}`);
+      if (!r.length) { res.classList.remove("open"); return; }
+      res.innerHTML = r.map(x => `<div class="sitem" onclick="lookupCode('${x.code}')">
+        <div style="flex:1"><div style="font-weight:600">${esc(x.title)}</div><div style="font-size:.72rem;color:var(--muted)">${x.questionCount} questions · par ${esc(x.ownerName||"?")}</div></div>
+        <span class="codebadge">${x.code}</span></div>`).join("");
       res.classList.add("open");
-    } catch(_) {}
-  }, 350);
+    } catch{}
+  }, 320);
 });
-document.addEventListener("click", e => {
-  if (!e.target.closest(".nav-search")) document.getElementById("nav-search-results").classList.remove("open");
-});
+document.addEventListener("click", e => { if (!e.target.closest(".nav-search")) document.getElementById("sresults").classList.remove("open"); });
 
-// ============================================================
-// JOIN BY CODE
-// ============================================================
-function openJoinModal() { openModal("modal-join"); }
-
-function joinByCode(code) {
+// ══ JOIN ══
+async function lookupCode(code) {
   if (!code) return toast("Entre un code", "bad");
-  state.pendingJoinCode = code.toUpperCase();
-  document.getElementById("join-pseudo").value = state.user ? state.user.username : "";
-  openModal("modal-join");
+  code = code.toUpperCase().trim();
+  try {
+    showL();
+    const quiz = await api("GET", `/api/join?code=${code}`);
+    S.pendingQuiz = quiz;
+    // Fill modal info
+    document.getElementById("join-owner").textContent = "Quiz de " + (quiz.ownerName || "Inconnu");
+    document.getElementById("join-title").textContent = quiz.title;
+    document.getElementById("join-meta").textContent = quiz.questions.length + " question" + (quiz.questions.length > 1 ? "s" : "") + (quiz.competitionEnabled ? " · 🏆 Compétition" : "");
+    document.getElementById("join-pseudo").value = S.user ? S.user.username : "";
+    // Populate class selector if user is logged in
+    const cw = document.getElementById("join-class-wrap");
+    const cs = document.getElementById("join-class-sel");
+    cs.innerHTML = "<option value=''>— Aucune —</option>";
+    if (S.user) {
+      try {
+        const classes = await api("GET", "/api/myclasses");
+        const owned = classes.filter(c => !c.isOwner);
+        if (owned.length) {
+          owned.forEach(c => { const o = document.createElement("option"); o.value = c.cid; o.textContent = c.name; cs.appendChild(o); });
+          cw.style.display = "";
+        } else { cw.style.display = "none"; }
+      } catch { cw.style.display = "none"; }
+    } else { cw.style.display = "none"; }
+    openM("modal-join");
+  } catch(e) { toast(e.message, "bad"); }
+  finally { hideL(); }
 }
 
 async function startPlay() {
   const pseudo = document.getElementById("join-pseudo").value.trim();
   if (!pseudo) return toast("Entre un pseudo", "bad");
-  const code = state.pendingJoinCode;
-  if (!code) return;
-  try {
-    showLoader();
-    const quiz = await api("GET", `/api/join?code=${code}`);
-    closeModal("modal-join");
-    state.playPseudo = pseudo;
-    navigate("play", quiz);
-  } catch(e) { toast(e.message, "bad"); } finally { hideLoader(); }
+  const classId = document.getElementById("join-class-sel").value || null;
+  S.playPseudo = pseudo;
+  S.playClassId = classId;
+  closeM("modal-join");
+  go("play", S.pendingQuiz);
 }
 
-// ============================================================
-// DASHBOARD
-// ============================================================
+// ══ AUTH ══
+function authTab(t) {
+  document.getElementById("auth-login").style.display = t === "login" ? "" : "none";
+  document.getElementById("auth-reg").style.display = t === "register" ? "" : "none";
+  document.getElementById("tab-li").className = t === "login" ? "btn btn-p btn-sm" : "btn btn-g btn-sm";
+  document.getElementById("tab-rg").className = t === "register" ? "btn btn-p btn-sm" : "btn btn-g btn-sm";
+}
+async function doLogin() {
+  try {
+    const d = await api("POST", "/api/auth/login", { email: v("li-email"), password: v("li-pw") });
+    saveSession(d); closeM("modal-auth"); renderNav(); toast("Bienvenue " + d.user.username + " !", "ok");
+  } catch(e) { toast(e.message, "bad"); }
+}
+async function doRegister() {
+  try {
+    const d = await api("POST", "/api/auth/register", { username: v("rg-uname"), email: v("rg-email"), password: v("rg-pw") });
+    saveSession(d); closeM("modal-auth"); renderNav(); toast("Compte créé 🎉", "ok");
+  } catch(e) { toast(e.message, "bad"); }
+}
+function saveSession(d) {
+  S.token = d.token; S.user = d.user;
+  localStorage.setItem("qbx_tok", d.token);
+  localStorage.setItem("qbx_usr", JSON.stringify(d.user));
+}
+async function logout() {
+  try { await api("POST", "/api/auth/logout"); } catch{}
+  S.token = null; S.user = null;
+  localStorage.removeItem("qbx_tok"); localStorage.removeItem("qbx_usr");
+  renderNav(); go("home"); toast("À bientôt !");
+}
+
+// ══ MODALS ══
+function openM(id) { document.getElementById(id)?.classList.add("open"); }
+function closeM(id) { document.getElementById(id)?.classList.remove("open"); }
+document.querySelectorAll(".mbg").forEach(bg => bg.addEventListener("click", e => { if (e.target === bg) bg.classList.remove("open"); }));
+
+// ══ DASHBOARD ══
 async function loadDashboard() {
-  if (!state.user) { openModal("modal-auth"); navigate("home"); return; }
-  showLoader();
-  try {
-    const quizzes = await api("GET", "/api/myquizzes");
-    document.getElementById("dash-count").textContent = quizzes.length + " quiz" + (quizzes.length !== 1 ? "s" : "");
-    const grid = document.getElementById("quiz-grid");
-    if (!quizzes.length) {
-      grid.innerHTML = `<div class="empty-state"><div class="big-icon">🧩</div><h2>Aucun quiz pour l'instant</h2><p>Crée ton premier quiz !</p><br><button class="btn btn-primary" onclick="navigate('editor-new')">+ Créer un quiz</button></div>`;
-      return;
-    }
-    grid.innerHTML = quizzes.map(q => `
-      <div class="quiz-card fade-up" id="qcard-${q.qid}">
-        <div class="quiz-card-thumb">${q.title.substring(0,2).toUpperCase()}</div>
-        <div class="quiz-card-info">
-          <div class="quiz-card-title">${esc(q.title)}</div>
-          <div class="quiz-card-meta">
-            <span>📋 ${q.questionCount} question${q.questionCount>1?'s':''}</span>
-            <span>🎮 ${q.playCount} partie${q.playCount>1?'s':''}</span>
-            <span class="code-pill" onclick="copyCode('${q.code}')" title="Cliquer pour copier">📋 ${q.code}</span>
-          </div>
-        </div>
-        <div class="quiz-card-actions">
-          <button class="btn btn-ghost btn-sm btn-icon" title="Modifier" onclick="editQuiz('${q.qid}')">✏️</button>
-          <button class="btn btn-ghost btn-sm btn-icon" title="Renommer" onclick="renameQuiz('${q.qid}','${esc(q.title)}')">🏷️</button>
-          <button class="btn btn-danger btn-sm btn-icon" title="Supprimer" onclick="deleteQuiz('${q.qid}')">🗑️</button>
-        </div>
-      </div>`).join("");
-  } catch(e) { toast(e.message, "bad"); } finally { hideLoader(); }
+  if (!S.user) { openM("modal-auth"); go("home"); return; }
+  switchDashTab(S.dashTab, document.querySelector(`.dtab.active`));
 }
 
-function copyCode(code) {
-  navigator.clipboard.writeText(code).then(() => toast("Code " + code + " copié !", "ok"));
+function switchDashTab(tab, btn) {
+  S.dashTab = tab;
+  document.querySelectorAll(".dtab").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  else document.querySelectorAll(".dtab")[["quizzes","competition","classes"].indexOf(tab)]?.classList.add("active");
+  const actions = document.getElementById("dash-actions");
+  if (tab === "quizzes") {
+    actions.innerHTML = `<button class="btn btn-p btn-sm" onclick="go('editor-new')">+ Nouveau quiz</button>`;
+    loadMyQuizzes();
+  } else if (tab === "competition") {
+    actions.innerHTML = "";
+    loadCompetition();
+  } else if (tab === "classes") {
+    actions.innerHTML = `<button class="btn btn-g btn-sm" onclick="openM('modal-joincls')">Rejoindre une classe</button><button class="btn btn-p btn-sm" onclick="openM('modal-cls')">+ Créer une classe</button>`;
+    loadClasses();
+  }
 }
+
+// — Quiz list —
+async function loadMyQuizzes() {
+  const body = document.getElementById("dash-body");
+  body.innerHTML = `<div class="qgrid" id="qgrid"></div>`;
+  try {
+    const list = await api("GET", "/api/myquizzes");
+    document.getElementById("dash-sub").textContent = list.length + " quiz";
+    const g = document.getElementById("qgrid");
+    if (!list.length) { g.innerHTML = `<div class="empty"><div class="ei">🧩</div><h2>Aucun quiz pour l'instant</h2><p>Crée ton premier quiz !</p><br><button class="btn btn-p" onclick="go('editor-new')">+ Créer</button></div>`; return; }
+    g.innerHTML = list.map(q => `<div class="qcard fu" id="qc-${q.qid}">
+      <div class="qthumb">${q.title.substring(0,2).toUpperCase()}</div>
+      <div class="qinfo">
+        <div class="qtitle">${esc(q.title)}</div>
+        <div class="qmeta">
+          <span>📋 ${q.questionCount} q.</span>
+          <span>🎮 ${q.playCount} partie${q.playCount>1?"s":""}</span>
+          <span class="codepill" onclick="copyCode('${q.code}')" title="Copier le code">📋 ${q.code}</span>
+          ${q.competitionEnabled ? `<span class="leadericon">🏆 Compétition</span>` : ""}
+        </div>
+      </div>
+      <div class="qactions">
+        ${q.competitionEnabled ? `<button class="btn btn-g btn-sm btn-ic" title="Classement" onclick="openLeaderboard('${q.qid}','${esc(q.title)}')">🏆</button>` : ""}
+        <button class="btn btn-g btn-sm btn-ic" title="Modifier" onclick="editQuiz('${q.qid}')">✏️</button>
+        <button class="btn btn-g btn-sm btn-ic" title="Renommer" onclick="renameQuiz('${q.qid}','${esc(q.title)}')">🏷️</button>
+        <button class="btn btn-d btn-sm btn-ic" title="Supprimer" onclick="deleteQuiz('${q.qid}')">🗑️</button>
+      </div>
+    </div>`).join("");
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+function copyCode(code) { navigator.clipboard.writeText(code).then(() => toast("Code " + code + " copié !", "ok")); }
 
 async function editQuiz(qid) {
-  showLoader();
-  try {
-    const quiz = await api("GET", `/api/quiz/${qid}`);
-    state.editQuizId = qid;
-    navigate("editor", quiz);
-  } catch(e) { toast(e.message, "bad"); } finally { hideLoader(); }
+  try { showL(); const q = await api("GET", `/api/quiz/${qid}`); S.editId = qid; go("editor", q); } catch(e) { toast(e.message, "bad"); } finally { hideL(); }
 }
-
 async function deleteQuiz(qid) {
   if (!confirm("Supprimer ce quiz ?")) return;
+  try { await api("DELETE", `/api/quiz/${qid}`); document.getElementById("qc-" + qid)?.remove(); toast("Supprimé", "ok"); } catch(e) { toast(e.message, "bad"); }
+}
+async function renameQuiz(qid, cur) {
+  const t = prompt("Nouveau nom :", cur); if (!t || t === cur) return;
+  try { await api("PUT", `/api/quiz/${qid}`, { title: t }); toast("Renommé ✓", "ok"); loadMyQuizzes(); } catch(e) { toast(e.message, "bad"); }
+}
+
+// — Competition —
+async function loadCompetition() {
+  document.getElementById("dash-sub").textContent = "Classements";
+  const body = document.getElementById("dash-body");
   try {
-    await api("DELETE", `/api/quiz/${qid}`);
-    document.getElementById("qcard-" + qid)?.remove();
-    toast("Quiz supprimé", "ok");
+    const list = await api("GET", "/api/myquizzes");
+    const comp = list.filter(q => q.competitionEnabled);
+    if (!comp.length) {
+      body.innerHTML = `<div class="empty"><div class="ei">🏆</div><h2>Aucun quiz en mode compétition</h2><p>Active "Compétition" lors de la création ou modification d'un quiz.</p></div>`;
+      return;
+    }
+    body.innerHTML = `<div class="qgrid">${comp.map(q => `<div class="qcard fu">
+      <div class="qthumb" style="background:linear-gradient(135deg,#eab308,#f97316)">${q.title.substring(0,2).toUpperCase()}</div>
+      <div class="qinfo">
+        <div class="qtitle">${esc(q.title)}</div>
+        <div class="qmeta"><span class="codepill">${q.code}</span><span>🎮 ${q.playCount} parties</span></div>
+      </div>
+      <button class="btn btn-g btn-sm" onclick="openLeaderboard('${q.qid}','${esc(q.title)}')">🏆 Classement</button>
+    </div>`).join("")}</div>`;
   } catch(e) { toast(e.message, "bad"); }
 }
 
-async function renameQuiz(qid, currentTitle) {
-  const newTitle = prompt("Nouveau nom :", currentTitle);
-  if (!newTitle || newTitle === currentTitle) return;
+async function openLeaderboard(qid, title) {
+  document.getElementById("lb-title").textContent = title;
+  document.getElementById("lb-body").innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted)">Chargement…</div>`;
+  openM("modal-lb");
   try {
-    await api("PUT", `/api/quiz/${qid}`, { title: newTitle });
-    toast("Renommé ✓", "ok");
-    loadDashboard();
+    const lb = await api("GET", `/api/leaderboard/${qid}`);
+    if (!lb.length) { document.getElementById("lb-body").innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted)">Aucune partie jouée encore.</div>`; return; }
+    document.getElementById("lb-body").innerHTML = `<table class="lbtable"><thead><tr><th>#</th><th>Pseudo</th><th>Score</th><th>%</th><th>Date</th></tr></thead><tbody>
+      ${lb.map((e,i) => {
+        const rankClass = i===0?"rank1":i===1?"rank2":i===2?"rank3":"";
+        const pct = e.total > 0 ? Math.round(e.score/e.total*100) : 0;
+        const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
+        return `<tr><td class="${rankClass}">${medal||"#"+(i+1)}</td><td class="${rankClass}">${esc(e.pseudo)}</td><td>${e.score}/${e.total}</td><td>${pct}%</td><td>${new Date(e.playedAt).toLocaleDateString("fr")}</td></tr>`;
+      }).join("")}
+    </tbody></table>`;
   } catch(e) { toast(e.message, "bad"); }
 }
 
-// ============================================================
-// EDITOR
-// ============================================================
+// — Classes —
+async function loadClasses() {
+  document.getElementById("dash-sub").textContent = "Classes";
+  const body = document.getElementById("dash-body");
+  try {
+    const list = await api("GET", "/api/myclasses");
+    if (!list.length) {
+      body.innerHTML = `<div class="empty"><div class="ei">🎓</div><h2>Aucune classe</h2><p>Crée une classe ou rejoins-en une avec un code.</p></div>`;
+      return;
+    }
+    body.innerHTML = list.map(c => `<div class="clscard fu">
+      <div class="clsthumb">${c.isOwner ? "📚" : "🎒"}</div>
+      <div class="clsinfo">
+        <div class="clstitle">${esc(c.name)}</div>
+        <div class="clsmeta">${c.isOwner ? "Prof" : "Élève"} · ${c.studentCount} élève${c.studentCount>1?"s":""} · ${c.quizCount} quiz assigné${c.quizCount>1?"s":""}</div>
+        ${c.isOwner ? `<div style="font-size:.75rem;color:var(--muted);margin-top:3px">Code élève : <strong style="color:var(--accent2);font-family:monospace">${c.joinCode}</strong></div>` : ""}
+      </div>
+      <div style="display:flex;gap:7px">
+        ${c.isOwner ? `<button class="btn btn-g btn-sm" onclick="openAssign('${c.cid}')">📌 Assigner quiz</button><button class="btn btn-p btn-sm" onclick="openGrades('${c.cid}','${esc(c.name)}')">📊 Notes</button>` : `<button class="btn btn-p btn-sm" onclick="openMyGrades('${c.cid}','${esc(c.name)}')">📋 Mes notes</button>`}
+      </div>
+    </div>`).join("");
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+async function createClass() {
+  try {
+    const name = v("cls-name"); if (!name) return toast("Nom requis", "bad");
+    await api("POST", "/api/class", { name, description: v("cls-desc"), gradingScale: parseInt(v("cls-scale")) || 20 });
+    closeM("modal-cls"); toast("Classe créée !", "ok"); loadClasses();
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+async function joinClass() {
+  try {
+    const code = v("joincls-code"); if (!code) return toast("Code requis", "bad");
+    const r = await api("POST", "/api/class/join", { joinCode: code });
+    closeM("modal-joincls"); toast("Rejoint " + r.name + " !", "ok"); loadClasses();
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+let _assignClassId = null;
+async function openAssign(cid) {
+  _assignClassId = cid;
+  const sel = document.getElementById("assign-quiz");
+  sel.innerHTML = "<option>Chargement…</option>";
+  openM("modal-assign");
+  try {
+    const quizzes = await api("GET", "/api/myquizzes");
+    sel.innerHTML = quizzes.map(q => `<option value="${q.qid}">${esc(q.title)}</option>`).join("");
+  } catch(e) { toast(e.message, "bad"); }
+}
+async function doAssign() {
+  try {
+    await api("POST", `/api/class/${_assignClassId}/assign`, { qid: v("assign-quiz"), dueDate: v("assign-due") || null, coefficient: parseInt(v("assign-coeff")) || 1 });
+    closeM("modal-assign"); toast("Quiz assigné !", "ok");
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+async function openGrades(cid, name) {
+  document.getElementById("grades-title").textContent = name;
+  document.getElementById("grades-body").innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted)">Chargement…</div>`;
+  openM("modal-grades");
+  try {
+    const { grades, quizzes, scale } = await api("GET", `/api/class/${cid}/grades`);
+    if (!grades.length) { document.getElementById("grades-body").innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted)">Aucun élève inscrit.</div>`; return; }
+    const noteColor = (v) => v === null ? "note-nd" : v >= scale*0.8 ? "note-ok" : v >= scale*0.5 ? "note-mid" : "note-bad";
+    document.getElementById("grades-body").innerHTML = `
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">Barème : /${scale} · Meilleure note conservée</p>
+      <div class="grade-grid"><table class="grade-table">
+        <thead><tr><th>Élève</th>${quizzes.map(q=>`<th title="${esc(q.title)}">${esc(q.title.substring(0,12))}… (×${q.coefficient||1})</th>`).join("")}<th>Moyenne</th></tr></thead>
+        <tbody>${grades.map(row => `<tr>
+          <td>${esc(row.username)}</td>
+          ${row.notes.map(n => `<td class="note-cell ${noteColor(n.converted)}">${n.converted !== null ? n.converted+"/"+scale : "—"}</td>`).join("")}
+          <td class="avg-cell ${noteColor(row.average)}">${row.average !== null ? row.average+"/"+scale : "—"}</td>
+        </tr>`).join("")}</tbody>
+      </table></div>`;
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+async function openMyGrades(cid, name) {
+  document.getElementById("grades-title").textContent = name;
+  document.getElementById("grades-body").innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted)">Chargement…</div>`;
+  openM("modal-grades");
+  try {
+    const { notes, scale, className } = await api("GET", `/api/class/${cid}/mystudent`);
+    if (!notes.length) { document.getElementById("grades-body").innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted)">Aucun quiz assigné.</div>`; return; }
+    const nc = (v) => v === null ? "note-nd" : v >= scale*0.8 ? "note-ok" : v >= scale*0.5 ? "note-mid" : "note-bad";
+    const done = notes.filter(n => n.converted !== null);
+    const avg = done.length ? (done.reduce((a,n) => a + n.converted*(n.coeff||1), 0) / done.reduce((a,n) => a + (n.coeff||1), 0)).toFixed(1) : null;
+    document.getElementById("grades-body").innerHTML = `
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">Barème : /${scale}</p>
+      ${avg !== null ? `<div style="text-align:center;margin-bottom:20px"><span style="font-family:var(--fh);font-size:2rem;font-weight:800;color:var(--accent)">${avg}/${scale}</span><div style="font-size:.8rem;color:var(--muted)">Moyenne générale</div></div>` : ""}
+      <table class="grade-table"><thead><tr><th style="text-align:left">Quiz</th><th>Note</th><th>Coeff.</th><th>Rendu le</th><th>Action</th></tr></thead>
+      <tbody>${notes.map(n => `<tr>
+        <td>${esc(n.title)}</td>
+        <td class="note-cell ${nc(n.converted)}">${n.converted !== null ? n.converted+"/"+scale : "—"}</td>
+        <td>×${n.coeff}</td>
+        <td style="font-size:.8rem;color:var(--muted)">${n.playedAt ? new Date(n.playedAt).toLocaleDateString("fr") : "Non rendu"}</td>
+        <td>${n.score === null ? `<button class="btn btn-p btn-sm" onclick="lookupCode('${n.code||''}')">🎮 Faire</button>` : "✅"}</td>
+      </tr>`).join("")}
+      </tbody></table>`;
+  } catch(e) { toast(e.message, "bad"); }
+}
+
+// ══ EDITOR ══
 function initEditor(quiz) {
-  if (!state.user) { openModal("modal-auth"); navigate("home"); return; }
+  if (!S.user) { openM("modal-auth"); go("home"); return; }
   if (quiz) {
-    state.editQuizId = quiz.qid;
-    state.questions = JSON.parse(JSON.stringify(quiz.questions || []));
-    document.getElementById("quiz-title-input").value = quiz.title || "Quiz sans titre";
+    S.editId = quiz.qid; S.questions = JSON.parse(JSON.stringify(quiz.questions || []));
+    document.getElementById("ed-title").value = quiz.title || "Quiz sans titre";
+    document.getElementById("ed-competition").checked = quiz.competitionEnabled || false;
   } else {
-    state.editQuizId = null;
-    state.questions = [];
-    document.getElementById("quiz-title-input").value = "Quiz sans titre";
+    S.editId = null; S.questions = [];
+    document.getElementById("ed-title").value = "Quiz sans titre";
+    document.getElementById("ed-competition").checked = false;
   }
-  state.activeQ = 0;
-  renderSidebar();
-  renderQEditor();
+  S.activeQ = 0; renderSidebar(); renderQEditor();
 }
 
 function renderSidebar() {
   const el = document.getElementById("sidebar-qs");
-  if (!state.questions.length) {
-    el.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:.8rem">Aucune question.<br>Ajoute-en une !</div>`;
-    return;
-  }
-  el.innerHTML = state.questions.map((q, i) => {
-    const type = QTYPES.find(t => t.id === q.type) || QTYPES[0];
-    return `<div class="sidebar-q ${i === state.activeQ ? 'active' : ''}" onclick="selectQ(${i})" draggable="true" data-idx="${i}">
-      <div class="q-num">${i+1}</div>
-      <div class="q-title">${esc(q.question || "Question " + (i+1))}</div>
-      <div class="q-type-badge">${type.icon}</div>
+  if (!S.questions.length) { el.innerHTML = `<div style="padding:18px;text-align:center;color:var(--muted);font-size:.8rem">Aucune question.<br>Ajoute-en une !</div>`; return; }
+  el.innerHTML = S.questions.map((q,i) => {
+    const t = QTYPES.find(x => x.id === q.type) || QTYPES[0];
+    return `<div class="sq ${i===S.activeQ?'active':''}" onclick="selectQ(${i})" draggable="true" data-idx="${i}">
+      <div class="qn">${i+1}</div>
+      <div class="qt">${esc(q.question||"Question "+(i+1))}</div>
+      <div class="qtb">${t.icon}</div>
     </div>`;
   }).join("");
-  // Drag-to-reorder sidebar
-  el.querySelectorAll(".sidebar-q").forEach(row => {
-    row.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", row.dataset.idx); row.classList.add("drag-over"); });
-    row.addEventListener("dragend", () => row.classList.remove("drag-over"));
+  el.querySelectorAll(".sq").forEach(row => {
+    row.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", row.dataset.idx); row.style.opacity=".4"; });
+    row.addEventListener("dragend", () => row.style.opacity="1");
     row.addEventListener("dragover", e => e.preventDefault());
     row.addEventListener("drop", e => {
-      const from = parseInt(e.dataTransfer.getData("text/plain"));
-      const to = parseInt(row.dataset.idx);
+      const from = +e.dataTransfer.getData("text/plain"), to = +row.dataset.idx;
       if (from === to) return;
-      const qs = state.questions;
-      const [moved] = qs.splice(from, 1);
-      qs.splice(to, 0, moved);
-      state.activeQ = to;
-      renderSidebar(); renderQEditor();
+      const [m] = S.questions.splice(from,1); S.questions.splice(to,0,m);
+      S.activeQ = to; renderSidebar(); renderQEditor();
     });
   });
 }
-
-function selectQ(i) { state.activeQ = i; renderSidebar(); renderQEditor(); }
+function selectQ(i) { S.activeQ = i; renderSidebar(); renderQEditor(); }
 
 function renderQEditor() {
-  const area = document.getElementById("q-editor-area");
-  if (!state.questions.length) {
-    area.innerHTML = `<div class="q-empty">📋 Aucune question — clique sur "+ Ajouter une question"</div>`;
-    return;
-  }
-  const q = state.questions[state.activeQ];
-  if (!q) return;
-  area.innerHTML = buildQEditorHTML(q, state.activeQ);
-  attachQEditorEvents(q, state.activeQ);
+  const area = document.getElementById("qarea");
+  if (!S.questions.length) { area.innerHTML = `<div class="qempty">📋 Aucune question — clique sur "+ Ajouter une question"</div>`; return; }
+  const q = S.questions[S.activeQ]; if (!q) return;
+  area.innerHTML = buildQEditor(q, S.activeQ);
 }
 
-function buildQEditorHTML(q, idx) {
-  const typeTabs = QTYPES.map(t =>
-    `<button class="q-type-tab ${q.type===t.id?'active':''}" onclick="changeQType(${idx},'${t.id}')">${t.icon} ${t.name}</button>`
-  ).join("");
-
-  const msgFields = `
-    <div class="q-sep"></div>
-    <div class="q-block-label">Messages de correction</div>
-    <div class="msg-field"><span class="label">✅ Bonne rép.</span><input type="text" placeholder="Ex : Oui, exact !" value="${esc(q.msgCorrect||'')}" onchange="updateQField(${idx},'msgCorrect',this.value)"/></div>
-    <div class="msg-field"><span class="label">❌ Mauvaise rép.</span><input type="text" placeholder="Ex : Non, c'était…" value="${esc(q.msgWrong||'')}" onchange="updateQField(${idx},'msgWrong',this.value)"/></div>
-    <div class="q-sep"></div>
+function buildQEditor(q, idx) {
+  const tabs = QTYPES.map(t => `<button class="qtab ${q.type===t.id?'active':''}" onclick="changeType(${idx},'${t.id}')">${t.icon} ${t.name}</button>`).join("");
+  const msgs = `
+    <div class="qsep"></div>
+    <div class="qlabel">Messages de correction</div>
+    <div class="msgrow"><span class="ml">✅ Bonne rép.</span><input type="text" placeholder="Ex : Exact !" value="${esc(q.msgCorrect||'')}" onchange="qf(${idx},'msgCorrect',this.value)"/></div>
+    <div class="msgrow"><span class="ml">❌ Mauvaise rép.</span><input type="text" placeholder="Ex : Non, c'était…" value="${esc(q.msgWrong||'')}" onchange="qf(${idx},'msgWrong',this.value)"/></div>
+    <div class="qsep"></div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <div class="field" style="margin:0"><label>⏱ Timer (sec)</label><input type="number" min="5" max="300" style="width:80px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px" value="${q.timer||30}" onchange="updateQField(${idx},'timer',parseInt(this.value))"/></div>
-      <div class="field" style="margin:0"><label>🏅 Points</label><input type="number" min="0" max="100" style="width:70px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px" value="${q.points||1}" onchange="updateQField(${idx},'points',parseInt(this.value))"/></div>
-      <button class="btn btn-danger btn-sm" onclick="deleteQ(${idx})">🗑️ Supprimer</button>
+      <div class="field" style="margin:0"><label style="font-size:.72rem;color:var(--muted)">⏱ Timer</label><input type="number" min="5" max="300" value="${q.timer||30}" style="width:72px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 9px;color:var(--text)" onchange="qf(${idx},'timer',+this.value)"/></div>
+      <div class="field" style="margin:0"><label style="font-size:.72rem;color:var(--muted)">🏅 Points</label><input type="number" min="0" max="100" value="${q.points||1}" style="width:65px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 9px;color:var(--text)" onchange="qf(${idx},'points',+this.value)"/></div>
+      <button class="btn btn-d btn-sm" onclick="deleteQ(${idx})">🗑️ Supprimer</button>
     </div>`;
-
-  const mediaField = `
-    <div class="q-block-label">Média (URL image ou vidéo)</div>
-    <div class="field"><input type="url" placeholder="https://…" value="${esc(q.media||'')}" onchange="updateQField(${idx},'media',this.value)"/></div>`;
-
-  let typeHTML = "";
+  const media = `<div class="qlabel" style="margin-top:18px">Média (URL image/vidéo)</div><div class="field"><input type="url" placeholder="https://…" value="${esc(q.media||'')}" onchange="qf(${idx},'media',this.value)"/></div>`;
+  let body = "";
   switch(q.type) {
     case "truefalse":
-      typeHTML = `
-        <div class="q-block-label">La bonne réponse est</div>
-        <div style="display:flex;gap:12px">
-          <button class="btn ${q.answer===true?'btn-primary':'btn-ghost'}" onclick="updateQField(${idx},'answer',true)">✅ Vrai</button>
-          <button class="btn ${q.answer===false?'btn-primary':'btn-ghost'}" onclick="updateQField(${idx},'answer',false)">❌ Faux</button>
-        </div>
-        ${mediaField}`;
+      body = `<div class="qlabel">Bonne réponse</div><div style="display:flex;gap:10px"><button class="btn ${q.answer===true?'btn-p':'btn-g'}" onclick="qf(${idx},'answer',true);renderQEditor()">✅ Vrai</button><button class="btn ${q.answer===false?'btn-p':'btn-g'}" onclick="qf(${idx},'answer',false);renderQEditor()">❌ Faux</button></div>${media}`;
       break;
-    case "freetext":
-      typeHTML = `
-        <div class="q-block-label">Réponse attendue</div>
-        <div class="field"><input type="text" placeholder="La bonne réponse…" value="${esc(q.answer||'')}" onchange="updateQField(${idx},'answer',this.value)"/></div>
-        <div class="field"><label>Sensible à la casse ?</label><input type="checkbox" ${q.caseSensitive?'checked':''} onchange="updateQField(${idx},'caseSensitive',this.checked)"/></div>`;
+    case "freetext": case "audio": case "equation":
+      body = `<div class="qlabel">Réponse attendue</div><div class="field"><input type="text" value="${esc(q.answer||'')}" onchange="qf(${idx},'answer',this.value)"/></div>${q.type==="audio"?`<div class="qlabel">URL audio</div><div class="field"><input type="url" value="${esc(q.audioUrl||'')}" onchange="qf(${idx},'audioUrl',this.value)"/></div>`:""}`;
       break;
-    case "qcm":
-    case "qcmmulti":
-    case "poll":
-    case "priority":
-      const isMulti = q.type === "qcmmulti";
-      const isPoll = q.type === "poll";
-      const choices = q.choices || ["","","",""];
-      const corrects = q.corrects || [];
-      typeHTML = `
-        <div class="q-block-label">${isPoll ? "Options" : "Choix (cliquer le ✓ pour marquer correct)"}</div>
-        <div class="choices-list" id="choices-${idx}">
-          ${choices.map((c, ci) => `
-            <div class="choice-row ${!isPoll && corrects.includes(ci) ? 'correct':''}" draggable="true" data-ci="${ci}">
-              <span class="drag-handle">⠿</span>
-              <input type="text" placeholder="Choix ${ci+1}" value="${esc(c)}" oninput="updateChoice(${idx},${ci},this.value)"/>
-              ${!isPoll ? `<button class="choice-correct-btn ${corrects.includes(ci)?'on':''}" onclick="toggleCorrect(${idx},${ci},${isMulti})" title="Marquer comme correct"></button>` : ''}
-              <button class="choice-del" onclick="removeChoice(${idx},${ci})">✕</button>
-            </div>`).join("")}
-        </div>
-        <button class="add-choice-btn" onclick="addChoice(${idx})">+ Ajouter un choix</button>`;
+    case "qcm": case "qcmmulti": case "poll": case "priority": {
+      const choices = q.choices||["","","",""], corrects = q.corrects||[], multi = q.type==="qcmmulti", isPoll = q.type==="poll";
+      body = `<div class="qlabel">${isPoll?"Options":"Choix (✓ = correct)"}</div><div class="choicelist" id="cl-${idx}">
+        ${choices.map((c,ci)=>`<div class="choicerow ${!isPoll&&corrects.includes(ci)?'correct':''}" draggable="true" data-ci="${ci}">
+          <span class="dh">⠿</span><input type="text" placeholder="Choix ${ci+1}" value="${esc(c)}" oninput="updChoice(${idx},${ci},this.value)"/>
+          ${!isPoll?`<button class="ccbtn ${corrects.includes(ci)?'on':''}" onclick="togCorrect(${idx},${ci},${multi})"></button>`:""}
+          <button class="cdel" onclick="remChoice(${idx},${ci})">✕</button>
+        </div>`).join("")}
+      </div><button class="addcbtn" onclick="addChoice(${idx})">+ Ajouter</button>`;
       break;
-    case "ordering":
-    case "dragdrop":
-      const items = q.items || ["","",""];
-      typeHTML = `
-        <div class="q-block-label">Éléments à remettre dans l'ordre</div>
-        <div id="ordering-${idx}">
-          ${items.map((it, ii) => `
-            <div class="ordering-item" draggable="true" data-oi="${ii}">
-              <span class="drag-handle">⠿</span>
-              <input type="text" placeholder="Élément ${ii+1}" value="${esc(it)}" oninput="updateOrderItem(${idx},${ii},this.value)"/>
-              <button class="choice-del" onclick="removeOrderItem(${idx},${ii})">✕</button>
-            </div>`).join("")}
-        </div>
-        <button class="add-choice-btn" onclick="addOrderItem(${idx})">+ Ajouter un élément</button>`;
+    }
+    case "ordering": case "dragdrop": {
+      const items = q.items||["","",""];
+      body = `<div class="qlabel">Éléments (dans l'ordre correct)</div><div id="oi-${idx}">${items.map((it,ii)=>`<div class="ordering-item"><span class="dh">⠿</span><input type="text" value="${esc(it)}" oninput="updOI(${idx},${ii},this.value)"/><button class="cdel" onclick="remOI(${idx},${ii})">✕</button></div>`).join("")}</div><button class="addcbtn" onclick="addOI(${idx})">+ Ajouter</button>`;
       break;
-    case "connect":
-      const pairs = q.pairs || [{a:"",b:""},{a:"",b:""}];
-      typeHTML = `
-        <div class="q-block-label">Paires à relier</div>
-        <div class="pairs-grid">
-          ${pairs.map((p, pi) => `
-            <input class="pair-cell" type="text" placeholder="Gauche ${pi+1}" value="${esc(p.a)}" oninput="updatePair(${idx},${pi},'a',this.value)" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px"/>
-            <input class="pair-cell" type="text" placeholder="Droite ${pi+1}" value="${esc(p.b)}" oninput="updatePair(${idx},${pi},'b',this.value)" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px"/>
-          `).join("")}
-        </div>
-        <button class="add-choice-btn" style="margin-top:10px" onclick="addPair(${idx})">+ Ajouter une paire</button>`;
+    }
+    case "connect": {
+      const pairs = q.pairs||[{a:"",b:""},{a:"",b:""}];
+      body = `<div class="qlabel">Paires à relier</div><div class="pairs-grid">${pairs.map((p,pi)=>`<input class="pair-inp" placeholder="Gauche ${pi+1}" value="${esc(p.a)}" oninput="updPair(${idx},${pi},'a',this.value)"/><input class="pair-inp" placeholder="Droite ${pi+1}" value="${esc(p.b)}" oninput="updPair(${idx},${pi},'b',this.value)"/>`).join("")}</div><button class="addcbtn" style="margin-top:9px" onclick="addPair(${idx})">+ Paire</button>`;
       break;
+    }
     case "fillblank":
-      typeHTML = `
-        <div class="q-block-label">Phrase avec [crochets] pour les blancs</div>
-        <div class="field"><textarea placeholder="Ex : La [capitale] de la France est [Paris]." onchange="updateQField(${idx},'sentence',this.value)">${esc(q.sentence||'')}</textarea></div>
-        <div style="font-size:.8rem;color:var(--muted)">Les mots entre [crochets] sont les blancs. Le contenu entre crochets est la réponse attendue.</div>`;
+      body = `<div class="qlabel">Phrase avec [réponse] entre crochets</div><div class="field"><textarea onchange="qf(${idx},'sentence',this.value)">${esc(q.sentence||'')}</textarea></div>`;
       break;
     case "slider":
-      typeHTML = `
-        <div class="q-block-label">Paramètres du curseur</div>
-        <div class="slider-row"><label>Min</label><input type="number" value="${q.min??0}" onchange="updateQField(${idx},'min',+this.value)"/></div>
-        <div class="slider-row"><label>Max</label><input type="number" value="${q.max??100}" onchange="updateQField(${idx},'max',+this.value)"/></div>
-        <div class="slider-row"><label>Réponse</label><input type="number" value="${q.answer??50}" onchange="updateQField(${idx},'answer',+this.value)"/></div>
-        <div class="slider-row"><label>Tolérance ±</label><input type="number" value="${q.tolerance??5}" onchange="updateQField(${idx},'tolerance',+this.value)"/></div>`;
+      body = `<div class="qlabel">Paramètres</div>
+        <div class="slrow"><label>Min</label><input type="number" value="${q.min??0}" onchange="qf(${idx},'min',+this.value)"/></div>
+        <div class="slrow"><label>Max</label><input type="number" value="${q.max??100}" onchange="qf(${idx},'max',+this.value)"/></div>
+        <div class="slrow"><label>Réponse</label><input type="number" value="${q.answer??50}" onchange="qf(${idx},'answer',+this.value)"/></div>
+        <div class="slrow"><label>Tolérance ±</label><input type="number" value="${q.tolerance??5}" onchange="qf(${idx},'tolerance',+this.value)"/></div>`;
       break;
     case "imagemap":
-      typeHTML = `
-        <div class="q-block-label">Image (URL)</div>
-        <div class="field"><input type="url" placeholder="https://image.jpg" value="${esc(q.media||'')}" onchange="updateQField(${idx},'media',this.value)"/></div>
-        <div class="q-block-label">Zone correcte (% de l'image)</div>
-        <div class="slider-row"><label>X %</label><input type="number" min="0" max="100" value="${q.targetX??50}" onchange="updateQField(${idx},'targetX',+this.value)"/></div>
-        <div class="slider-row"><label>Y %</label><input type="number" min="0" max="100" value="${q.targetY??50}" onchange="updateQField(${idx},'targetY',+this.value)"/></div>
-        <div class="slider-row"><label>Rayon %</label><input type="number" min="1" max="50" value="${q.targetR??10}" onchange="updateQField(${idx},'targetR',+this.value)"/></div>`;
-      break;
-    case "audio":
-      typeHTML = `
-        <div class="q-block-label">URL du fichier audio</div>
-        <div class="field"><input type="url" placeholder="https://…/audio.mp3" value="${esc(q.audioUrl||'')}" onchange="updateQField(${idx},'audioUrl',this.value)"/></div>
-        <div class="q-block-label">Réponse attendue</div>
-        <div class="field"><input type="text" placeholder="Réponse…" value="${esc(q.answer||'')}" onchange="updateQField(${idx},'answer',this.value)"/></div>`;
-      break;
-    case "drawing":
-      typeHTML = `<div style="color:var(--muted);font-size:.875rem;padding:16px;background:var(--bg3);border-radius:10px">✏️ Les dessins sont évalués manuellement par le créateur. Pas de réponse correcte automatique.</div>`;
+      body = `${media}<div class="qlabel">Zone correcte (%)</div>
+        <div class="slrow"><label>X %</label><input type="number" min="0" max="100" value="${q.targetX??50}" onchange="qf(${idx},'targetX',+this.value)"/></div>
+        <div class="slrow"><label>Y %</label><input type="number" min="0" max="100" value="${q.targetY??50}" onchange="qf(${idx},'targetY',+this.value)"/></div>
+        <div class="slrow"><label>Rayon %</label><input type="number" min="1" max="50" value="${q.targetR??10}" onchange="qf(${idx},'targetR',+this.value)"/></div>`;
       break;
     case "code":
-      typeHTML = `
-        <div class="q-block-label">Langage</div>
-        <div class="field"><select onchange="updateQField(${idx},'lang',this.value)">
-          ${["javascript","python","java","c","cpp","html","css","sql","rust","go"].map(l => `<option ${q.lang===l?'selected':''} value="${l}">${l}</option>`).join("")}
-        </select></div>
-        <div class="q-block-label">Réponse attendue</div>
-        <textarea class="code-editor-area" placeholder="// Code de référence…" onchange="updateQField(${idx},'answer',this.value)">${esc(q.answer||'')}</textarea>`;
+      body = `<div class="qlabel">Langage</div><div class="field"><select onchange="qf(${idx},'lang',this.value)">${["javascript","python","java","c","cpp","html","css","sql","rust","go"].map(l=>`<option ${q.lang===l?'selected':''} value="${l}">${l}</option>`).join("")}</select></div><div class="qlabel">Réponse</div><textarea class="carea" onchange="qf(${idx},'answer',this.value)">${esc(q.answer||'')}</textarea>`;
       break;
-    case "equation":
-      typeHTML = `
-        <div class="q-block-label">Réponse (LaTeX ou texte mathématique)</div>
-        <div class="field"><input type="text" placeholder="Ex : x² + y² = r²" value="${esc(q.answer||'')}" onchange="updateQField(${idx},'answer',this.value)"/></div>`;
+    case "timeline": {
+      const evs = q.events||["","",""];
+      body = `<div class="qlabel">Événements (ordre chronologique correct)</div><div id="tl-${idx}">${evs.map((ev,ei)=>`<div class="timeline-item"><span class="dh">⠿</span><span style="font-size:.78rem;color:var(--muted);min-width:18px">${ei+1}.</span><input type="text" value="${esc(ev)}" oninput="updTL(${idx},${ei},this.value)"/><button class="cdel" onclick="remTL(${idx},${ei})">✕</button></div>`).join("")}</div><button class="addcbtn" onclick="addTL(${idx})">+ Événement</button>`;
       break;
-    case "timeline":
-    case "chronologie":
-      const tevents = q.events || ["","",""];
-      typeHTML = `
-        <div class="q-block-label">Événements (dans l'ordre chronologique correct)</div>
-        <div class="timeline-items" id="timeline-${idx}">
-          ${tevents.map((ev, ei) => `
-            <div class="timeline-item" draggable="true">
-              <span class="drag-handle">⠿</span>
-              <span style="font-size:.8rem;color:var(--muted);min-width:20px">${ei+1}.</span>
-              <input type="text" placeholder="Événement ${ei+1}" value="${esc(ev)}" oninput="updateTimelineEvent(${idx},${ei},this.value)"/>
-              <button class="choice-del" onclick="removeTimelineEvent(${idx},${ei})">✕</button>
-            </div>`).join("")}
-        </div>
-        <button class="add-choice-btn" onclick="addTimelineEvent(${idx})">+ Ajouter un événement</button>`;
+    }
+    case "color": {
+      const cols = q.choices||["#ef4444","#f97316","#eab308","#22c55e","#3b82f6","#8b5cf6","#ec4899","#000000","#ffffff"];
+      body = `<div class="qlabel">Couleur correcte (cliquer)</div><div class="color-choices">${cols.map(c=>`<div class="cchoice ${c===q.answer?'sel':''}" style="background:${c}" onclick="qf(${idx},'answer','${c}');renderQEditor()"></div>`).join("")}</div>`;
       break;
-    case "color":
-      const colors = q.choices || ["#ef4444","#f97316","#eab308","#22c55e","#3b82f6","#8b5cf6","#ec4899","#000000","#ffffff","#6b7280"];
-      const correctColor = q.answer || "";
-      typeHTML = `
-        <div class="q-block-label">Couleurs disponibles</div>
-        <div class="color-choices">
-          ${colors.map(c => `<div class="color-choice ${c===correctColor?'selected':''}" style="background:${c}" onclick="updateQField(${idx},'answer','${c}')" title="${c}"></div>`).join("")}
-        </div>
-        <div class="q-block-label" style="margin-top:16px">Couleur correcte sélectionnée : <strong style="color:${correctColor||'var(--muted)'}">${correctColor||'Aucune'}</strong></div>`;
+    }
+    case "grid": {
+      const gW=q.gridW||5,gH=q.gridH||5,cc=q.correctCells||[];
+      body = `<div style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+        <label style="font-size:.78rem;color:var(--muted)">Colonnes</label><input type="number" min="2" max="10" value="${gW}" style="width:55px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 9px;color:var(--text)" onchange="qf(${idx},'gridW',+this.value);renderQEditor()"/>
+        <label style="font-size:.78rem;color:var(--muted)">Lignes</label><input type="number" min="2" max="10" value="${gH}" style="width:55px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 9px;color:var(--text)" onchange="qf(${idx},'gridH',+this.value);renderQEditor()"/>
+      </div>
+      <div class="grid-q" style="display:grid;grid-template-columns:repeat(${gW},38px);gap:4px">
+        ${Array.from({length:gW*gH},(_,ci)=>`<div class="gcell ${cc.includes(ci)?'sel':''}" onclick="togGrid(${idx},${ci})"></div>`).join("")}
+      </div>`;
       break;
-    case "grid":
-      const gridW = q.gridW || 5; const gridH = q.gridH || 5;
-      const correctCells = q.correctCells || [];
-      typeHTML = `
-        <div style="display:flex;gap:12px;margin-bottom:16px;align-items:center">
-          <label style="font-size:.8rem;color:var(--muted)">Colonnes</label>
-          <input type="number" min="2" max="10" value="${gridW}" style="width:60px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px" onchange="updateQField(${idx},'gridW',+this.value);renderQEditor()"/>
-          <label style="font-size:.8rem;color:var(--muted)">Lignes</label>
-          <input type="number" min="2" max="10" value="${gridH}" style="width:60px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px" onchange="updateQField(${idx},'gridH',+this.value);renderQEditor()"/>
-        </div>
-        <div class="q-grid" style="display:grid;grid-template-columns:repeat(${gridW},40px);gap:4px">
-          ${Array.from({length:gridW*gridH},(_,ci)=>`
-            <div class="grid-cell ${correctCells.includes(ci)?'selected':''}" onclick="toggleGridCell(${idx},${ci})"></div>`).join("")}
-        </div>`;
-      break;
+    }
     case "flashcard":
-      typeHTML = `
-        <div class="flashcard-edit">
-          <div class="field"><label>Recto (mot/question)</label><input type="text" placeholder="Ex : Bonjour" value="${esc(q.front||'')}" onchange="updateQField(${idx},'front',this.value)"/></div>
-          <div class="field"><label>Verso (définition/réponse)</label><input type="text" placeholder="Ex : Hello" value="${esc(q.back||'')}" onchange="updateQField(${idx},'back',this.value)"/></div>
-        </div>`;
-      break;
-    case "photo":
-      typeHTML = `<div style="color:var(--muted);font-size:.875rem;padding:16px;background:var(--bg3);border-radius:10px">📷 Les photos uploadées sont affichées et évaluées manuellement.</div>`;
+      body = `<div class="flashedit"><div class="field"><label>Recto</label><input type="text" value="${esc(q.front||'')}" onchange="qf(${idx},'front',this.value)"/></div><div class="field"><label>Verso</label><input type="text" value="${esc(q.back||'')}" onchange="qf(${idx},'back',this.value)"/></div></div>`;
       break;
     case "location":
-      typeHTML = `
-        <div class="q-block-label">Coordonnées de la bonne réponse</div>
-        <div class="slider-row"><label>Latitude</label><input type="number" step="0.0001" value="${q.lat??48.8566}" onchange="updateQField(${idx},'lat',+this.value)"/></div>
-        <div class="slider-row"><label>Longitude</label><input type="number" step="0.0001" value="${q.lng??2.3522}" onchange="updateQField(${idx},'lng',+this.value)"/></div>
-        <div class="slider-row"><label>Tolérance km</label><input type="number" min="1" max="5000" value="${q.toleranceKm??50}" onchange="updateQField(${idx},'toleranceKm',+this.value)"/></div>
-        <div style="font-size:.8rem;color:var(--muted);margin-top:8px">💡 Le joueur devra cliquer sur une carte du monde.</div>`;
+      body = `<div class="qlabel">Coordonnées correctes</div>
+        <div class="slrow"><label>Lat</label><input type="number" step=".0001" value="${q.lat??48.8566}" onchange="qf(${idx},'lat',+this.value)"/></div>
+        <div class="slrow"><label>Lng</label><input type="number" step=".0001" value="${q.lng??2.3522}" onchange="qf(${idx},'lng',+this.value)"/></div>
+        <div class="slrow"><label>Rayon km</label><input type="number" min="1" max="5000" value="${q.toleranceKm??50}" onchange="qf(${idx},'toleranceKm',+this.value)"/></div>`;
       break;
     default:
-      typeHTML = `<div style="color:var(--muted)">Type en cours de développement…</div>`;
+      body = `<div style="color:var(--muted)">Type en cours…</div>`;
   }
-
-  return `
-    <div class="q-editor-card fade-up">
-      <div class="q-block-label">TYPE DE QUESTION</div>
-      <div class="q-type-tabs">${typeTabs}</div>
-      <div class="q-sep"></div>
-      <div class="field">
-        <label>Question</label>
-        <textarea placeholder="Écris ta question ici…" rows="2" onchange="updateQField(${idx},'question',this.value)">${esc(q.question||'')}</textarea>
-      </div>
-      ${typeHTML}
-      ${msgFields}
-    </div>`;
+  return `<div class="qecard fu">
+    <div class="qlabel">TYPE</div><div class="qtabs">${tabs}</div>
+    <div class="qsep"></div>
+    <div class="field"><label>Question</label><textarea rows="2" onchange="qf(${idx},'question',this.value)">${esc(q.question||'')}</textarea></div>
+    ${body}${msgs}
+  </div>`;
 }
 
-function attachQEditorEvents() { /* event listeners are inline for simplicity */ }
-
-// Question field updates
-function updateQField(idx, field, value) { state.questions[idx][field] = value; }
-function changeQType(idx, type) { state.questions[idx] = { ...defaultQ(type), question: state.questions[idx].question, timer: state.questions[idx].timer || 30 }; state.questions[idx].type = type; renderSidebar(); renderQEditor(); }
-function updateChoice(idx, ci, value) { state.questions[idx].choices = state.questions[idx].choices || []; state.questions[idx].choices[ci] = value; }
-function toggleCorrect(idx, ci, multi) {
-  const q = state.questions[idx];
-  q.corrects = q.corrects || [];
-  if (multi) { const i = q.corrects.indexOf(ci); if(i===-1) q.corrects.push(ci); else q.corrects.splice(i,1); }
-  else { q.corrects = [ci]; }
-  renderQEditor();
-}
-function removeChoice(idx, ci) { state.questions[idx].choices.splice(ci, 1); if(state.questions[idx].corrects) state.questions[idx].corrects = state.questions[idx].corrects.filter(c=>c!==ci).map(c=>c>ci?c-1:c); renderQEditor(); }
-function addChoice(idx) { state.questions[idx].choices = state.questions[idx].choices || []; state.questions[idx].choices.push(""); renderQEditor(); }
-function updateOrderItem(idx, ii, val) { state.questions[idx].items[ii] = val; }
-function removeOrderItem(idx, ii) { state.questions[idx].items.splice(ii, 1); renderQEditor(); }
-function addOrderItem(idx) { state.questions[idx].items = state.questions[idx].items || []; state.questions[idx].items.push(""); renderQEditor(); }
-function updatePair(idx, pi, side, val) { state.questions[idx].pairs = state.questions[idx].pairs || []; state.questions[idx].pairs[pi] = state.questions[idx].pairs[pi] || {a:"",b:""}; state.questions[idx].pairs[pi][side] = val; }
-function addPair(idx) { state.questions[idx].pairs = state.questions[idx].pairs || []; state.questions[idx].pairs.push({a:"",b:""}); renderQEditor(); }
-function updateTimelineEvent(idx, ei, val) { state.questions[idx].events[ei] = val; }
-function removeTimelineEvent(idx, ei) { state.questions[idx].events.splice(ei, 1); renderQEditor(); }
-function addTimelineEvent(idx) { state.questions[idx].events = state.questions[idx].events || []; state.questions[idx].events.push(""); renderQEditor(); }
-function toggleGridCell(idx, ci) {
-  const q = state.questions[idx];
-  q.correctCells = q.correctCells || [];
-  const i = q.correctCells.indexOf(ci);
-  if (i === -1) q.correctCells.push(ci); else q.correctCells.splice(i, 1);
-  renderQEditor();
-}
-function deleteQ(idx) {
-  state.questions.splice(idx, 1);
-  state.activeQ = Math.min(state.activeQ, state.questions.length - 1);
-  renderSidebar(); renderQEditor();
-}
+// Editor helpers
+function qf(idx, field, val) { S.questions[idx][field] = val; }
+function changeType(idx, type) { S.questions[idx] = { ...defaultQ(type), question: S.questions[idx].question, timer: S.questions[idx].timer||30 }; renderSidebar(); renderQEditor(); }
+function updChoice(idx,ci,v) { S.questions[idx].choices=S.questions[idx].choices||[]; S.questions[idx].choices[ci]=v; }
+function togCorrect(idx,ci,multi) { const q=S.questions[idx]; q.corrects=q.corrects||[]; if(multi){const i=q.corrects.indexOf(ci);i===-1?q.corrects.push(ci):q.corrects.splice(i,1);}else{q.corrects=[ci];} renderQEditor(); }
+function remChoice(idx,ci) { S.questions[idx].choices.splice(ci,1); if(S.questions[idx].corrects)S.questions[idx].corrects=S.questions[idx].corrects.filter(c=>c!==ci).map(c=>c>ci?c-1:c); renderQEditor(); }
+function addChoice(idx) { S.questions[idx].choices=S.questions[idx].choices||[]; S.questions[idx].choices.push(""); renderQEditor(); }
+function updOI(idx,ii,v){S.questions[idx].items[ii]=v;}
+function remOI(idx,ii){S.questions[idx].items.splice(ii,1);renderQEditor();}
+function addOI(idx){S.questions[idx].items=S.questions[idx].items||[];S.questions[idx].items.push("");renderQEditor();}
+function updPair(idx,pi,side,v){S.questions[idx].pairs=S.questions[idx].pairs||[];S.questions[idx].pairs[pi]=S.questions[idx].pairs[pi]||{a:"",b:""};S.questions[idx].pairs[pi][side]=v;}
+function addPair(idx){S.questions[idx].pairs=S.questions[idx].pairs||[];S.questions[idx].pairs.push({a:"",b:""});renderQEditor();}
+function updTL(idx,ei,v){S.questions[idx].events[ei]=v;}
+function remTL(idx,ei){S.questions[idx].events.splice(ei,1);renderQEditor();}
+function addTL(idx){S.questions[idx].events=S.questions[idx].events||[];S.questions[idx].events.push("");renderQEditor();}
+function togGrid(idx,ci){const q=S.questions[idx];q.correctCells=q.correctCells||[];const i=q.correctCells.indexOf(ci);i===-1?q.correctCells.push(ci):q.correctCells.splice(i,1);renderQEditor();}
+function deleteQ(idx){S.questions.splice(idx,1);S.activeQ=Math.min(S.activeQ,S.questions.length-1);renderSidebar();renderQEditor();}
 
 function defaultQ(type) {
-  const base = { type, question: "", timer: 30, points: 1, msgCorrect: "", msgWrong: "" };
-  const defaults = {
-    truefalse: { ...base, answer: true },
-    freetext: { ...base, answer: "", caseSensitive: false },
-    qcm: { ...base, choices: ["","","",""], corrects: [] },
-    qcmmulti: { ...base, choices: ["","","",""], corrects: [] },
-    dragdrop: { ...base, items: ["","",""] },
-    ordering: { ...base, items: ["","",""] },
-    connect: { ...base, pairs: [{a:"",b:""},{a:"",b:""}] },
-    fillblank: { ...base, sentence: "" },
-    slider: { ...base, min: 0, max: 100, answer: 50, tolerance: 5 },
-    imagemap: { ...base, media: "", targetX: 50, targetY: 50, targetR: 10 },
-    audio: { ...base, audioUrl: "", answer: "" },
-    drawing: { ...base },
-    code: { ...base, lang: "javascript", answer: "" },
-    equation: { ...base, answer: "" },
-    timeline: { ...base, events: ["","",""] },
-    priority: { ...base, choices: ["","",""], corrects: [] },
-    color: { ...base, choices: ["#ef4444","#f97316","#eab308","#22c55e","#3b82f6","#8b5cf6"], answer: "" },
-    grid: { ...base, gridW: 5, gridH: 5, correctCells: [] },
-    poll: { ...base, choices: ["",""] },
-    flashcard: { ...base, front: "", back: "" },
-    photo: { ...base },
-    location: { ...base, lat: 48.8566, lng: 2.3522, toleranceKm: 50 },
-  };
-  return defaults[type] || base;
+  const b={type,question:"",timer:30,points:1,msgCorrect:"",msgWrong:""};
+  const m={truefalse:{...b,answer:true},freetext:{...b,answer:"",caseSensitive:false},qcm:{...b,choices:["","","",""],corrects:[]},qcmmulti:{...b,choices:["","","",""],corrects:[]},dragdrop:{...b,items:["","",""]},ordering:{...b,items:["","",""]},connect:{...b,pairs:[{a:"",b:""},{a:"",b:""}]},fillblank:{...b,sentence:""},slider:{...b,min:0,max:100,answer:50,tolerance:5},imagemap:{...b,media:"",targetX:50,targetY:50,targetR:10},audio:{...b,audioUrl:"",answer:""},drawing:{...b},code:{...b,lang:"javascript",answer:""},equation:{...b,answer:""},timeline:{...b,events:["","",""]},priority:{...b,choices:["","",""],corrects:[]},color:{...b,choices:["#ef4444","#f97316","#eab308","#22c55e","#3b82f6","#8b5cf6"],answer:""},grid:{...b,gridW:5,gridH:5,correctCells:[]},poll:{...b,choices:["",""]},flashcard:{...b,front:"",back:""},photo:{...b},location:{...b,lat:48.8566,lng:2.3522,toleranceKm:50}};
+  return m[type]||b;
 }
 
-// ---- TYPE PICKER ----
 function openTypePicker() {
-  if (!state.user) { openModal("modal-auth"); return; }
-  const grid = document.getElementById("type-grid");
-  grid.innerHTML = QTYPES.map(t => `
-    <div class="type-item" onclick="addQuestion('${t.id}')">
-      <div class="t-icon">${t.icon}</div>
-      <div class="t-name">${t.name}</div>
-      <div class="t-desc">${t.desc}</div>
-    </div>`).join("");
-  openModal("modal-type");
+  const g = document.getElementById("typegrid");
+  g.innerHTML = QTYPES.map(t=>`<div class="typeitem" onclick="addQ('${t.id}')"><div class="ti">${t.icon}</div><div class="tn">${t.name}</div><div class="td">${t.desc}</div></div>`).join("");
+  openM("modal-type");
 }
+function addQ(type) { S.questions.push(defaultQ(type)); S.activeQ=S.questions.length-1; closeM("modal-type"); renderSidebar(); renderQEditor(); }
 
-function addQuestion(type) {
-  const q = defaultQ(type);
-  state.questions.push(q);
-  state.activeQ = state.questions.length - 1;
-  closeModal("modal-type");
-  renderSidebar(); renderQEditor();
-}
+function previewQuiz() { if (!S.questions.length) return toast("Aucune question", "bad"); S.playPseudo="Aperçu"; S.playClassId=null; go("play",{qid:"preview",title:document.getElementById("ed-title").value,questions:S.questions,ownerName:S.user?.username||""}); }
 
-// ---- SAVE QUIZ ----
 async function saveQuiz() {
-  if (!state.user) return openModal("modal-auth");
-  const title = document.getElementById("quiz-title-input").value || "Quiz sans titre";
+  if (!S.user) return openM("modal-auth");
+  const title = document.getElementById("ed-title").value || "Quiz sans titre";
+  const competitionEnabled = document.getElementById("ed-competition").checked;
   try {
-    showLoader();
+    showL();
     let quiz;
-    if (state.editQuizId) {
-      quiz = await api("PUT", `/api/quiz/${state.editQuizId}`, { title, questions: state.questions });
-    } else {
-      quiz = await api("POST", "/api/quiz", { title, questions: state.questions });
-      state.editQuizId = quiz.qid;
-    }
-    toast(`Sauvegardé ! Code : ${quiz.code}`, "ok");
-  } catch(e) { toast(e.message, "bad"); } finally { hideLoader(); }
+    if (S.editId) quiz = await api("PUT", `/api/quiz/${S.editId}`, { title, questions: S.questions, competitionEnabled });
+    else { quiz = await api("POST", "/api/quiz", { title, questions: S.questions, competitionEnabled }); S.editId = quiz.qid; }
+    toast(`✅ Sauvegardé ! Code : ${quiz.code}`, "ok");
+  } catch(e) { toast(e.message, "bad"); } finally { hideL(); }
 }
 
-// ============================================================
-// PLAY ENGINE
-// ============================================================
+// ══ PLAY ══
 function initPlay(quiz) {
-  state.playQuiz = quiz;
-  state.playIndex = 0;
-  state.playAnswers = [];
-  state.playScore = 0;
-  document.getElementById("play-quiz-title").textContent = quiz.title;
+  S.playQuiz=quiz; S.playIdx=0; S.playAnswers=[]; S.playScore=0;
+  document.getElementById("play-qtitle").textContent=quiz.title;
   renderPlayQ();
 }
 
 function renderPlayQ() {
-  clearInterval(state.playTimer);
-  const quiz = state.playQuiz;
-  const idx = state.playIndex;
-  if (idx >= quiz.questions.length) { showResults(); return; }
-  const q = quiz.questions[idx];
-  const total = quiz.questions.length;
-  document.getElementById("play-progress-fill").style.width = (idx / total * 100) + "%";
-  const card = document.getElementById("play-card");
-  let bodyHTML = buildPlayBody(q, idx);
-  card.innerHTML = `
-    <div class="play-q-num">Question ${idx+1} / ${total}</div>
-    ${q.media ? `<div class="play-q-media"><img src="${esc(q.media)}" alt="" loading="lazy"/></div>` : ""}
-    ${q.audioUrl ? `<div class="play-q-media"><audio controls src="${esc(q.audioUrl)}" style="width:100%"></audio></div>` : ""}
-    <div class="play-q-text">${esc(q.question || "")}</div>
-    ${bodyHTML}
-    <div class="play-feedback" id="play-feedback"></div>
-    <button class="btn btn-primary play-next" id="play-next-btn" style="display:none" onclick="nextQ()">
-      ${idx + 1 === total ? "Voir les résultats 🏁" : "Question suivante →"}
-    </button>`;
-  attachPlayEvents(q, idx);
-  startTimer(q.timer || 30);
+  clearInterval(S.playTimer);
+  const quiz=S.playQuiz, idx=S.playIdx, total=quiz.questions.length;
+  if (idx>=total) { showResults(); return; }
+  const q=quiz.questions[idx];
+  document.getElementById("ppfill").style.width=(idx/total*100)+"%";
+  const card=document.getElementById("playcard");
+  card.innerHTML=`
+    <div class="pqnum">Question ${idx+1} / ${total}</div>
+    ${q.media?`<div class="pqmedia"><img src="${esc(q.media)}" loading="lazy"/></div>`:""}
+    ${q.audioUrl?`<div class="pqmedia"><audio controls src="${esc(q.audioUrl)}" style="width:100%"></audio></div>`:""}
+    <div class="pqtext">${esc(q.question||"")}</div>
+    ${buildPlayBody(q,idx)}
+    <div class="pfeedback" id="pfb"></div>
+    <button class="btn btn-p pnext" id="pnext" style="display:none" onclick="nextQ()">${idx+1===total?"Résultats 🏁":"Suivant →"}</button>`;
+  attachPlayEv(q,idx);
+  startTimer(q.timer||30);
 }
 
-function buildPlayBody(q, idx) {
+function buildPlayBody(q,idx) {
+  const L="ABCDEFGHIJKLMNOP";
   switch(q.type) {
-    case "truefalse":
-      return `<div class="play-choices" style="grid-template-columns:1fr 1fr">
-        <button class="play-choice" data-val="true" onclick="submitAnswer(${idx},'true')">✅ Vrai</button>
-        <button class="play-choice" data-val="false" onclick="submitAnswer(${idx},'false')">❌ Faux</button>
-      </div>`;
-    case "qcm": case "qcmmulti": case "poll":
-      const letters = "ABCDEFGHIJKLMNOP";
-      return `<div class="play-choices">
-        ${(q.choices||[]).map((c,i) => `<button class="play-choice" data-ci="${i}" onclick="${q.type==='qcmmulti'?'toggleMulti':'submitChoice'}(${idx},${i})"><span class="choice-letter">${letters[i]}</span>${esc(c)}</button>`).join("")}
-      </div>
-      ${q.type==='qcmmulti'?`<button class="btn btn-primary play-next" id="multi-confirm" onclick="confirmMulti(${idx})" style="margin-top:16px;width:100%">Confirmer</button>`:''}`;
-    case "freetext": case "audio": case "equation": case "code":
-      return `<input class="play-input" id="play-text-input" type="text" placeholder="Ta réponse…" onkeydown="if(event.key==='Enter')submitText(${idx})"/>
-        <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="submitText(${idx})">Valider</button>`;
-    case "fillblank":
-      const parts = (q.sentence||"").split(/\[([^\]]+)\]/g);
-      let blanks = []; let html = "<div style='font-size:1.1rem;line-height:2.2'>";
-      parts.forEach((p,i) => {
-        if (i%2===0) html += esc(p);
-        else { html += `<input type="text" data-blank="${blanks.length}" style="border:none;border-bottom:2px solid var(--accent);background:transparent;color:var(--text);width:100px;text-align:center;font-size:1rem;margin:0 4px"/>`; blanks.push(p); }
-      });
-      html += "</div>";
-      return html + `<button class="btn btn-primary" style="margin-top:16px;width:100%" onclick="submitFillBlank(${idx},'${btoa(JSON.stringify(blanks))}')">Valider</button>`;
-    case "slider":
-      return `<div style="padding:20px 0">
-        <input type="range" id="play-slider" min="${q.min??0}" max="${q.max??100}" value="${((q.min??0)+(q.max??100))/2}" style="width:100%;accent-color:var(--accent)" oninput="document.getElementById('slider-val').textContent=this.value"/>
-        <div style="text-align:center;font-size:1.4rem;font-family:var(--font-head);margin-top:8px" id="slider-val">${Math.round(((q.min??0)+(q.max??100))/2)}</div>
-      </div>
-      <button class="btn btn-primary" style="width:100%" onclick="submitSlider(${idx})">Valider</button>`;
-    case "ordering": case "dragdrop":
-      const shuffled = shuffle([...(q.items||[])]);
-      return `<div id="play-ordering" style="display:flex;flex-direction:column;gap:8px">
-        ${shuffled.map((it,i) => `<div class="play-choice" draggable="true" data-item="${esc(it)}" style="cursor:grab">⠿ ${esc(it)}</div>`).join("")}
-      </div>
-      <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="submitOrdering(${idx})">Valider l'ordre</button>`;
-    case "connect":
-      const lefts = (q.pairs||[]).map(p=>p.a);
-      const rights = shuffle((q.pairs||[]).map(p=>p.b));
-      return `<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center">
-        ${lefts.map((l,i)=>`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px">${esc(l)}</div>
-        <div style="color:var(--muted)">↔</div>
-        <select data-li="${i}" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text)"><option value="">Choisir…</option>${rights.map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join("")}</select>`).join("")}
-      </div>
-      <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="submitConnect(${idx})">Valider</button>`;
-    case "flashcard":
-      return `<div id="flashcard-play" onclick="flipCard()" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;min-height:120px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-family:var(--font-head);transition:all .3s" data-flipped="0">
-        <div id="fc-content">${esc(q.front||"")}</div>
-      </div>
-      <div style="display:flex;gap:12px;margin-top:16px">
-        <button class="btn btn-danger" style="flex:1" onclick="flashcardAnswer(${idx},false)">❌ Je ne savais pas</button>
-        <button class="btn btn-primary" style="flex:1;background:var(--green)" onclick="flashcardAnswer(${idx},true)">✅ Je savais</button>
-      </div>`;
-    case "drawing":
-      return `<canvas id="draw-canvas" width="600" height="220" style="background:var(--bg3);border-radius:12px;cursor:crosshair;border:1px solid var(--border);width:100%;touch-action:none"></canvas>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn btn-ghost btn-sm" onclick="clearCanvas()">🗑️ Effacer</button>
-        <button class="btn btn-primary btn-sm" onclick="submitDrawing(${idx})" style="flex:1">Envoyer</button>
-      </div>`;
-    case "color":
-      return `<div class="color-choices" style="justify-content:center">
-        ${(q.choices||[]).map(c => `<div class="color-choice" style="background:${c};width:56px;height:56px" onclick="submitAnswer(${idx},'${c}')"></div>`).join("")}
-      </div>`;
-    case "grid":
-      const gW = q.gridW||5; const gH = q.gridH||5;
-      return `<div class="q-grid" id="play-grid" style="display:grid;grid-template-columns:repeat(${gW},44px);gap:6px;justify-content:center">
-        ${Array.from({length:gW*gH},(_,ci)=>`<div class="grid-cell" data-ci="${ci}" onclick="togglePlayCell(${ci})" style="width:44px;height:44px"></div>`).join("")}
-      </div>
-      <button class="btn btn-primary" style="margin-top:16px;width:100%" onclick="submitGrid(${idx})">Valider</button>`;
-    case "imagemap":
-      return `<div class="imgmap-wrap" id="imgmap-wrap" onclick="handleImageMapClick(event,${idx})" style="cursor:crosshair;display:block">
-        <img src="${esc(q.media||'https://via.placeholder.com/600x360?text=Image')}" style="width:100%;border-radius:12px" id="imgmap-img"/>
-        <div id="imgmap-pin" style="display:none" class="imgmap-pin">📍</div>
-      </div>
-      <button class="btn btn-primary" style="margin-top:12px;width:100%" id="imgmap-confirm" onclick="confirmImageMap(${idx})" style="display:none">Confirmer</button>`;
-    case "location":
-      return `<div id="play-map" style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;height:260px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.9rem;position:relative;overflow:hidden">
-        <div style="text-align:center"><div style="font-size:2rem;margin-bottom:8px">🗺️</div>Clique sur la carte pour pointer ta réponse<br/><small>Intégration Leaflet recommandée en production</small></div>
-      </div>
-      <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="submitAnswer(${idx},'skipped')">Valider (approximatif)</button>`;
-    case "photo":
-      return `<div class="field"><label>Uploader ta photo</label><input type="file" accept="image/*" id="photo-input" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px"/></div>
-      <button class="btn btn-primary" style="width:100%" onclick="submitPhoto(${idx})">Envoyer la photo</button>`;
-    default:
-      return `<div style="color:var(--muted)">Type de question non supporté en lecture.</div>`;
-  }
-}
-
-function attachPlayEvents(q, idx) {
-  // Drawing canvas
-  const canvas = document.getElementById("draw-canvas");
-  if (canvas) {
-    let drawing = false;
-    const ctx = canvas.getContext("2d");
-    ctx.strokeStyle = "#a78bfa"; ctx.lineWidth = 3; ctx.lineCap = "round";
-    canvas.addEventListener("pointerdown", e => { drawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
-    canvas.addEventListener("pointermove", e => { if (!drawing) return; ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); });
-    canvas.addEventListener("pointerup", () => drawing = false);
-  }
-  // Drag ordering
-  const ord = document.getElementById("play-ordering");
-  if (ord) setupDragOrdering(ord);
-}
-
-function setupDragOrdering(container) {
-  let dragged = null;
-  container.querySelectorAll(".play-choice").forEach(el => {
-    el.addEventListener("dragstart", () => { dragged = el; setTimeout(() => el.style.opacity = ".5", 0); });
-    el.addEventListener("dragend", () => { el.style.opacity = "1"; dragged = null; });
-    el.addEventListener("dragover", e => { e.preventDefault(); });
-    el.addEventListener("drop", () => {
-      if (dragged && dragged !== el) {
-        const children = [...container.children];
-        const di = children.indexOf(dragged); const ei = children.indexOf(el);
-        if (di < ei) el.after(dragged); else el.before(dragged);
-      }
-    });
-  });
-}
-
-let playMultiSelected = [];
-function toggleMulti(idx, ci) {
-  const btn = document.querySelector(`.play-choice[data-ci="${ci}"]`);
-  const i = playMultiSelected.indexOf(ci);
-  if (i === -1) { playMultiSelected.push(ci); btn.classList.add("selected"); }
-  else { playMultiSelected.splice(i, 1); btn.classList.remove("selected"); }
-}
-function confirmMulti(idx) {
-  const q = state.playQuiz.questions[idx];
-  const correct = JSON.stringify([...(q.corrects||[])].sort()) === JSON.stringify([...playMultiSelected].sort());
-  playMultiSelected = [];
-  showFeedback(idx, correct);
-}
-
-function submitAnswer(idx, val) {
-  const q = state.playQuiz.questions[idx];
-  let correct = false;
-  if (q.type === "truefalse") correct = String(q.answer) === String(val);
-  else if (q.type === "color") correct = q.answer === val;
-  else correct = false;
-  state.playAnswers.push({ idx, val, correct });
-  if (correct) state.playScore += (q.points || 1);
-  showFeedback(idx, correct);
-}
-
-function submitChoice(idx, ci) {
-  const q = state.playQuiz.questions[idx];
-  if (q.type === "poll") { showFeedback(idx, null); return; }
-  const correct = (q.corrects||[]).includes(ci);
-  document.querySelectorAll(".play-choice").forEach((b,i) => {
-    if (q.type === "qcm") {
-      if ((q.corrects||[]).includes(i)) b.classList.add("correct");
-      else if (i === ci && !correct) b.classList.add("wrong");
-      b.disabled = true;
+    case"truefalse": return `<div class="pchoices" style="grid-template-columns:1fr 1fr"><button class="pchoice" onclick="subAns(${idx},true)">✅ Vrai</button><button class="pchoice" onclick="subAns(${idx},false)">❌ Faux</button></div>`;
+    case"qcm":case"poll": return `<div class="pchoices">${(q.choices||[]).map((c,i)=>`<button class="pchoice" data-ci="${i}" onclick="subChoice(${idx},${i})"><span class="cletter">${L[i]}</span>${esc(c)}</button>`).join("")}</div>`;
+    case"qcmmulti": return `<div class="pchoices" id="mchoices">${(q.choices||[]).map((c,i)=>`<button class="pchoice" data-ci="${i}" onclick="togMulti(${i})"><span class="cletter">${L[i]}</span>${esc(c)}</button>`).join("")}</div><button class="btn btn-p" style="margin-top:12px;width:100%" onclick="subMulti(${idx})">Confirmer</button>`;
+    case"freetext":case"audio":case"equation": return `<input class="pinput" id="ptinput" type="text" placeholder="Ta réponse…" onkeydown="if(event.key==='Enter')subText(${idx})"/><button class="btn btn-p" style="margin-top:11px;width:100%" onclick="subText(${idx})">Valider</button>`;
+    case"fillblank": {
+      const parts=(q.sentence||"").split(/\[([^\]]+)\]/g); let blanks=[],html="<div style='font-size:1.05rem;line-height:2.3'>";
+      parts.forEach((p,i)=>{if(i%2===0)html+=esc(p);else{html+=`<input type="text" data-blank="${blanks.length}" style="border:none;border-bottom:2px solid var(--accent);background:transparent;color:var(--text);width:90px;text-align:center;font-size:.95rem;margin:0 3px"/>`;blanks.push(p);}});
+      return html+"</div><button class='btn btn-p' style='margin-top:14px;width:100%' onclick=\"subFill(${idx},'"+btoa(JSON.stringify(blanks))+"')\">Valider</button>";
     }
-  });
-  state.playAnswers.push({ idx, val: ci, correct });
-  if (correct) state.playScore += (q.points || 1);
-  showFeedbackRaw(idx, correct);
-}
-
-function submitText(idx) {
-  const q = state.playQuiz.questions[idx];
-  const val = document.getElementById("play-text-input").value.trim();
-  const ans = q.answer || "";
-  const correct = q.caseSensitive ? val === ans : val.toLowerCase() === ans.toLowerCase();
-  state.playAnswers.push({ idx, val, correct });
-  if (correct) state.playScore += (q.points || 1);
-  showFeedback(idx, correct);
-}
-
-function submitFillBlank(idx, b64) {
-  const blanks = JSON.parse(atob(b64));
-  const inputs = document.querySelectorAll("[data-blank]");
-  let allCorrect = true;
-  inputs.forEach((inp, i) => {
-    if (inp.value.toLowerCase().trim() !== blanks[i].toLowerCase().trim()) allCorrect = false;
-  });
-  state.playAnswers.push({ idx, val: [...inputs].map(i=>i.value), correct: allCorrect });
-  if (allCorrect) state.playScore += (state.playQuiz.questions[idx].points || 1);
-  showFeedback(idx, allCorrect);
-}
-
-function submitSlider(idx) {
-  const q = state.playQuiz.questions[idx];
-  const val = parseInt(document.getElementById("play-slider").value);
-  const correct = Math.abs(val - q.answer) <= (q.tolerance || 5);
-  state.playAnswers.push({ idx, val, correct });
-  if (correct) state.playScore += (q.points || 1);
-  showFeedback(idx, correct);
-}
-
-function submitOrdering(idx) {
-  const q = state.playQuiz.questions[idx];
-  const items = [...document.querySelectorAll("#play-ordering .play-choice")].map(el => el.dataset.item);
-  const correct = JSON.stringify(items) === JSON.stringify(q.items||[]);
-  state.playAnswers.push({ idx, val: items, correct });
-  if (correct) state.playScore += (q.points || 1);
-  showFeedback(idx, correct);
-}
-
-function submitConnect(idx) {
-  const q = state.playQuiz.questions[idx];
-  const selects = document.querySelectorAll("[data-li]");
-  let correct = true;
-  selects.forEach((sel, i) => { if (sel.value !== (q.pairs||[])[i]?.b) correct = false; });
-  state.playAnswers.push({ idx, correct });
-  if (correct) state.playScore += (q.points || 1);
-  showFeedback(idx, correct);
-}
-
-let playGridSelected = [];
-function togglePlayCell(ci) {
-  const el = document.querySelector(`#play-grid [data-ci="${ci}"]`);
-  const i = playGridSelected.indexOf(ci);
-  if (i === -1) { playGridSelected.push(ci); el.classList.add("selected"); }
-  else { playGridSelected.splice(i, 1); el.classList.remove("selected"); }
-}
-function submitGrid(idx) {
-  const q = state.playQuiz.questions[idx];
-  const correct = JSON.stringify([...playGridSelected].sort()) === JSON.stringify([...(q.correctCells||[])].sort());
-  playGridSelected = [];
-  state.playAnswers.push({ idx, correct });
-  if (correct) state.playScore += (q.points || 1);
-  showFeedback(idx, correct);
-}
-
-let imgMapClick = null;
-function handleImageMapClick(e, idx) {
-  const img = document.getElementById("imgmap-img");
-  const rect = img.getBoundingClientRect();
-  const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
-  const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
-  imgMapClick = { x: parseFloat(x), y: parseFloat(y) };
-  const pin = document.getElementById("imgmap-pin");
-  pin.style.display = "flex"; pin.style.left = x + "%"; pin.style.top = y + "%";
-}
-function confirmImageMap(idx) {
-  if (!imgMapClick) return;
-  const q = state.playQuiz.questions[idx];
-  const dx = imgMapClick.x - (q.targetX||50); const dy = imgMapClick.y - (q.targetY||50);
-  const correct = Math.sqrt(dx*dx + dy*dy) <= (q.targetR||10);
-  state.playAnswers.push({ idx, val: imgMapClick, correct });
-  if (correct) state.playScore += (q.points || 1);
-  showFeedback(idx, correct);
-}
-
-function flipCard() {
-  const fc = document.getElementById("flashcard-play");
-  const content = document.getElementById("fc-content");
-  const flipped = fc.dataset.flipped === "1";
-  fc.dataset.flipped = flipped ? "0" : "1";
-  content.textContent = flipped ? state.playQuiz.questions[state.playIndex].front || "" : state.playQuiz.questions[state.playIndex].back || "";
-  fc.style.background = flipped ? "var(--bg3)" : "rgba(124,92,252,.12)";
-}
-function flashcardAnswer(idx, knew) {
-  state.playAnswers.push({ idx, correct: knew });
-  if (knew) state.playScore += (state.playQuiz.questions[idx].points || 1);
-  showFeedback(idx, knew);
-}
-
-function clearCanvas() { const c = document.getElementById("draw-canvas"); if(c) c.getContext("2d").clearRect(0,0,c.width,c.height); }
-function submitDrawing(idx) {
-  state.playAnswers.push({ idx, val: "drawing", correct: null });
-  showFeedback(idx, null);
-}
-function submitPhoto(idx) {
-  state.playAnswers.push({ idx, val: "photo", correct: null });
-  showFeedback(idx, null);
-}
-
-function showFeedback(idx, correct) {
-  clearInterval(state.playTimer);
-  document.getElementById("play-timer").textContent = "–";
-  const q = state.playQuiz.questions[idx];
-  showFeedbackRaw(idx, correct, q);
-}
-
-function showFeedbackRaw(idx, correct, q) {
-  if (!q) q = state.playQuiz.questions[idx];
-  const fb = document.getElementById("play-feedback");
-  if (correct === null) {
-    fb.className = "play-feedback ok";
-    fb.textContent = "Réponse envoyée ✓ (évaluation manuelle)";
-  } else if (correct) {
-    fb.className = "play-feedback ok";
-    fb.textContent = q.msgCorrect || "✅ Correct !";
-  } else {
-    fb.className = "play-feedback bad";
-    fb.textContent = q.msgWrong || "❌ Incorrect.";
-  }
-  document.getElementById("play-next-btn").style.display = "";
-  document.querySelectorAll(".play-choice, .play-input, button.btn-primary:not(#play-next-btn)").forEach(el => el.disabled = true);
-}
-
-function nextQ() {
-  state.playIndex++;
-  renderPlayQ();
-}
-
-function startTimer(sec) {
-  const el = document.getElementById("play-timer");
-  let t = sec;
-  el.textContent = t;
-  el.className = "play-timer";
-  state.playTimer = setInterval(() => {
-    t--;
-    el.textContent = t;
-    if (t <= 5) el.className = "play-timer warning";
-    if (t <= 0) {
-      clearInterval(state.playTimer);
-      const idx = state.playIndex;
-      state.playAnswers.push({ idx, val: null, correct: false, timeout: true });
-      showFeedbackRaw(idx, false);
+    case"slider": return `<div style="padding:18px 0"><input type="range" id="pslider" min="${q.min??0}" max="${q.max??100}" value="${((q.min??0)+(q.max??100))/2}" style="width:100%;accent-color:var(--accent)" oninput="document.getElementById('slval').textContent=this.value"/><div style="text-align:center;font-size:1.3rem;font-family:var(--fh);margin-top:7px" id="slval">${Math.round(((q.min??0)+(q.max??100))/2)}</div></div><button class="btn btn-p" style="width:100%" onclick="subSlider(${idx})">Valider</button>`;
+    case"ordering":case"dragdrop": return `<div id="pord" style="display:flex;flex-direction:column;gap:7px">${shuffle([...(q.items||[])]).map(it=>`<button class="pchoice" draggable="true" data-item="${esc(it)}" style="cursor:grab">⠿ ${esc(it)}</button>`).join("")}</div><button class="btn btn-p" style="margin-top:11px;width:100%" onclick="subOrder(${idx})">Valider</button>`;
+    case"connect": {
+      const ls=(q.pairs||[]).map(p=>p.a), rs=shuffle((q.pairs||[]).map(p=>p.b));
+      return `<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center">${ls.map((l,i)=>`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 13px">${esc(l)}</div><div style="color:var(--muted)">↔</div><select data-li="${i}" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 13px;color:var(--text)"><option value="">—</option>${rs.map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join("")}</select>`).join("")}</div><button class="btn btn-p" style="margin-top:11px;width:100%" onclick="subConnect(${idx})">Valider</button>`;
     }
-  }, 1000);
-}
-
-async function showResults() {
-  clearInterval(state.playTimer);
-  const quiz = state.playQuiz;
-  const total = quiz.questions.filter(q => q.type !== "poll" && q.type !== "drawing" && q.type !== "photo").length;
-  const score = state.playScore;
-  const pct = total ? Math.round(score / total * 100) : 0;
-  const emoji = pct >= 80 ? "🏆" : pct >= 50 ? "🎉" : "💪";
-
-  // Save score
-  try {
-    await api("POST", "/api/score", { qid: quiz.qid, pseudo: state.playPseudo, score, total, answers: state.playAnswers });
-  } catch(_) {}
-
-  const card = document.getElementById("play-card");
-  card.innerHTML = `
-    <div class="result-card fade-up">
-      <div style="font-size:3rem;margin-bottom:16px">${emoji}</div>
-      <div class="result-score-circle">
-        <div class="num">${score}</div>
-        <div class="den">/ ${total}</div>
-      </div>
-      <h2 style="font-family:var(--font-head);margin-bottom:8px">${state.playPseudo}</h2>
-      <div class="result-msg">${pct}% de bonnes réponses</div>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="initPlay(state.playQuiz)">🔄 Rejouer</button>
-        <button class="btn btn-ghost" onclick="navigate('home')">🏠 Accueil</button>
-      </div>
-    </div>`;
-  document.getElementById("play-progress-fill").style.width = "100%";
-  document.getElementById("play-timer").textContent = "–";
-}
-
-// ============================================================
-// PROFILE / SETTINGS
-// ============================================================
-function loadProfile() {
-  if (!state.user) { navigate("home"); return; }
-  document.getElementById("set-username").value = state.user.username || "";
-  document.getElementById("set-email").value = state.user.email || "";
-}
-
-async function saveProfile() {
-  try {
-    const body = {
-      username: document.getElementById("set-username").value,
-      email: document.getElementById("set-email").value,
-      phone: document.getElementById("set-phone").value,
-    };
-    const updated = await api("PUT", "/api/user/update", body);
-    state.user = { ...state.user, ...updated };
-    localStorage.setItem("qbx_user", JSON.stringify(state.user));
-    renderNavAuth();
-    toast("Profil mis à jour ✓", "ok");
-  } catch(e) { toast(e.message, "bad"); }
-}
-
-async function savePassword() {
-  try {
-    const body = { currentPassword: document.getElementById("set-cur-pw").value, newPassword: document.getElementById("set-new-pw").value };
-    await api("PUT", "/api/user/update", body);
-    document.getElementById("set-cur-pw").value = "";
-    document.getElementById("set-new-pw").value = "";
-    toast("Mot de passe changé ✓", "ok");
-  } catch(e) { toast(e.message, "bad"); }
-}
-
-// ============================================================
-// UTILS
-// ============================================================
-function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr; }
-function showLoader() { document.getElementById("loader").classList.remove("hide"); }
-function hideLoader() { document.getElementById("loader").classList.add("hide"); }
-
-// ============================================================
-// BOOT
-// ============================================================
-async function boot() {
-  renderNavAuth();
-  if (state.token && state.user) {
-    try {
-      const fresh = await api("GET", "/api/auth/me");
-      state.user = fresh;
-      localStorage.setItem("qbx_user", JSON.stringify(fresh));
-      renderNavAuth();
-    } catch(_) {
-      state.token = null; state.user = null;
-      localStorage.removeItem("qbx_token"); localStorage.removeItem("qbx_user");
-      renderNavAuth();
-    }
+    case"flashcard": return `<div id="fc" onclick="flipCard(${idx})" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:15px;padding:36px;text-align:center;min-height:110px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-family:var(--fh);transition:all .28s" data-f="0"><span id="fcc">${esc(q.front||"")}</span></div><div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-d" style="flex:1" onclick="subAns(${idx},false)">❌ Je ne savais pas</button><button class="btn btn-green" style="flex:1" onclick="subAns(${idx},true)">✅ Je savais</button></div>`;
+    case"drawing": return `<canvas id="dcanvas" width="580" height="200" style="background:var(--bg3);border-radius:11px;cursor:crosshair;border:1px solid var(--border);width:100%;touch-action:none"></canvas><div style="display:flex;gap:7px;margin-top:7px"><button class="btn btn-g btn-sm" onclick="clearCanvas()">🗑️</button><button class="btn btn-p btn-sm" style="flex:1" onclick="subAns(${idx},null)">Envoyer</button></div>`;
+    case"color": return `<div class="color-choices" style="justify-content:center;gap:12px">${(q.choices||[]).map(c=>`<div class="cchoice" style="background:${c};width:52px;height:52px" onclick="subAns(${idx},'${c}')"></div>`).join("")}</div>`;
+    case"grid": { const gW=q.gridW||5,gH=q.gridH||5; return `<div style="display:grid;grid-template-columns:repeat(${gW},42px);gap:5px;justify-content:center" id="pgrid">${Array.from({length:gW*gH},(_,ci)=>`<div class="gcell" data-ci="${ci}" onclick="togPCell(${ci})" style="width:42px;height:42px"></div>`).join("")}</div><button class="btn btn-p" style="margin-top:14px;width:100%" onclick="subGrid(${idx})">Valider</button>`; }
+    case"code": return `<textarea class="carea" id="pcodearea" placeholder="// Ton code ici…" style="min-height:140px"></textarea><button class="btn btn-p" style="margin-top:10px;width:100%" onclick="subCode(${idx})">Envoyer</button>`;
+    case"location": return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:11px;height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center"><div>🗺️<br/>Intégration Leaflet en prod<br/><small>Clique Valider pour continuer</small></div></div><button class="btn btn-p" style="margin-top:11px;width:100%" onclick="subAns(${idx},'skipped')">Valider</button>`;
+    case"photo": return `<input type="file" accept="image/*" id="pphoto" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px;width:100%;color:var(--text)"/><button class="btn btn-p" style="margin-top:10px;width:100%" onclick="subAns(${idx},'photo')">Envoyer</button>`;
+    default: return `<div style="color:var(--muted)">Type non supporté en lecture.</div>`;
   }
-  hideLoader();
+}
+
+function attachPlayEv(q,idx) {
+  const c=document.getElementById("dcanvas"); if(c){let dr=false;const ctx=c.getContext("2d");ctx.strokeStyle="#a78bfa";ctx.lineWidth=3;ctx.lineCap="round";c.addEventListener("pointerdown",e=>{dr=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY)});c.addEventListener("pointermove",e=>{if(!dr)return;ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke()});c.addEventListener("pointerup",()=>dr=false);}
+  const ord=document.getElementById("pord"); if(ord) setupDragOrd(ord);
+}
+function clearCanvas(){const c=document.getElementById("dcanvas");if(c)c.getContext("2d").clearRect(0,0,c.width,c.height);}
+function setupDragOrd(container){let dragged=null;container.querySelectorAll(".pchoice").forEach(el=>{el.addEventListener("dragstart",()=>{dragged=el;setTimeout(()=>el.style.opacity=".4",0)});el.addEventListener("dragend",()=>{el.style.opacity="1";dragged=null});el.addEventListener("dragover",e=>e.preventDefault());el.addEventListener("drop",()=>{if(dragged&&dragged!==el){const c=[...container.children];if(c.indexOf(dragged)<c.indexOf(el))el.after(dragged);else el.before(dragged);}})});}
+
+let _multiSel=[];
+function togMulti(ci){const btn=document.querySelector(`#mchoices .pchoice[data-ci="${ci}"]`);const i=_multiSel.indexOf(ci);if(i===-1){_multiSel.push(ci);btn.classList.add("sel");}else{_multiSel.splice(i,1);btn.classList.remove("sel");}}
+
+let _pgridSel=[];
+function togPCell(ci){const el=document.querySelector(`#pgrid [data-ci="${ci}"]`);const i=_pgridSel.indexOf(ci);if(i===-1){_pgridSel.push(ci);el.classList.add("sel");}else{_pgridSel.splice(i,1);el.classList.remove("sel");}}
+
+function subAns(idx,val){const q=S.playQuiz.questions[idx];let correct=false;if(q.type==="truefalse")correct=String(q.answer)===String(val);else if(q.type==="color")correct=q.answer===val;else if(q.type==="flashcard"||q.type==="drawing"||q.type==="photo"||q.type==="location")correct=val===true||val===null;S.playAnswers.push({idx,val,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
+function subChoice(idx,ci){const q=S.playQuiz.questions[idx];if(q.type==="poll"){showFb(idx,null);return;}const correct=(q.corrects||[]).includes(ci);document.querySelectorAll(".pchoice").forEach((b,i)=>{if((q.corrects||[]).includes(i))b.classList.add("correct");else if(i===ci&&!correct)b.classList.add("wrong");b.disabled=true;});S.playAnswers.push({idx,val:ci,correct});if(correct)S.playScore+=(q.points||1);showFbRaw(idx,correct);}
+function subMulti(idx){const q=S.playQuiz.questions[idx];const correct=JSON.stringify([...(q.corrects||[])].sort())===JSON.stringify([..._multiSel].sort());_multiSel=[];S.playAnswers.push({idx,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
+function subText(idx){const q=S.playQuiz.questions[idx];const val=(document.getElementById("ptinput")||{value:""}).value.trim();const correct=q.caseSensitive?val===q.answer:val.toLowerCase()===(q.answer||"").toLowerCase();S.playAnswers.push({idx,val,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
+function subFill(idx,b64){const blanks=JSON.parse(atob(b64));const inputs=document.querySelectorAll("[data-blank]");let all=true;inputs.forEach((inp,i)=>{if(inp.value.toLowerCase().trim()!==blanks[i].toLowerCase().trim())all=false;});S.playAnswers.push({idx,correct:all});if(all)S.playScore+=(S.playQuiz.questions[idx].points||1);showFb(idx,all);}
+function subSlider(idx){const q=S.playQuiz.questions[idx];const val=parseInt(document.getElementById("pslider").value);const correct=Math.abs(val-(q.answer??50))<=(q.tolerance??5);S.playAnswers.push({idx,val,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
+function subOrder(idx){const q=S.playQuiz.questions[idx];const items=[...document.querySelectorAll("#pord .pchoice")].map(e=>e.dataset.item);const correct=JSON.stringify(items)===JSON.stringify(q.items||[]);S.playAnswers.push({idx,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
+function subConnect(idx){const q=S.playQuiz.questions[idx];let correct=true;document.querySelectorAll("[data-li]").forEach((sel,i)=>{if(sel.value!==(q.pairs||[])[i]?.b)correct=false;});S.playAnswers.push({idx,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
+function subGrid(idx){const q=S.playQuiz.questions[idx];const correct=JSON.stringify([..._pgridSel].sort())===JSON.stringify([...(q.correctCells||[])].sort());_pgridSel=[];S.playAnswers.push({idx,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
+function subCode(idx){S.playAnswers.push({idx,val:document.getElementById("pcodearea")?.value,correct:null});showFb(idx,null);}
+function flipCard(idx){const q=S.playQuiz.questions[idx];const fc=document.getElementById("fc");const f=fc.dataset.f==="1";fc.dataset.f=f?"0":"1";document.getElementById("fcc").textContent=f?q.front||"":q.back||"";fc.style.background=f?"var(--bg3)":"rgba(124,92,252,.12)";}
+
+function showFb(idx,correct){clearInterval(S.playTimer);document.getElementById("ptimer").textContent="–";showFbRaw(idx,correct);}
+function showFbRaw(idx,correct){const q=S.playQuiz.questions[idx];const fb=document.getElementById("pfb");if(correct===null){fb.className="pfeedback ok";fb.textContent="Réponse envoyée ✓";}else if(correct){fb.className="pfeedback ok";fb.textContent=q.msgCorrect||"✅ Correct !";}else{fb.className="pfeedback bad";fb.textContent=q.msgWrong||"❌ Incorrect.";}document.getElementById("pnext").style.display="";document.querySelectorAll(".pchoice,.pinput").forEach(el=>el.disabled=true);}
+function nextQ(){S.playIdx++;renderPlayQ();}
+
+function startTimer(sec){const el=document.getElementById("ptimer");let t=sec;el.textContent=t;el.className="playtimer";S.playTimer=setInterval(()=>{t--;el.textContent=t;if(t<=5)el.className="playtimer warn";if(t<=0){clearInterval(S.playTimer);S.playAnswers.push({idx:S.playIdx,val:null,correct:false,timeout:true});showFbRaw(S.playIdx,false);}},1000);}
+
+async function showResults(){
+  clearInterval(S.playTimer);
+  const quiz=S.playQuiz,total=quiz.questions.filter(q=>q.type!=="poll"&&q.type!=="drawing"&&q.type!=="photo").length;
+  const score=S.playScore,pct=total?Math.round(score/total*100):0;
+  const emoji=pct>=80?"🏆":pct>=50?"🎉":"💪";
+  try { await api("POST","/api/score",{qid:quiz.qid,pseudo:S.playPseudo,score,total,answers:S.playAnswers,classId:S.playClassId||null,studentUid:S.user?.id||null}); } catch{}
+  document.getElementById("playcard").innerHTML=`<div class="rescard fu">
+    <div style="font-size:2.8rem;margin-bottom:14px">${emoji}</div>
+    <div class="rescircle"><div class="rn">${score}</div><div class="rd">/ ${total}</div></div>
+    <h2 style="font-family:var(--fh);margin-bottom:7px">${esc(S.playPseudo)}</h2>
+    <div class="resmsg">${pct}% de bonnes réponses</div>
+    ${quiz.competitionEnabled?`<button class="btn btn-g" style="margin-bottom:10px" onclick="openLeaderboard('${quiz.qid}','${esc(quiz.title)}')">🏆 Voir le classement</button><br/>`:""}
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-p" onclick="initPlay(S.playQuiz)">🔄 Rejouer</button>
+      <button class="btn btn-g" onclick="go('home')">🏠 Accueil</button>
+    </div>
+  </div>`;
+  document.getElementById("ppfill").style.width="100%";
+  document.getElementById("ptimer").textContent="–";
+}
+
+// ══ PROFILE ══
+function loadProfile(){if(!S.user)return;document.getElementById("s-uname").value=S.user.username||"";document.getElementById("s-email").value=S.user.email||"";}
+async function saveProfile(){try{const d=await api("PUT","/api/user/update",{username:v("s-uname"),email:v("s-email"),phone:v("s-phone")});S.user={...S.user,...d};localStorage.setItem("qbx_usr",JSON.stringify(S.user));renderNav();toast("Profil mis à jour ✓","ok");}catch(e){toast(e.message,"bad");}}
+async function savePw(){try{await api("PUT","/api/user/update",{currentPassword:v("s-cpw"),newPassword:v("s-npw")});document.getElementById("s-cpw").value="";document.getElementById("s-npw").value="";toast("Mot de passe changé ✓","ok");}catch(e){toast(e.message,"bad");}}
+
+// ══ UTILS ══
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function v(id){return(document.getElementById(id)||{value:""}).value;}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+// ══ BOOT ══
+async function boot(){
+  renderNav();
+  if(S.token&&S.user){
+    try{const fresh=await api("GET","/api/auth/me");S.user=fresh;localStorage.setItem("qbx_usr",JSON.stringify(fresh));renderNav();}
+    catch{S.token=null;S.user=null;localStorage.removeItem("qbx_tok");localStorage.removeItem("qbx_usr");renderNav();}
+  }
+  hideL();
 }
 boot();
 </script>
