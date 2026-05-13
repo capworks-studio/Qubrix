@@ -1122,14 +1122,14 @@ function renderNav() {
     a.innerHTML = `<span class="xp-pill" title="XP">⚡ ${xp}</span><div class="theme-quick">${themeSel()}</div><div class="avatar-wrap" id="avwrap">
       <div class="avatar-btn${isAdmin?" is-admin":""}" onclick="document.getElementById('avwrap').classList.toggle('open')">${ini}</div>
       <div class="avatar-menu">
-        <a onclick="go('dashboard');closeAv()">Quiz &amp; classes</a>
-        <a onclick="go('histoire');closeAv();gotoHistoireTab('joues')">Quiz joués</a>
-        <a onclick="go('histoire');closeAv();gotoHistoireTab('examens')">Examens terminés</a>
-        <a onclick="go('histoire');closeAv();gotoHistoireTab('devoirs')">Devoirs rendus</a>
+        <a onclick="go('dashboard');closeAv()">🗃️ Quiz &amp; classes</a>
+        <a onclick="go('histoire');closeAv();gotoHistoireTab('joues')">📄 Quiz joués</a>
+        <a onclick="go('histoire');closeAv();gotoHistoireTab('examens')">📜 Examens terminés</a>
+        <a onclick="go('histoire');closeAv();gotoHistoireTab('devoirs')">📓 Devoirs rendus</a>
         <a onclick="go('profile');closeAv()">Paramètres</a>
-        ${isAdmin ? `<hr/><a class="admin-item" onclick="go('admin');closeAv()">⚙ Panel Admin</a>` : ""}
+        ${isAdmin ? `<hr/><a class="admin-item" onclick="go('admin');closeAv()">⚙️ Panel Admin</a>` : ""}
         <hr/>
-        <button class="danger" onclick="logout()">Déconnexion</button>
+        <button class="danger" onclick="logout()">❌ Déconnexion</button>
       </div>
     </div>`;
   } else {
