@@ -533,7 +533,7 @@ html.projection-mode .playtimer{font-size:1.35rem;width:52px}
     <div class="hero">
     <div class="eyebrow">✦ Créez · Partagez · Jouez</div>
     <h1 class="htitle">La plateforme de quiz <span class="grad">qui déchire.</span></h1>
-    <p class="hsub">Ici, vos quiz prennent une nouvelle vie ; avec plus de 20 choix pour vos questions, profitez d'un espace amusant et intuitif !</p>
+    <p class="hsub">22 types de questions, éditeur visuel complet, codes de partage instantanés — sans pub, sans limite.</p>
     <div class="steps-h" aria-label="Comment ça marche">
       <div class="step-h"><div class="sn">01</div><div class="st">Crée</div><div class="sd">Compose ton quiz dans l'éditeur, question par question.</div></div>
       <div class="step-h"><div class="sn">02</div><div class="st">Partage</div><div class="sd">Un code à 6 lettres suffit pour inviter tout le monde.</div></div>
@@ -639,12 +639,6 @@ html.projection-mode .playtimer{font-size:1.35rem;width:52px}
 <!-- ═══════════════════ PROFILE ═══════════════════ -->
 <div id="page-profile" class="page">
   <div class="settingswrap">
-    <nav class="prof-hub-nav" aria-label="Sections compte">
-      <button type="button" class="sel" onclick="go('profile')">Paramètres</button>
-      <button type="button" onclick="go('histoire');gotoHistoireTab('joues')">Quiz joués</button>
-      <button type="button" onclick="go('histoire');gotoHistoireTab('examens')">Examens</button>
-      <button type="button" onclick="go('histoire');gotoHistoireTab('devoirs')">Devoirs</button>
-    </nav>
     <h1 style="margin-bottom:6px">Espace personnel</h1>
     <p style="color:var(--muted);font-size:.88rem;margin-bottom:22px">Thèmes, identité et sécurité du compte.</p>
     <div class="settsec"><h2>APPARENCE &amp; XP</h2>
@@ -699,6 +693,7 @@ html.projection-mode .playtimer{font-size:1.35rem;width:52px}
       <button class="admin-tab" onclick="adminTab('users',this)">👥 Utilisateurs</button>
       <button class="admin-tab" onclick="adminTab('quizzes',this)">📋 Quiz</button>
       <button class="admin-tab" onclick="adminTab('classes',this)">🎓 Classes</button>
+      <button class="admin-tab" onclick="adminTab('visual',this)">🎨 Éditeur visuel</button>
     </div>
 
     <!-- Stats -->
@@ -1760,6 +1755,211 @@ async function confirmDissolveClass() {
     loadAdminStats();
   } catch(e) { toast(e.message,"bad"); }
   finally { hideL(); }
+}
+
+// ══════════════════════════════════════════════
+// ÉDITEUR VISUEL ADMIN
+// ══════════════════════════════════════════════
+
+// Applique les styles sauvegardés au chargement
+function applyVeStyles() {
+  let el = document.getElementById("ve-injected");
+  if (!el) { el = document.createElement("style"); el.id = "ve-injected"; document.head.appendChild(el); }
+  const rules = Object.entries(S.veStyles).map(([sel, props]) =>
+    `${sel} { ${Object.entries(props).map(([k,v]) => `${k}: ${v} !important;`).join(" ")} }`
+  ).join("\n");
+  el.textContent = rules;
+}
+
+function veTogglePicker() {
+  S.vePickerActive = !S.vePickerActive;
+  const btn = document.getElementById("ve-pick-btn");
+  btn.classList.toggle("active", S.vePickerActive);
+  btn.textContent = S.vePickerActive ? "✋ Annuler la sélection" : "🖱 Sélectionner un élément";
+  document.body.classList.toggle("ve-overlay-active", S.vePickerActive);
+  if (S.vePickerActive) {
+    document.addEventListener("mouseover", veHoverEl, true);
+    document.addEventListener("click", veClickEl, true);
+  } else {
+    document.removeEventListener("mouseover", veHoverEl, true);
+    document.removeEventListener("click", veClickEl, true);
+    document.querySelectorAll(".ve-highlight").forEach(e => e.classList.remove("ve-highlight"));
+  }
+}
+
+let _veHovered = null;
+function veHoverEl(e) {
+  if (e.target.closest("#page-admin")) return;
+  if (_veHovered) _veHovered.classList.remove("ve-highlight");
+  _veHovered = e.target;
+  _veHovered.classList.add("ve-highlight");
+}
+
+function veClickEl(e) {
+  if (e.target.closest("#page-admin")) return;
+  e.preventDefault(); e.stopPropagation();
+  const el = e.target;
+  el.classList.remove("ve-highlight");
+  veTogglePicker(); // disable picker
+  const path = veCSSPath(el);
+  renderVeControls(el, path);
+}
+
+// Génère un sélecteur CSS stable
+function veCSSPath(el) {
+  const parts = [];
+  let cur = el;
+  while (cur && cur !== document.body) {
+    let seg = cur.tagName.toLowerCase();
+    if (cur.id) { seg += "#" + cur.id; parts.unshift(seg); break; }
+    if (cur.className && typeof cur.className === "string") {
+      const cls = [...cur.classList].filter(c => !["ve-highlight","fu"].includes(c));
+      if (cls.length) seg += "." + cls.slice(0,2).join(".");
+    }
+    const siblings = cur.parentElement ? [...cur.parentElement.children].filter(c => c.tagName === cur.tagName) : [];
+    if (siblings.length > 1) seg += `:nth-child(${[...cur.parentElement.children].indexOf(cur)+1})`;
+    parts.unshift(seg);
+    cur = cur.parentElement;
+  }
+  return parts.join(" > ");
+}
+
+function renderVeControls(el, path) {
+  const cs = window.getComputedStyle(el);
+  const saved = S.veStyles[path] || {};
+  const hint = document.getElementById("ve-hint");
+  if (hint) hint.style.display = "none";
+  const pathEl = document.getElementById("ve-current-path");
+  if (pathEl) { pathEl.textContent = "Élément sélectionné : " + path; pathEl.style.display = ""; }
+
+  const props = [
+    { label: "Couleur texte", prop: "color", type: "color", cur: cs.color },
+    { label: "Fond", prop: "background-color", type: "color", cur: cs.backgroundColor },
+    { label: "Taille texte", prop: "font-size", type: "text", cur: cs.fontSize, ph: "ex: 1.2rem" },
+    { label: "Poids police", prop: "font-weight", type: "select", cur: cs.fontWeight, opts: ["100","300","400","500","600","700","800","900"] },
+    { label: "Police", prop: "font-family", type: "text", cur: saved["font-family"]||"", ph: "ex: 'Syne', sans-serif" },
+    { label: "Largeur", prop: "width", type: "text", cur: saved.width||"", ph: "ex: 100% ou 320px" },
+    { label: "Hauteur", prop: "height", type: "text", cur: saved.height||"", ph: "ex: auto ou 48px" },
+    { label: "Padding", prop: "padding", type: "text", cur: saved.padding||"", ph: "ex: 12px 20px" },
+    { label: "Margin", prop: "margin", type: "text", cur: saved.margin||"", ph: "ex: 0 auto" },
+    { label: "Border-radius", prop: "border-radius", type: "text", cur: saved["border-radius"]||"", ph: "ex: 12px" },
+    { label: "Opacité", prop: "opacity", type: "text", cur: saved.opacity||"", ph: "0–1" },
+    { label: "Display", prop: "display", type: "select", cur: saved.display||cs.display, opts: ["block","flex","grid","inline","inline-flex","none"] },
+    { label: "Align items", prop: "align-items", type: "select", cur: saved["align-items"]||"", opts: ["","flex-start","center","flex-end","stretch"] },
+    { label: "Justify content", prop: "justify-content", type: "select", cur: saved["justify-content"]||"", opts: ["","flex-start","center","flex-end","space-between","space-around"] },
+    { label: "Gap", prop: "gap", type: "text", cur: saved.gap||"", ph: "ex: 12px" },
+    { label: "Border", prop: "border", type: "text", cur: saved.border||"", ph: "ex: 1px solid red" },
+    { label: "Box-shadow", prop: "box-shadow", type: "text", cur: saved["box-shadow"]||"", ph: "ex: 0 4px 24px #0008" },
+    { label: "Transform", prop: "transform", type: "text", cur: saved.transform||"", ph: "ex: scale(1.05)" },
+    { label: "Transition", prop: "transition", type: "text", cur: saved.transition||"", ph: "ex: all .2s ease" },
+    { label: "Z-index", prop: "z-index", type: "text", cur: saved["z-index"]||"", ph: "ex: 100" },
+  ];
+  // Texte éditable
+  const hasText = el.childNodes.length === 1 && el.childNodes[0].nodeType === 3;
+
+  const ctrls = document.getElementById("ve-controls-inline");
+  ctrls.innerHTML = `
+    ${hasText ? `<div class="vcrow" style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)"><label>Texte</label><input type="text" value="${esc(el.textContent)}" oninput="veSetText('${path}',this.value)" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-size:.82rem"/></div>` : ""}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    ${props.map(p => {
+      const val = saved[p.prop] || "";
+      if (p.type === "color") {
+        const hex = rgbToHex(val || p.cur);
+        return `<div class="vcrow"><label>${p.label}</label><input type="color" value="${hex||'#ffffff'}" oninput="veSetProp('${path}','${p.prop}',this.value)"/></div>`;
+      }
+      if (p.type === "select") {
+        return `<div class="vcrow"><label>${p.label}</label><select onchange="veSetProp('${path}','${p.prop}',this.value)" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 8px;color:var(--text);font-size:.78rem">${p.opts.map(o=>`<option value="${o}" ${(val||p.cur)===o?"selected":""}>${o||"—"}</option>`).join("")}</select></div>`;
+      }
+      return `<div class="vcrow"><label>${p.label}</label><input type="text" placeholder="${p.ph||""}" value="${val||p.cur}" oninput="veSetProp('${path}','${p.prop}',this.value)" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 9px;color:var(--text);font-size:.78rem"/></div>`;
+    }).join("")}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="ve-btn" onclick="veResetPath('${path}')">🗑 Réinitialiser cet élément</button>
+      <button class="ve-btn" onclick="veTogglePicker()">🖱 Sélectionner autre chose</button>
+    </div>`;
+}
+
+function veSetText(path, text) {
+  try { document.querySelector(path).textContent = text; } catch {}
+  if (!S.veStyles[path]) S.veStyles[path] = {};
+  S.veStyles[path]["--text-content"] = JSON.stringify(text);
+  vesSave();
+}
+
+function veSetProp(path, prop, val) {
+  if (!S.veStyles[path]) S.veStyles[path] = {};
+  if (val) S.veStyles[path][prop] = val;
+  else delete S.veStyles[path][prop];
+  vesSave();
+  applyVeStyles();
+  S.veHistory.push({ path, prop, prev: S.veStyles[path]?.[prop] });
+}
+
+function veResetPath(path) {
+  delete S.veStyles[path];
+  vesSave();
+  applyVeStyles();
+  document.getElementById("ve-controls-inline").innerHTML = "";
+  document.getElementById("ve-current-path").style.display = "none";
+  document.getElementById("ve-hint").style.display = "";
+  toast("Élément réinitialisé","ok");
+}
+
+function veUndo() {
+  const last = S.veHistory.pop();
+  if (!last) return toast("Rien à annuler","bad");
+  if (last.prev) S.veStyles[last.path][last.prop] = last.prev;
+  else { if (S.veStyles[last.path]) delete S.veStyles[last.path][last.prop]; }
+  vesSave(); applyVeStyles(); toast("Annulé","ok");
+}
+
+function veReset() {
+  if (!confirm("Réinitialiser toutes les personnalisations visuelles ?")) return;
+  S.veStyles = {};
+  vesSave();
+  applyVeStyles();
+  document.getElementById("ve-controls-inline").innerHTML = "";
+  document.getElementById("ve-hint").style.display = "";
+  document.getElementById("ve-current-path").style.display = "none";
+  toast("Interface réinitialisée","ok");
+}
+
+function vesSave() {
+  localStorage.setItem("qbx_ve_styles", JSON.stringify(S.veStyles));
+}
+
+function veExportCSS() {
+  const rules = Object.entries(S.veStyles).map(([sel,props]) =>
+    `${sel} {\n${Object.entries(props).filter(([k])=>k!=="--text-content").map(([k,v])=>`  ${k}: ${v} !important;`).join("\n")}\n}`
+  ).join("\n\n");
+  if (!rules.trim()) return toast("Aucun style personnalisé","bad");
+  navigator.clipboard.writeText(rules).then(() => toast("CSS copié dans le presse-papiers","ok"));
+}
+
+function veImportCSS() {
+  const css = prompt("Colle ton CSS personnalisé Qubrix ici :");
+  if (!css) return;
+  // Parse simple: sélecteur { prop: val !important; }
+  const re = /([^{]+)\{([^}]+)\}/g;
+  let m;
+  while ((m = re.exec(css)) !== null) {
+    const sel = m[1].trim();
+    const block = m[2].trim();
+    if (!S.veStyles[sel]) S.veStyles[sel] = {};
+    block.split(";").forEach(line => {
+      const [k,...vs] = line.split(":");
+      if (!k || !vs.length) return;
+      S.veStyles[sel][k.trim()] = vs.join(":").replace("!important","").trim();
+    });
+  }
+  vesSave(); applyVeStyles(); toast("CSS importé et appliqué","ok");
+}
+
+function rgbToHex(rgb) {
+  if (!rgb || rgb === "rgba(0, 0, 0, 0)") return "#000000";
+  const m = rgb.match(/\d+/g);
+  if (!m || m.length < 3) return "#000000";
+  return "#" + m.slice(0,3).map(n => parseInt(n).toString(16).padStart(2,"0")).join("");
 }
 
 // ══ EDITOR ══
