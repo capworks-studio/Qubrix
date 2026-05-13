@@ -1396,7 +1396,7 @@ async function startEphPage() {
   stopEphPoll();
   const ui = document.getElementById("eph-ui");
   if (!S.user) { ui.innerHTML = `<p class="m">Connecte-toi pour accéder au salon.</p><button class="btn btn-p" onclick="openM('modal-auth')">Connexion</button>`; return; }
-  ui.innerHTML = `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:128px">
+  ui.innerHTML = `<div style="display:flex;gap:64px;flex-wrap:wrap;margin-bottom:16px">
     <button type="button" class="btn btn-p" onclick="ephCreate()">Créer un salon (leader)</button>
     <div style="display:flex;gap:8px;align-items:center"><input id="eph-join-code" placeholder="CODE" maxlength="6" style="width:100px;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"/><button type="button" class="btn btn-g" onclick="ephJoinInput()">Rejoindre</button></div>
   </div><div id="eph-panel"></div>`;
