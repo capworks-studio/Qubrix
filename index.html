@@ -501,6 +501,14 @@ html.projection-mode .playtimer{font-size:1.35rem;width:52px}
     <label style="display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--muted);cursor:pointer">
       <input type="checkbox" id="ed-competition" style="accent-color:var(--yellow)"/> 🏆 Compétition
     </label>
+    <div class="field" style="margin:0;min-width:min(280px,40vw)">
+      <label style="font-size:.72rem;color:var(--muted)">Visibilité</label>
+      <select id="ed-visibility" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 11px;font-size:.8rem;color:var(--text)">
+        <option value="public">🌐 Public — recherche &amp; page d’accueil</option>
+        <option value="unlisted">🔒 Privé + code — pas dans l’annuaire (code requis)</option>
+        <option value="private">👤 Moi seul — pas de partie par code (aperçu / lecture API)</option>
+      </select>
+    </div>
     <button class="btn btn-g btn-sm" onclick="previewQuiz()">👁 Aperçu</button>
     <button class="btn btn-p btn-sm" onclick="saveQuiz()">💾 Sauvegarder</button>
   </div>
@@ -674,6 +682,16 @@ html.projection-mode .playtimer{font-size:1.35rem;width:52px}
     <button class="mclose" onclick="closeM('modal-grades')">✕</button>
     <h2>📊 Carnet de notes — <span id="grades-title"></span></h2>
     <div id="grades-body"></div>
+  </div>
+</div>
+
+<!-- Classe : liste élèves -->
+<div class="mbg" id="modal-clsstd">
+  <div class="modal" style="max-width:520px;width:95vw">
+    <button class="mclose" onclick="closeM('modal-clsstd')">✕</button>
+    <h2 style="margin-bottom:8px">👥 Élèves — <span id="clsstd-title"></span></h2>
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px">Inscrits avec le code de la classe.</p>
+    <div id="clsstd-body"></div>
   </div>
 </div>
 
@@ -870,6 +888,18 @@ async function startPlay() {
   go("play", S.pendingQuiz);
 }
 
+async function playOwnedQuiz(qid) {
+  if (!S.user) return openM("modal-auth");
+  try {
+    showL();
+    const quiz = await api("GET", `/api/quiz/${qid}`);
+    S.playPseudo = (S.user.username || "Moi").trim() || "Moi";
+    S.playClassId = null;
+    go("play", quiz);
+  } catch (e) { toast(e.message, "bad"); }
+  finally { hideL(); }
+}
+
 // ══ AUTH ══
 function authTab(t) {
   document.getElementById("auth-login").style.display = t === "login" ? "" : "none";
@@ -940,25 +970,31 @@ async function loadMyQuizzes() {
     document.getElementById("dash-sub").textContent = list.length + " quiz";
     const g = document.getElementById("qgrid");
     if (!list.length) { g.innerHTML = `<div class="empty"><div class="ei">🧩</div><h2>Aucun quiz pour l'instant</h2><p>Crée ton premier quiz !</p><br><button class="btn btn-p" onclick="go('editor-new')">+ Créer</button></div>`; return; }
-    g.innerHTML = list.map(q => `<div class="qcard fu" id="qc-${q.qid}">
+    g.innerHTML = list.map(q => {
+      const vis = q.visibility || "public";
+      const visTag = vis === "public" ? `<span title="Visible dans la recherche">🌐 Public</span>` : vis === "unlisted" ? `<span title="Pas dans la recherche — code uniquement">🔒 Code</span>` : `<span title="Pas de partie par code — bouton Jouer ou aperçu">👤 Perso</span>`;
+      return `<div class="qcard fu" id="qc-${q.qid}">
       <div class="qthumb">${q.title.substring(0,2).toUpperCase()}</div>
       <div class="qinfo">
         <div class="qtitle">${esc(q.title)}</div>
         <div class="qmeta">
           <span>📋 ${q.questionCount} q.</span>
           <span>🎮 ${q.playCount} partie${q.playCount>1?"s":""}</span>
+          ${visTag}
           <span class="codepill" onclick="copyCode('${q.code}')" title="Copier le code">📋 ${q.code}</span>
           ${q.competitionEnabled ? `<span class="leadericon">🏆 Compétition</span>` : ""}
         </div>
       </div>
       <div class="qactions">
-        ${q.competitionEnabled ? `<button class="btn btn-g btn-sm btn-ic" title="Classement" onclick="openLeaderboard('${q.qid}','${esc(q.title)}')">🏆</button>` : ""}
+        <button class="btn btn-p btn-sm" title="Lancer une partie (obligatoire si quiz « moi seul »)" onclick="playOwnedQuiz('${q.qid}')">▶ Jouer</button>
+        ${q.competitionEnabled ? `<button class="btn btn-g btn-sm btn-ic" title="Classement" onclick="openLeaderboard('${q.qid}', decodeURIComponent('${encodeURIComponent(q.title)}'))">🏆</button>` : ""}
         ${Date.now() < (q.boostUntil || 0) ? `<span class="boost-tag" style="align-self:center">BOOST</span>` : `<button class="btn btn-g btn-sm" title="Mise en avant 7 jours (200 XP)" onclick="boostQuizBuy('${q.qid}')">🚀 Boost</button>`}
         <button class="btn btn-g btn-sm btn-ic" title="Modifier" onclick="editQuiz('${q.qid}')">✏️</button>
-        <button class="btn btn-g btn-sm btn-ic" title="Renommer" onclick="renameQuiz('${q.qid}','${esc(q.title)}')">🏷️</button>
+        <button class="btn btn-g btn-sm btn-ic" title="Renommer" onclick="renameQuiz('${q.qid}', decodeURIComponent('${encodeURIComponent(q.title)}'))">🏷️</button>
         <button class="btn btn-d btn-sm btn-ic" title="Supprimer" onclick="deleteQuiz('${q.qid}')">🗑️</button>
       </div>
-    </div>`).join("");
+    </div>`;
+    }).join("");
   } catch(e) { toast(e.message, "bad"); }
 }
 
@@ -993,7 +1029,7 @@ async function loadCompetition() {
         <div class="qtitle">${esc(q.title)}</div>
         <div class="qmeta"><span class="codepill">${q.code}</span><span>🎮 ${q.playCount} parties</span></div>
       </div>
-      <button class="btn btn-g btn-sm" onclick="openLeaderboard('${q.qid}','${esc(q.title)}')">🏆 Classement</button>
+      <button class="btn btn-g btn-sm" onclick="openLeaderboard('${q.qid}', decodeURIComponent('${encodeURIComponent(q.title)}'))">🏆 Classement</button>
     </div>`).join("")}</div>`;
   } catch(e) { toast(e.message, "bad"); }
 }
@@ -1034,7 +1070,7 @@ async function loadClasses() {
         ${c.isOwner ? `<div style="font-size:.75rem;color:var(--muted);margin-top:3px">Code élève : <strong style="color:var(--accent2);font-family:monospace">${c.joinCode}</strong></div>` : ""}
       </div>
       <div style="display:flex;gap:7px">
-        ${c.isOwner ? `<button class="btn btn-g btn-sm" onclick="openAssign('${c.cid}')">📌 Assigner quiz</button><button class="btn btn-p btn-sm" onclick="openGrades('${c.cid}','${esc(c.name)}')">📊 Notes</button>` : `<button class="btn btn-p btn-sm" onclick="openMyGrades('${c.cid}','${esc(c.name)}')">📋 Mes notes</button>`}
+        ${c.isOwner ? `<button class="btn btn-g btn-sm" onclick="openAssign('${c.cid}')">📌 Assigner quiz</button><button class="btn btn-g btn-sm" onclick="openClassStudents('${c.cid}')">👥 Élèves</button><button class="btn btn-p btn-sm" onclick="openGrades('${c.cid}', decodeURIComponent('${encodeURIComponent(c.name)}'))">📊 Notes</button>` : `<button class="btn btn-p btn-sm" onclick="openMyGrades('${c.cid}', decodeURIComponent('${encodeURIComponent(c.name)}'))">📋 Mes notes</button>`}
       </div>
     </div>`).join("");
   } catch(e) { toast(e.message, "bad"); }
@@ -1054,6 +1090,34 @@ async function joinClass() {
     const r = await api("POST", "/api/class/join", { joinCode: code });
     closeM("modal-joincls"); toast("Rejoint " + r.name + " !", "ok"); loadClasses();
   } catch(e) { toast(e.message, "bad"); }
+}
+
+async function openClassStudents(cid) {
+  try {
+    showL();
+    const cls = await api("GET", `/api/class/${cid}`);
+    document.getElementById("clsstd-title").textContent = cls.name || "";
+    const studs = cls.students || [];
+    if (!studs.length) {
+      document.getElementById("clsstd-body").innerHTML = `<div style="text-align:center;padding:18px;color:var(--muted)">Aucun élève pour l’instant.<br/><span style="font-size:.8rem">Partage le code classe affiché sur la carte.</span></div>`;
+    } else {
+      document.getElementById("clsstd-body").innerHTML = `<table class="lbtable"><thead><tr><th>Élève</th><th>Inscrit le</th><th></th></tr></thead><tbody>
+        ${studs.map(s => `<tr><td>${esc(s.username)}</td><td style="font-size:.78rem;color:var(--muted)">${s.joinedAt ? new Date(s.joinedAt).toLocaleDateString("fr") : "—"}</td><td><button type="button" class="btn btn-d btn-sm" onclick="kickStudent('${cid}','${s.uid}')">Retirer</button></td></tr>`).join("")}
+      </tbody></table>`;
+    }
+    openM("modal-clsstd");
+  } catch (e) { toast(e.message, "bad"); }
+  finally { hideL(); }
+}
+
+async function kickStudent(cid, uid) {
+  if (!confirm("Retirer cet élève de la classe ?")) return;
+  try {
+    await api("DELETE", `/api/class/${cid}/kick/${uid}`);
+    toast("Élève retiré", "ok");
+    await openClassStudents(cid);
+    loadClasses();
+  } catch (e) { toast(e.message, "bad"); }
 }
 
 let _assignClassId = null;
@@ -1127,10 +1191,12 @@ function initEditor(quiz) {
     S.editId = quiz.qid; S.questions = JSON.parse(JSON.stringify(quiz.questions || []));
     document.getElementById("ed-title").value = quiz.title || "Quiz sans titre";
     document.getElementById("ed-competition").checked = quiz.competitionEnabled || false;
+    document.getElementById("ed-visibility").value = ["public", "unlisted", "private"].includes(quiz.visibility) ? quiz.visibility : "public";
   } else {
     S.editId = null; S.questions = [];
     document.getElementById("ed-title").value = "Quiz sans titre";
     document.getElementById("ed-competition").checked = false;
+    document.getElementById("ed-visibility").value = "public";
   }
   S.activeQ = 0; renderSidebar(); renderQEditor();
 }
@@ -1307,11 +1373,12 @@ async function saveQuiz() {
   if (!S.user) return openM("modal-auth");
   const title = document.getElementById("ed-title").value || "Quiz sans titre";
   const competitionEnabled = document.getElementById("ed-competition").checked;
+  const visibility = document.getElementById("ed-visibility").value;
   try {
     showL();
     let quiz;
-    if (S.editId) quiz = await api("PUT", `/api/quiz/${S.editId}`, { title, questions: S.questions, competitionEnabled });
-    else { quiz = await api("POST", "/api/quiz", { title, questions: S.questions, competitionEnabled }); S.editId = quiz.qid; }
+    if (S.editId) quiz = await api("PUT", `/api/quiz/${S.editId}`, { title, questions: S.questions, competitionEnabled, visibility });
+    else { quiz = await api("POST", "/api/quiz", { title, questions: S.questions, competitionEnabled, visibility }); S.editId = quiz.qid; }
     toast(`✅ Sauvegardé ! Code : ${quiz.code}`, "ok");
   } catch(e) { toast(e.message, "bad"); } finally { hideL(); }
 }
@@ -1350,9 +1417,10 @@ function buildPlayBody(q,idx) {
     case"qcmmulti": return `<div class="pchoices" id="mchoices">${(q.choices||[]).map((c,i)=>`<button class="pchoice" data-ci="${i}" onclick="togMulti(${i})"><span class="cletter">${L[i]}</span>${esc(c)}</button>`).join("")}</div><button class="btn btn-p" style="margin-top:12px;width:100%" onclick="subMulti(${idx})">Confirmer</button>`;
     case"freetext":case"audio":case"equation": return `<input class="pinput" id="ptinput" type="text" placeholder="Ta réponse…" onkeydown="if(event.key==='Enter')subText(${idx})"/><button class="btn btn-p" style="margin-top:11px;width:100%" onclick="subText(${idx})">Valider</button>`;
     case"fillblank": {
-      const parts=(q.sentence||"").split(/\[([^\]]+)\]/g); let blanks=[],html="<div style='font-size:1.05rem;line-height:2.3'>";
-      parts.forEach((p,i)=>{if(i%2===0)html+=esc(p);else{html+=`<input type="text" data-blank="${blanks.length}" style="border:none;border-bottom:2px solid var(--accent);background:transparent;color:var(--text);width:90px;text-align:center;font-size:.95rem;margin:0 3px"/>`;blanks.push(p);}});
-      return html+"</div><button class='btn btn-p' style='margin-top:14px;width:100%' onclick=\"subFill(${idx},'"+btoa(JSON.stringify(blanks))+"')\">Valider</button>";
+      const parts=(q.sentence||"").split(/\[([^\]]+)\]/g); let blanks=[], html="<div class=\"play-fill-wrap\" style=\"font-size:1.05rem;line-height:2.3\">";
+      parts.forEach((p,i)=>{if(i%2===0)html+=esc(p);else{html+=`<input type="text" class="pinput pfill" data-blank="${blanks.length}" style="border:none;border-bottom:2px solid var(--accent);background:transparent;color:var(--text);min-width:64px;max-width:220px;width:12ch;text-align:center;font-size:.95rem;margin:0 3px"/>`;blanks.push(p);}});
+      S._playFillBlanks = blanks;
+      return html+`</div><button type="button" class="btn btn-p" style="margin-top:14px;width:100%" onclick="subFill(${idx})">Valider</button>`;
     }
     case"slider": return `<div style="padding:18px 0"><input type="range" id="pslider" min="${q.min??0}" max="${q.max??100}" value="${((q.min??0)+(q.max??100))/2}" style="width:100%;accent-color:var(--accent)" oninput="document.getElementById('slval').textContent=this.value"/><div style="text-align:center;font-size:1.3rem;font-family:var(--fh);margin-top:7px" id="slval">${Math.round(((q.min??0)+(q.max??100))/2)}</div></div><button class="btn btn-p" style="width:100%" onclick="subSlider(${idx})">Valider</button>`;
     case"ordering":case"dragdrop": return `<div id="pord" style="display:flex;flex-direction:column;gap:7px">${shuffle([...(q.items||[])]).map(it=>`<button class="pchoice" draggable="true" data-item="${esc(it)}" style="cursor:grab">⠿ ${esc(it)}</button>`).join("")}</div><button class="btn btn-p" style="margin-top:11px;width:100%" onclick="subOrder(${idx})">Valider</button>`;
@@ -1388,7 +1456,19 @@ function subAns(idx,val){const q=S.playQuiz.questions[idx];let correct=false;if(
 function subChoice(idx,ci){const q=S.playQuiz.questions[idx];if(q.type==="poll"){showFb(idx,null);return;}const correct=(q.corrects||[]).includes(ci);document.querySelectorAll(".pchoice").forEach((b,i)=>{if((q.corrects||[]).includes(i))b.classList.add("correct");else if(i===ci&&!correct)b.classList.add("wrong");b.disabled=true;});S.playAnswers.push({idx,val:ci,correct});if(correct)S.playScore+=(q.points||1);showFbRaw(idx,correct);}
 function subMulti(idx){const q=S.playQuiz.questions[idx];const correct=JSON.stringify([...(q.corrects||[])].sort())===JSON.stringify([..._multiSel].sort());_multiSel=[];S.playAnswers.push({idx,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
 function subText(idx){const q=S.playQuiz.questions[idx];const val=(document.getElementById("ptinput")||{value:""}).value.trim();const correct=q.caseSensitive?val===q.answer:val.toLowerCase()===(q.answer||"").toLowerCase();S.playAnswers.push({idx,val,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
-function subFill(idx,b64){const blanks=JSON.parse(atob(b64));const inputs=document.querySelectorAll("[data-blank]");let all=true;inputs.forEach((inp,i)=>{if(inp.value.toLowerCase().trim()!==blanks[i].toLowerCase().trim())all=false;});S.playAnswers.push({idx,correct:all});if(all)S.playScore+=(S.playQuiz.questions[idx].points||1);showFb(idx,all);}
+function subFill(idx){
+  const blanks = S._playFillBlanks || [];
+  const card = document.getElementById("playcard");
+  const wrap = card && card.querySelector(".play-fill-wrap");
+  const inputs = wrap ? [...wrap.querySelectorAll("[data-blank]")].sort((a,b)=>Number(a.dataset.blank)-Number(b.dataset.blank)) : [];
+  const norm = (s)=>String(s||"").normalize("NFC").toLowerCase().trim();
+  let all = blanks.length > 0 && inputs.length === blanks.length;
+  if (blanks.length === 0) all = true;
+  if (all && blanks.length) inputs.forEach((inp,i)=>{ if (norm(inp.value) !== norm(blanks[i])) all = false; });
+  S.playAnswers.push({idx,correct:all});
+  if(all)S.playScore+=(S.playQuiz.questions[idx].points||1);
+  showFb(idx,all);
+}
 function subSlider(idx){const q=S.playQuiz.questions[idx];const val=parseInt(document.getElementById("pslider").value);const correct=Math.abs(val-(q.answer??50))<=(q.tolerance??5);S.playAnswers.push({idx,val,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
 function subOrder(idx){const q=S.playQuiz.questions[idx];const items=[...document.querySelectorAll("#pord .pchoice")].map(e=>e.dataset.item);const correct=JSON.stringify(items)===JSON.stringify(q.items||[]);S.playAnswers.push({idx,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
 function subConnect(idx){const q=S.playQuiz.questions[idx];let correct=true;document.querySelectorAll("[data-li]").forEach((sel,i)=>{if(sel.value!==(q.pairs||[])[i]?.b)correct=false;});S.playAnswers.push({idx,correct});if(correct)S.playScore+=(q.points||1);showFb(idx,correct);}
@@ -1397,7 +1477,7 @@ function subCode(idx){S.playAnswers.push({idx,val:document.getElementById("pcode
 function flipCard(idx){const q=S.playQuiz.questions[idx];const fc=document.getElementById("fc");const f=fc.dataset.f==="1";fc.dataset.f=f?"0":"1";document.getElementById("fcc").textContent=f?q.front||"":q.back||"";fc.style.background=f?"var(--bg3)":"rgba(124,92,252,.12)";}
 
 function showFb(idx,correct){clearInterval(S.playTimer);document.getElementById("ptimer").textContent="–";showFbRaw(idx,correct);}
-function showFbRaw(idx,correct){const q=S.playQuiz.questions[idx];const fb=document.getElementById("pfb");if(correct===null){fb.className="pfeedback ok";fb.textContent="Réponse envoyée ✓";}else if(correct){fb.className="pfeedback ok";fb.textContent=q.msgCorrect||"✅ Correct !";}else{fb.className="pfeedback bad";fb.textContent=q.msgWrong||"❌ Incorrect.";}document.getElementById("pnext").style.display="";document.querySelectorAll(".pchoice,.pinput").forEach(el=>el.disabled=true);}
+function showFbRaw(idx,correct){const q=S.playQuiz.questions[idx];const fb=document.getElementById("pfb");if(correct===null){fb.className="pfeedback ok";fb.textContent="Réponse envoyée ✓";}else if(correct){fb.className="pfeedback ok";fb.textContent=q.msgCorrect||"✅ Correct !";}else{fb.className="pfeedback bad";fb.textContent=q.msgWrong||"❌ Incorrect.";}document.getElementById("pnext").style.display="";document.querySelectorAll(".pchoice,.pinput,.pfill").forEach(el=>el.disabled=true);}
 function nextQ(){S.playIdx++;renderPlayQ();}
 
 function startTimer(sec){const el=document.getElementById("ptimer");let t=sec;el.textContent=t;el.className="playtimer";S.playTimer=setInterval(()=>{t--;el.textContent=t;if(t<=5)el.className="playtimer warn";if(t<=0){clearInterval(S.playTimer);S.playAnswers.push({idx:S.playIdx,val:null,correct:false,timeout:true});showFbRaw(S.playIdx,false);}},1000);}
@@ -1425,7 +1505,7 @@ async function showResults(){
     <h2 style="font-family:var(--fh);margin-bottom:7px">${esc(S.playPseudo)}</h2>
     <div class="resmsg">${pct}% de bonnes réponses</div>
     ${xpHtml}
-    ${quiz.competitionEnabled?`<button class="btn btn-g" style="margin-bottom:10px;margin-top:8px" onclick="openLeaderboard('${quiz.qid}','${esc(quiz.title)}')">🏆 Voir le classement</button><br/>`:""}
+    ${quiz.competitionEnabled?`<button class="btn btn-g" style="margin-bottom:10px;margin-top:8px" onclick="openLeaderboard('${quiz.qid}', decodeURIComponent('${encodeURIComponent(quiz.title)}'))">🏆 Voir le classement</button><br/>`:""}
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
       <button class="btn btn-p" onclick="initPlay(S.playQuiz)">🔄 Rejouer</button>
       <button class="btn btn-g" onclick="go('home')">🏠 Accueil</button>
