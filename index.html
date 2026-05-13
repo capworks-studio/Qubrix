@@ -539,6 +539,11 @@ html.projection-mode .playtimer{font-size:1.35rem;width:52px}
       <div class="step-h"><div class="sn">02</div><div class="st">Partage</div><div class="sd">Un code à 6 lettres suffit pour inviter tout le monde.</div></div>
       <div class="step-h"><div class="sn">03</div><div class="st">Joue</div><div class="sd">Scores, compétition et classes pour suivre la progression.</div></div>
     </div>
+    <div class="hctas">
+      <button class="btn btn-p" type="button" onclick="requireAuth(()=>openNewQuizWizard())">Créer un quiz</button>
+      <button class="btn btn-g" type="button" onclick="requireAuth(()=>go('dashboard'))">Mes quiz</button>
+      <button class="btn btn-g" type="button" onclick="requireAuth(()=>go('ephemeral'))">Salon temporaire</button>
+    </div>
     <div class="joinbox">
       <h3>Rejoindre une partie</h3>
       <p class="jh">Saisis le code à 6 caractères affiché par l'organisateur du quiz, puis entre ton pseudo pour lancer la session.</p>
@@ -546,11 +551,6 @@ html.projection-mode .playtimer{font-size:1.35rem;width:52px}
         <input id="homecode" type="text" inputmode="text" maxlength="6" placeholder="ABC123" aria-label="Code du quiz" oninput="this.value=this.value.toUpperCase()"/>
         <button class="btn btn-p" type="button" onclick="lookupCode(document.getElementById('homecode').value)">Rejoindre</button>
       </div>
-    </div>
-    <div class="hctas">
-      <button class="btn btn-p" type="button" onclick="requireAuth(()=>openNewQuizWizard())">Créer un quiz</button>
-      <button class="btn btn-g" type="button" onclick="requireAuth(()=>go('dashboard'))">Mes quiz</button>
-      <button class="btn btn-g" type="button" onclick="requireAuth(()=>go('ephemeral'))">Salon temporaire</button>
     </div>
     </div>
     <section class="discover-home" aria-label="Découvrir des quiz">
