@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Qubrix — Éditeur Visuel</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════════
+   DESIGN SYSTEM — Qubrix Visual Studio
+═══════════════════════════════════════════════════════ */
+:root {
+  --bg:       #07070c;
+  --bg2:      #0e0e17;
+  --bg3:      #16161f;
+  --bg4:      #1e1e2a;
+  --bg5:      #252533;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.13);
+  --text:     #f0f0f8;
+  --muted:    #7a7a96;
+  --muted2:   #545470;
+  --accent:   #7c5cfc;
+  --accent2:  #c084fc;
+  --accentRGB:124,92,252;
+  --green:    #22c55e;
+  --red:      #ef4444;
+  --yellow:   #eab308;
+  --orange:   #f97316;
+  --fh: 'Syne', sans-serif;
+  --fb: 'DM Sans', sans-serif;
+  --fm: 'JetBrains Mono', monospace;
+  --r: 12px;
+  --ease: cubic-bezier(.22,1,.36,1);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--fb);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── SCROLLBARS ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg5); border-radius: 99px; }
+
+/* ── TOPBAR ── */
+.topbar {
+  flex-shrink: 0;
+  height: 52px;
+  background: rgba(10,10,16,0.96);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  backdrop-filter: blur(20px);
+  z-index: 200;
+}
+.logo {
+  font-family: var(--fh);
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -.04em;
+  background: linear-gradient(135deg,#fff 20%,#e0dbff 50%,var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+.logo span { -webkit-text-fill-color: var(--accent); }
+.sep { width: 1px; height: 22px; background: var(--border2); flex-shrink: 0; }
+.topbar-label {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* ── PAGE PICKER ── */
+.page-picker {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px 4px;
+  flex-shrink: 0;
+}
+.pp-btn {
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: .72rem;
+  font-weight: 600;
+  font-family: var(--fb);
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.pp-btn:hover { color: var(--text); }
+.pp-btn.active {
+  background: linear-gradient(135deg, rgba(124,92,252,.35), rgba(192,132,252,.2));
+  color: var(--text);
+  box-shadow: 0 0 0 1px rgba(124,92,252,.4);
+}
+
+/* ── THEME SWITCHER ── */
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.ts-btn {
+  padding: 4px 11px;
+  border-radius: 99px;
+  font-size: .7rem;
+  font-weight: 700;
+  font-family: var(--fh);
+  letter-spacing: .05em;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  transition: all .15s;
+}
+.ts-btn.active { color: var(--text); }
+.ts-btn[data-t="dark"].active   { background: #1a1a2e; box-shadow: 0 0 0 1px #444; }
+.ts-btn[data-t="light"].active  { background: #e8e8f0; color: #111; box-shadow: 0 0 0 1px #ccc; }
+.ts-btn[data-t="festive"].active{ background: linear-gradient(135deg,#7f0000,#006600); color: #fff; }
+.ts-btn[data-t="aurora"].active { background: linear-gradient(135deg,#061016,#22d3ee33); color: #22d3ee; box-shadow: 0 0 0 1px #22d3ee44; }
+.ts-btn[data-t="goldrush"].active{ background: linear-gradient(135deg,#1a1208,#eab30833); color: #eab308; box-shadow: 0 0 0 1px #eab30844; }
+.ts-btn[data-t="ocean"].active  { background: linear-gradient(135deg,#040a12,#0ea5e933); color: #0ea5e9; box-shadow: 0 0 0 1px #0ea5e944; }
+
+/* ── ACTIONS BAR ── */
+.actions-bar {
+  flex-shrink: 0;
+  height: 42px;
+  background: rgba(12,12,20,.9);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 6px;
+}
+.ab-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  font-size: .73rem;
+  font-weight: 600;
+  font-family: var(--fb);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--muted);
+  transition: all .15s var(--ease);
+  white-space: nowrap;
+}
+.ab-btn:hover { color: var(--text); border-color: var(--border2); background: var(--bg4); }
+.ab-btn.pick-mode { background: rgba(124,92,252,.18); border-color: rgba(124,92,252,.5); color: var(--accent2); }
+.ab-btn.danger { color: var(--red); border-color: rgba(239,68,68,.2); }
+.ab-btn.danger:hover { background: rgba(239,68,68,.1); }
+.ab-btn.save-btn { background: linear-gradient(135deg,rgba(124,92,252,.4),rgba(192,132,252,.2)); border-color: rgba(124,92,252,.5); color: #fff; }
+.ab-btn.save-btn:hover { background: linear-gradient(135deg,rgba(124,92,252,.6),rgba(192,132,252,.35)); }
+.ab-btn-icon { font-size: .8rem; }
+.ab-sep { width: 1px; height: 20px; background: var(--border); margin: 0 3px; flex-shrink: 0; }
+.ab-info { font-size: .7rem; color: var(--muted2); margin-left: auto; font-style: italic; }
+
+/* ── BODY LAYOUT ── */
+.studio-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── IFRAME CANVAS ── */
+.canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(255,255,255,.02) 28px),
+    repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(255,255,255,.02) 28px),
+    var(--bg);
+}
+.canvas-shadow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: inset 0 0 60px rgba(0,0,0,.5);
+}
+.browser-chrome {
+  position: absolute;
+  top: 22px; left: 50%;
+  transform: translateX(-50%);
+  width: min(1200px, calc(100% - 32px));
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04) inset;
+  height: calc(100% - 22px);
+  transition: opacity .3s;
+}
+.browser-top {
+  flex-shrink: 0;
+  height: 38px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 10px;
+}
+.bc-dots { display: flex; gap: 5px; }
+.bc-dot { width: 10px; height: 10px; border-radius: 50%; }
+.bc-dot:nth-child(1) { background: #ff5f57; }
+.bc-dot:nth-child(2) { background: #febc2e; }
+.bc-dot:nth-child(3) { background: #28c840; }
+.bc-url {
+  flex: 1;
+  background: var(--bg4);
+  border-radius: 6px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-family: var(--fm);
+  font-size: .68rem;
+  color: var(--muted);
+  user-select: none;
+}
+.browser-iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+  display: block;
+  background: #fff;
+}
+
+/* ── PICK OVERLAY ── */
+.pick-mode-banner {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent));
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+  z-index: 100;
+  display: none;
+}
+.pick-mode-banner.active { display: block; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+.pick-hint {
+  position: absolute;
+  top: 70px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(124,92,252,.95);
+  color: #fff;
+  border-radius: 99px;
+  padding: 8px 20px;
+  font-size: .78rem;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 50;
+  display: none;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(124,92,252,.5);
+  white-space: nowrap;
+}
+.pick-hint.active { display: block; animation: popIn .2s var(--ease); }
+@keyframes popIn { from { opacity:0; transform: translateX(-50%) scale(.9) translateY(-4px); } to { opacity:1; transform: translateX(-50%) scale(1) translateY(0); } }
+
+/* ── SIDE PANEL ── */
+.side-panel {
+  width: 320px;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width .25s var(--ease);
+}
+.side-panel.collapsed { width: 0; border-left: none; }
+
+.panel-header {
+  flex-shrink: 0;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.panel-header-info { flex: 1; min-width: 0; }
+.panel-header h3 {
+  font-family: var(--fh);
+  font-size: .85rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.panel-header .ph-path {
+  font-family: var(--fm);
+  font-size: .65rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.panel-close {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: var(--bg4);
+  color: var(--muted);
+  border: none;
+  cursor: pointer;
+  font-size: .75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all .12s;
+}
+.panel-close:hover { background: var(--bg5); color: var(--text); }
+
+.panel-body { flex: 1; overflow-y: auto; padding: 12px; }
+
+/* ── PROP GROUPS ── */
+.prop-group {
+  margin-bottom: 14px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.pg-title {
+  padding: 8px 12px 6px;
+  font-size: .64rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg4);
+}
+.prop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.prop-row:last-child { border-bottom: none; }
+.prop-label {
+  font-size: .7rem;
+  color: var(--muted);
+  min-width: 76px;
+  flex-shrink: 0;
+}
+.prop-input {
+  flex: 1;
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: .76rem;
+  font-family: var(--fb);
+  color: var(--text);
+  transition: border-color .15s;
+  min-width: 0;
+}
+.prop-input:focus { outline: none; border-color: rgba(124,92,252,.5); }
+.prop-input.mono { font-family: var(--fm); }
+.prop-select {
+  flex: 1;
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: .76rem;
+  font-family: var(--fb);
+  color: var(--text);
+  cursor: pointer;
+}
+.prop-select:focus { outline: none; }
+.prop-select option { background: var(--bg2); }
+.prop-color-wrap { display: flex; align-items: center; gap: 6px; flex: 1; }
+.prop-color-swatch {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.prop-color-swatch input[type=color] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.prop-color-text {
+  flex: 1;
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: .74rem;
+  font-family: var(--fm);
+  color: var(--text);
+}
+.prop-color-text:focus { outline: none; border-color: rgba(124,92,252,.5); }
+
+/* ── THEME-AWARE ROWS ── */
+.theme-block {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.theme-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.theme-row:last-child { border-bottom: none; }
+.theme-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.theme-dot.dark    { background: #6366f1; }
+.theme-dot.light   { background: #f59e0b; }
+.theme-dot.festive { background: #dc2626; }
+.theme-dot.aurora  { background: #22d3ee; }
+.theme-dot.goldrush{ background: #eab308; }
+.theme-dot.ocean   { background: #0ea5e9; }
+.theme-name { font-size: .68rem; color: var(--muted); min-width: 54px; flex-shrink: 0; }
+
+/* ── ELEMENT PATH BREADCRUMB ── */
+.el-path {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.el-path-seg {
+  font-family: var(--fm);
+  font-size: .64rem;
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 7px;
+  color: var(--muted);
+}
+.el-path-sep { color: var(--muted2); font-size: .6rem; }
+
+/* ── SAVED INDICATOR ── */
+.saved-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .7rem;
+  color: var(--green);
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: rgba(34,197,94,.1);
+  border: 1px solid rgba(34,197,94,.2);
+  transition: opacity .3s;
+}
+.saved-badge.hidden { opacity: 0; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 10px;
+  padding: 24px;
+  text-align: center;
+}
+.es-icon { font-size: 2rem; opacity: .3; }
+.es-title { font-family: var(--fh); font-size: .9rem; color: var(--muted); }
+.es-sub { font-size: .75rem; color: var(--muted2); line-height: 1.5; }
+
+/* ── CSS OUTPUT ── */
+.css-output {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: var(--fm);
+  font-size: .7rem;
+  color: #a78bfa;
+  line-height: 1.7;
+  max-height: 220px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 20px; left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 99px;
+  padding: 9px 20px;
+  font-size: .78rem;
+  z-index: 9999;
+  pointer-events: none;
+  transition: transform .3s var(--ease);
+  white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.ok  { border-color: rgba(34,197,94,.4); color: var(--green); }
+#toast.bad { border-color: rgba(239,68,68,.4); color: var(--red); }
+
+/* ── MODAL OVERLAY ── */
+.modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(8px);
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.modal-bg.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: linear-gradient(165deg, rgba(24,24,34,.98), rgba(14,14,20,.99));
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  padding: 26px 28px;
+  width: min(440px, 92vw);
+  position: relative;
+  transform: scale(.95);
+  transition: transform .25s var(--ease);
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+}
+.modal-bg.open .modal { transform: scale(1); }
+.modal h2 { font-family: var(--fh); font-size: 1.1rem; margin-bottom: 14px; }
+.modal-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 26px; height: 26px;
+  border-radius: 7px; background: var(--bg4);
+  border: none; color: var(--muted);
+  cursor: pointer; font-size: .8rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { color: var(--text); }
+
+/* ── IMPORT TEXTAREA ── */
+.import-area {
+  width: 100%;
+  height: 180px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: var(--fm);
+  font-size: .75rem;
+  color: var(--text);
+  resize: vertical;
+  margin-bottom: 12px;
+}
+.import-area:focus { outline: none; border-color: rgba(124,92,252,.4); }
+
+/* ── PANEL TOGGLE ── */
+.panel-toggle-btn {
+  position: absolute;
+  right: 320px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px; height: 44px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .55rem;
+  z-index: 50;
+  transition: right .25s var(--ease), background .15s;
+}
+.panel-toggle-btn:hover { background: var(--bg4); color: var(--text); }
+.panel-toggle-btn.collapsed { right: 0; }
+
+/* ── ANIMATIONS ── */
+@keyframes slideIn { from { opacity:0; transform: translateX(12px); } to { opacity:1; transform: translateX(0); } }
+.slide-in { animation: slideIn .25s var(--ease); }
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- ═══ TOPBAR ═══ -->
+<div class="topbar">
+  <div class="logo">Qu<span>b</span>rix</div>
+  <div class="sep"></div>
+  <div class="topbar-label">Visual Studio</div>
+  <div class="sep"></div>
+
+  <!-- Page picker -->
+  <div class="page-picker" id="page-picker">
+    <button class="pp-btn active" data-page="home" onclick="switchPage('home',this)">🏠 Accueil</button>
+    <button class="pp-btn" data-page="dashboard" onclick="switchPage('dashboard',this)">📋 Dashboard</button>
+    <button class="pp-btn" data-page="editor" onclick="switchPage('editor',this)">✏️ Éditeur quiz</button>
+    <button class="pp-btn" data-page="play" onclick="switchPage('play',this)">▶ Jeu</button>
+    <button class="pp-btn" data-page="profile" onclick="switchPage('profile',this)">👤 Profil</button>
+    <button class="pp-btn" data-page="classes" onclick="switchPage('classes',this)">🎓 Classes</button>
+  </div>
+
+  <!-- Theme switcher -->
+  <div class="theme-switcher" id="theme-switcher">
+    <button class="ts-btn active" data-t="dark"     onclick="switchTheme('dark',this)">Sombre</button>
+    <button class="ts-btn"        data-t="light"    onclick="switchTheme('light',this)">Clair</button>
+    <button class="ts-btn"        data-t="festive"  onclick="switchTheme('festive',this)">Festif</button>
+    <button class="ts-btn"        data-t="aurora"   onclick="switchTheme('aurora',this)">Aurore</button>
+    <button class="ts-btn"        data-t="goldrush" onclick="switchTheme('goldrush',this)">Or</button>
+    <button class="ts-btn"        data-t="ocean"    onclick="switchTheme('ocean',this)">Océan</button>
+  </div>
+
+  <div id="saved-badge" class="saved-badge hidden" style="flex-shrink:0">✓ Sauvegardé</div>
+</div>
+
+<!-- ═══ ACTIONS BAR ═══ -->
+<div class="actions-bar">
+  <button class="ab-btn" id="pick-btn" onclick="togglePicker()">
+    <span class="ab-btn-icon">🖱</span> Sélectionner
+  </button>
+  <div class="ab-sep"></div>
+  <button class="ab-btn" onclick="undoLast()"><span class="ab-btn-icon">↩</span> Annuler</button>
+  <button class="ab-btn danger" onclick="resetAll()"><span class="ab-btn-icon">🗑</span> Réinitialiser</button>
+  <div class="ab-sep"></div>
+  <button class="ab-btn" onclick="openExport()"><span class="ab-btn-icon">📋</span> Copier CSS</button>
+  <button class="ab-btn" onclick="openImport()"><span class="ab-btn-icon">📥</span> Importer CSS</button>
+  <div class="ab-sep"></div>
+  <button class="ab-btn save-btn" onclick="saveToServer()"><span class="ab-btn-icon">☁</span> Sauvegarder (KV)</button>
+  <span class="ab-info" id="ab-info">Clique sur un élément dans la preview pour l'éditer</span>
+</div>
+
+<!-- ═══ STUDIO BODY ═══ -->
+<div class="studio-body">
+
+  <!-- Canvas -->
+  <div class="canvas-wrap" id="canvas-wrap">
+    <div class="pick-mode-banner" id="pick-banner"></div>
+    <div class="pick-hint" id="pick-hint">🎯 Clique sur l'élément à modifier</div>
+    <div class="canvas-shadow"></div>
+
+    <div class="browser-chrome" id="browser-chrome">
+      <div class="browser-top">
+        <div class="bc-dots">
+          <div class="bc-dot"></div>
+          <div class="bc-dot"></div>
+          <div class="bc-dot"></div>
+        </div>
+        <div class="bc-url" id="bc-url">https://capworks-studio.github.io/qubrix/</div>
+      </div>
+      <iframe
+        id="preview-iframe"
+        class="browser-iframe"
+        src="about:blank"
+        sandbox="allow-scripts allow-same-origin"
+        title="Prévisualisation Qubrix"
+      ></iframe>
+    </div>
+  </div>
+
+  <!-- Panel toggle -->
+  <button class="panel-toggle-btn" id="panel-toggle" onclick="togglePanel()" title="Masquer/afficher le panneau">›</button>
+
+  <!-- Side panel -->
+  <div class="side-panel" id="side-panel">
+    <div class="panel-header">
+      <div class="panel-header-info">
+        <h3 id="ph-title">Aucun élément sélectionné</h3>
+        <div class="ph-path" id="ph-path">—</div>
+      </div>
+      <button class="panel-close" onclick="clearSelection()" title="Fermer">✕</button>
+    </div>
+
+    <div class="panel-body" id="panel-body">
+      <div class="empty-state" id="panel-empty">
+        <div class="es-icon">🖱</div>
+        <div class="es-title">Aucun élément sélectionné</div>
+        <div class="es-sub">Active le mode sélection puis clique<br/>sur n'importe quel élément de la preview.</div>
+      </div>
+      <div id="panel-controls" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL EXPORT ═══ -->
+<div class="modal-bg" id="modal-export">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-export')">✕</button>
+    <h2>📋 CSS généré</h2>
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:12px">Toutes les personnalisations par thème, prêtes à coller.</p>
+    <div class="css-output" id="css-output-content"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="ab-btn save-btn" style="flex:1" onclick="copyCSS()">Copier</button>
+      <button class="ab-btn" onclick="closeModal('modal-export')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL IMPORT ═══ -->
+<div class="modal-bg" id="modal-import">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-import')">✕</button>
+    <h2>📥 Importer du CSS</h2>
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:12px">Colle un CSS Qubrix Visual Studio (généré par "Copier CSS").</p>
+    <textarea class="import-area" id="import-css-area" placeholder="/* Colle ton CSS ici */"></textarea>
+    <div style="display:flex;gap:8px">
+      <button class="ab-btn save-btn" style="flex:1" onclick="doImport()">Importer</button>
+      <button class="ab-btn" onclick="closeModal('modal-import')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════
+const API = "https://qubrix-worker.capkychannel.workers.dev";
+const QUBRIX_URL = "https://capworks-studio.github.io/qubrix/";
+// Stockage local des styles en attendant le token admin
+let TOKEN = localStorage.getItem("qbx_tok") || "";
+
+// Structure : styles[theme][cssSelector][cssProp] = value
+let styles = JSON.parse(localStorage.getItem("qbx_ve_v2") || "{}");
+let currentTheme = "dark";
+let currentPage  = "home";
+let pickerActive = false;
+let selectedEl   = null;
+let selectedPath = "";
+let history_stack = [];
+let panelOpen = true;
+
+// ═══════════════════════════════════════════════════════
+// THEMES definitions
+// ═══════════════════════════════════════════════════════
+const THEMES = {
+  dark:     { label:"Sombre",   dot:"#6366f1" },
+  light:    { label:"Clair",    dot:"#f59e0b" },
+  festive:  { label:"Festif",   dot:"#dc2626" },
+  aurora:   { label:"Aurore",   dot:"#22d3ee" },
+  goldrush: { label:"Or",       dot:"#eab308" },
+  ocean:    { label:"Océan",    dot:"#0ea5e9" },
+};
+
+// ═══════════════════════════════════════════════════════
+// PAGE definitions
+// ═══════════════════════════════════════════════════════
+const PAGES = {
+  home:      { label:"Accueil",       url: QUBRIX_URL + "#home",      anchor: "page-home" },
+  dashboard: { label:"Dashboard",     url: QUBRIX_URL + "#dashboard",  anchor: "page-dashboard" },
+  editor:    { label:"Éditeur quiz",  url: QUBRIX_URL + "#editor",     anchor: "page-editor" },
+  play:      { label:"Jeu",           url: QUBRIX_URL + "#play",       anchor: "page-play" },
+  profile:   { label:"Profil",        url: QUBRIX_URL + "#profile",    anchor: "page-profile" },
+  classes:   { label:"Classes",       url: QUBRIX_URL + "#classes",    anchor: null },
+};
+
+// ═══════════════════════════════════════════════════════
+// IFRAME COMMUNICATION
+// ═══════════════════════════════════════════════════════
+const iframe = document.getElementById("preview-iframe");
+
+function loadIframePage(page) {
+  // On charge la vraie app Qubrix dans l'iframe
+  // et on lui passe la page à afficher + le thème via postMessage
+  iframe.onload = () => {
+    setTimeout(() => {
+      sendToIframe({ type: "SET_PAGE", page });
+      sendToIframe({ type: "SET_THEME", theme: currentTheme });
+      applyStylesToIframe();
+    }, 400);
+  };
+  iframe.src = QUBRIX_URL;
+  document.getElementById("bc-url").textContent = QUBRIX_URL + "?page=" + page;
+}
+
+function sendToIframe(msg) {
+  try { iframe.contentWindow.postMessage(msg, "*"); } catch {}
+}
+
+// ═══════════════════════════════════════════════════════
+// INJECT style tag into iframe
+// ═══════════════════════════════════════════════════════
+function buildCSSForTheme(theme) {
+  const themeStyles = styles[theme] || {};
+  return Object.entries(themeStyles).map(([sel, props]) =>
+    `${sel} { ${Object.entries(props).map(([k,v]) => `${k}: ${v} !important;`).join(" ")} }`
+  ).join("\n");
+}
+
+function buildAllCSS() {
+  return Object.entries(THEMES).map(([t]) => {
+    const css = buildCSSForTheme(t);
+    if (!css.trim()) return "";
+    if (t === "dark") return `html[data-theme="dark"] {\n  /* fallback for non-themed elements */\n}\n${css}`;
+    return `html[data-theme="${t}"] ${css.includes("{") ? css.split("{").map((chunk,i) => i===0 ? `{\n` + chunk : chunk).join("") : "{}"}`;
+  }).filter(Boolean).join("\n\n");
+}
+
+function buildFlatCSS() {
+  // CSS proper avec sélecteurs data-theme pour export
+  let out = "/* Qubrix Visual Studio — CSS personnalisé */\n\n";
+  for (const [t, themeStyles] of Object.entries(styles)) {
+    const entries = Object.entries(themeStyles);
+    if (!entries.length) continue;
+    out += `/* ── Thème : ${THEMES[t]?.label || t} ── */\n`;
+    for (const [sel, props] of entries) {
+      const pEntries = Object.entries(props);
+      if (!pEntries.length) continue;
+      out += `html[data-theme="${t}"] ${sel} {\n`;
+      for (const [k, v] of pEntries) out += `  ${k}: ${v};\n`;
+      out += `}\n`;
+    }
+    out += "\n";
+  }
+  return out;
+}
+
+function applyStylesToIframe() {
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    let el = doc.getElementById("qbx-ve-injected");
+    if (!el) {
+      el = doc.createElement("style");
+      el.id = "qbx-ve-injected";
+      doc.head.appendChild(el);
+    }
+    // Build all themes CSS
+    let css = "";
+    for (const [t, themeStyles] of Object.entries(styles)) {
+      for (const [sel, props] of Object.entries(themeStyles)) {
+        const pEntries = Object.entries(props);
+        if (!pEntries.length) continue;
+        css += `html[data-theme="${t}"] ${sel} { ${pEntries.map(([k,v]) => `${k}: ${v} !important;`).join(" ")} }\n`;
+      }
+    }
+    el.textContent = css;
+  } catch(e) {
+    // Cross-origin: use postMessage instead
+    sendToIframe({ type: "INJECT_CSS", css: buildFlatCSS() });
+  }
+  saveLocal();
+}
+
+// ═══════════════════════════════════════════════════════
+// PAGE / THEME SWITCH
+// ═══════════════════════════════════════════════════════
+function switchPage(page, btn) {
+  currentPage = page;
+  document.querySelectorAll(".pp-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  // Signal iframe
+  sendToIframe({ type: "SET_PAGE", page });
+  clearSelection();
+}
+
+function switchTheme(theme, btn) {
+  currentTheme = theme;
+  document.querySelectorAll(".ts-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  sendToIframe({ type: "SET_THEME", theme });
+  // If element selected, refresh panel to show theme values
+  if (selectedPath) renderPanel(selectedPath, selectedEl);
+}
+
+// ═══════════════════════════════════════════════════════
+// PICKER
+// ═══════════════════════════════════════════════════════
+function togglePicker() {
+  pickerActive = !pickerActive;
+  const btn = document.getElementById("pick-btn");
+  const banner = document.getElementById("pick-banner");
+  const hint = document.getElementById("pick-hint");
+  btn.classList.toggle("pick-mode", pickerActive);
+  btn.textContent = pickerActive ? "✋ Annuler" : "🖱 Sélectionner";
+  banner.classList.toggle("active", pickerActive);
+  hint.classList.toggle("active", pickerActive);
+
+  sendToIframe({ type: pickerActive ? "ENABLE_PICKER" : "DISABLE_PICKER" });
+}
+
+// ═══════════════════════════════════════════════════════
+// MESSAGES FROM IFRAME
+// ═══════════════════════════════════════════════════════
+window.addEventListener("message", e => {
+  const d = e.data || {};
+  if (d.type === "ELEMENT_SELECTED") {
+    pickerActive = false;
+    document.getElementById("pick-btn").classList.remove("pick-mode");
+    document.getElementById("pick-btn").textContent = "🖱 Sélectionner";
+    document.getElementById("pick-banner").classList.remove("active");
+    document.getElementById("pick-hint").classList.remove("active");
+    sendToIframe({ type: "DISABLE_PICKER" });
+
+    selectedPath = d.path;
+    selectedEl   = d.tagName;
+    renderPanel(d.path, d.tagName, d.computed);
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// RENDER PANEL
+// ═══════════════════════════════════════════════════════
+function renderPanel(path, tagName, computed = {}) {
+  document.getElementById("panel-empty").style.display = "none";
+  document.getElementById("panel-controls").style.display = "";
+
+  // Header
+  document.getElementById("ph-title").textContent = "<" + (tagName || "?").toLowerCase() + ">";
+  document.getElementById("ph-path").textContent = path;
+
+  // Breadcrumb
+  const segments = path.split(" > ").slice(-4);
+
+  const saved = (styles[currentTheme] && styles[currentTheme][path]) ? styles[currentTheme][path] : {};
+  const c = computed;
+
+  const g = val => val || "";
+
+  document.getElementById("panel-controls").innerHTML = `
+    <div style="margin-bottom:12px">
+      ${segments.map((s,i) => `
+        <span class="el-path-seg">${esc(s)}</span>
+        ${i < segments.length-1 ? '<span class="el-path-sep">›</span>' : ""}
+      `).join("")}
+    </div>
+
+    <!-- THÈME ACTIF -->
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;font-size:.72rem;color:var(--muted)">
+      <div class="theme-dot ${currentTheme}"></div>
+      Édition pour le thème <strong style="color:var(--text)">${THEMES[currentTheme]?.label}</strong>
+    </div>
+
+    <!-- TEXTE -->
+    <div class="prop-group">
+      <div class="pg-title">Texte</div>
+      <div class="prop-row">
+        <span class="prop-label">Contenu</span>
+        <input class="prop-input" type="text" id="ve-text" placeholder="Texte de l'élément"
+          value="${esc(saved["--text-override"] || "")}"
+          oninput="setProp('--text-override',this.value,true)"/>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Couleur</span>
+        <div class="prop-color-wrap">
+          <div class="prop-color-swatch" style="background:${g(saved.color)||c.color||'#ffffff'}">
+            <input type="color" value="${toHex(saved.color||c.color||'#ffffff')}"
+              oninput="setPropColor('color',this.value);this.parentElement.style.background=this.value"/>
+          </div>
+          <input class="prop-color-text" type="text" value="${g(saved.color)||c.color||''}"
+            oninput="setProp('color',this.value)" placeholder="ex: #fff ou var(--text)"/>
+        </div>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Taille</span>
+        <input class="prop-input mono" type="text" value="${g(saved['font-size'])||c.fontSize||''}"
+          placeholder="ex: 1rem" oninput="setProp('font-size',this.value)"/>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Poids</span>
+        <select class="prop-select" onchange="setProp('font-weight',this.value)">
+          ${["","300","400","500","600","700","800"].map(w=>`<option value="${w}" ${(saved['font-weight']||"")===w?"selected":""}>${w||"—"}</option>`).join("")}
+        </select>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Police</span>
+        <input class="prop-input" type="text" value="${g(saved['font-family'])}"
+          placeholder="ex: 'Syne', sans-serif" oninput="setProp('font-family',this.value)"/>
+      </div>
+    </div>
+
+    <!-- FOND -->
+    <div class="prop-group">
+      <div class="pg-title">Arrière-plan</div>
+      <div class="prop-row">
+        <span class="prop-label">Couleur</span>
+        <div class="prop-color-wrap">
+          <div class="prop-color-swatch" style="background:${g(saved['background-color'])||c.backgroundColor||'transparent'}">
+            <input type="color" value="${toHex(saved['background-color']||c.backgroundColor||'#000000')}"
+              oninput="setPropColor('background-color',this.value);this.parentElement.style.background=this.value"/>
+          </div>
+          <input class="prop-color-text" type="text" value="${g(saved['background-color'])||''}"
+            oninput="setProp('background-color',this.value)" placeholder="ex: #111 ou transparent"/>
+        </div>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Gradient</span>
+        <input class="prop-input" type="text" value="${g(saved.background)}"
+          placeholder="ex: linear-gradient(135deg,#7c5cfc,#c084fc)"
+          oninput="setProp('background',this.value)"/>
+      </div>
+    </div>
+
+    <!-- ESPACEMENT -->
+    <div class="prop-group">
+      <div class="pg-title">Espacement & Taille</div>
+      <div class="prop-row">
+        <span class="prop-label">Padding</span>
+        <input class="prop-input mono" type="text" value="${g(saved.padding)}"
+          placeholder="ex: 12px 20px" oninput="setProp('padding',this.value)"/>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Margin</span>
+        <input class="prop-input mono" type="text" value="${g(saved.margin)}"
+          placeholder="ex: 0 auto" oninput="setProp('margin',this.value)"/>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Largeur</span>
+        <input class="prop-input mono" type="text" value="${g(saved.width)}"
+          placeholder="ex: 100% ou 320px" oninput="setProp('width',this.value)"/>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Hauteur</span>
+        <input class="prop-input mono" type="text" value="${g(saved.height)}"
+          placeholder="ex: auto ou 48px" oninput="setProp('height',this.value)"/>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Border-radius</span>
+        <input class="prop-input mono" type="text" value="${g(saved['border-radius'])}"
+          placeholder="ex: 12px ou 50%" oninput="setProp('border-radius',this.value)"/>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Gap</span>
+        <input class="prop-input mono" type="text" value="${g(saved.gap)}"
+          placeholder="ex: 12px" oninput="setProp('gap',this.value)"/>
+      </div>
+    </div>
+
+    <!-- BORDURE & OMBRE -->
+    <div class="prop-group">
+      <div class="pg-title">Bordure & Ombre</div>
+      <div class="prop-row">
+        <span class="prop-label">Bordure</span>
+        <input class="prop-input mono" type="text" value="${g(saved.border)}"
+          placeholder="ex: 1px solid #444" oninput="setProp('border',this.value)"/>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Box-shadow</span>
+        <input class="prop-input mono" type="text" value="${g(saved['box-shadow'])}"
+          placeholder="ex: 0 4px 20px #0008" oninput="setProp('box-shadow',this.value)"/>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Opacité</span>
+        <input class="prop-input mono" type="text" value="${g(saved.opacity)}"
+          placeholder="0 – 1" oninput="setProp('opacity',this.value)"/>
+      </div>
+    </div>
+
+    <!-- LAYOUT -->
+    <div class="prop-group">
+      <div class="pg-title">Layout & Disposition</div>
+      <div class="prop-row">
+        <span class="prop-label">Display</span>
+        <select class="prop-select" onchange="setProp('display',this.value)">
+          ${["","flex","grid","block","inline-flex","inline","none"].map(v=>`<option value="${v}" ${(saved.display||"")===v?"selected":""}>${v||"—"}</option>`).join("")}
+        </select>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Align items</span>
+        <select class="prop-select" onchange="setProp('align-items',this.value)">
+          ${["","flex-start","center","flex-end","stretch","baseline"].map(v=>`<option value="${v}" ${(saved['align-items']||"")===v?"selected":""}>${v||"—"}</option>`).join("")}
+        </select>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Justify</span>
+        <select class="prop-select" onchange="setProp('justify-content',this.value)">
+          ${["","flex-start","center","flex-end","space-between","space-around"].map(v=>`<option value="${v}" ${(saved['justify-content']||"")===v?"selected":""}>${v||"—"}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+
+    <!-- EFFETS -->
+    <div class="prop-group">
+      <div class="pg-title">Effets & Transitions</div>
+      <div class="prop-row">
+        <span class="prop-label">Transform</span>
+        <input class="prop-input mono" type="text" value="${g(saved.transform)}"
+          placeholder="ex: scale(1.05)" oninput="setProp('transform',this.value)"/>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Transition</span>
+        <input class="prop-input mono" type="text" value="${g(saved.transition)}"
+          placeholder="ex: all .2s ease" oninput="setProp('transition',this.value)"/>
+      </div>
+      <div class="prop-row">
+        <span class="prop-label">Filter</span>
+        <input class="prop-input mono" type="text" value="${g(saved.filter)}"
+          placeholder="ex: blur(4px)" oninput="setProp('filter',this.value)"/>
+      </div>
+    </div>
+
+    <!-- PAR THÈME (résumé) -->
+    <div class="prop-group">
+      <div class="pg-title">Aperçu par thème</div>
+      ${Object.keys(THEMES).map(t => {
+        const ts = (styles[t] && styles[t][path]) || {};
+        const props = Object.entries(ts).filter(([k]) => k !== "--text-override").slice(0, 2);
+        return `
+        <div class="theme-row" style="cursor:pointer" onclick="switchThemeFromPanel('${t}')">
+          <div class="theme-dot ${t}"></div>
+          <span class="theme-name">${THEMES[t].label}</span>
+          <span style="flex:1;font-size:.68rem;font-family:var(--fm);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            ${props.length ? props.map(([k,v])=>`${k}:${v}`).join("; ") : '<span style="color:var(--muted2)">non modifié</span>'}
+          </span>
+          ${t === currentTheme ? '<span style="font-size:.62rem;color:var(--accent2);flex-shrink:0">● actif</span>' : ""}
+        </div>`;
+      }).join("")}
+    </div>
+
+    <!-- ACTIONS ÉLÉMENT -->
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="ab-btn danger" style="flex:1;justify-content:center" onclick="resetElement()">
+        🗑 Réinitialiser cet élément
+      </button>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="ab-btn" style="flex:1;justify-content:center" onclick="copyElementCSS()">
+        📋 Copier CSS de cet élément
+      </button>
+    </div>
+  `;
+
+  // Open panel if collapsed
+  if (!panelOpen) togglePanel();
+
+  document.getElementById("panel-controls").classList.add("slide-in");
+}
+
+function switchThemeFromPanel(t) {
+  currentTheme = t;
+  document.querySelectorAll(".ts-btn").forEach(b => b.classList.remove("active"));
+  document.querySelector(`.ts-btn[data-t="${t}"]`)?.classList.add("active");
+  sendToIframe({ type: "SET_THEME", theme: t });
+  if (selectedPath) renderPanel(selectedPath, selectedEl);
+}
+
+// ═══════════════════════════════════════════════════════
+// PROP SETTERS
+// ═══════════════════════════════════════════════════════
+function setProp(prop, val, isTextOverride = false) {
+  if (!selectedPath) return;
+  if (!styles[currentTheme]) styles[currentTheme] = {};
+  if (!styles[currentTheme][selectedPath]) styles[currentTheme][selectedPath] = {};
+
+  // Save to history
+  history_stack.push({
+    theme: currentTheme,
+    path: selectedPath,
+    prop,
+    prev: styles[currentTheme][selectedPath][prop],
+  });
+  if (history_stack.length > 80) history_stack.shift();
+
+  if (val) {
+    styles[currentTheme][selectedPath][prop] = val;
+  } else {
+    delete styles[currentTheme][selectedPath][prop];
+    if (!Object.keys(styles[currentTheme][selectedPath]).length)
+      delete styles[currentTheme][selectedPath];
+  }
+
+  // Special: text override
+  if (isTextOverride) {
+    sendToIframe({ type: "SET_TEXT", path: selectedPath, text: val });
+  }
+
+  applyStylesToIframe();
+  showSaved();
+}
+
+function setPropColor(prop, hex) {
+  setProp(prop, hex);
+}
+
+// ═══════════════════════════════════════════════════════
+// UNDO / RESET
+// ═══════════════════════════════════════════════════════
+function undoLast() {
+  const last = history_stack.pop();
+  if (!last) return toast("Rien à annuler", "bad");
+  if (!styles[last.theme]) styles[last.theme] = {};
+  if (!styles[last.theme][last.path]) styles[last.theme][last.path] = {};
+  if (last.prev !== undefined) {
+    styles[last.theme][last.path][last.prop] = last.prev;
+  } else {
+    delete styles[last.theme][last.path][last.prop];
+  }
+  applyStylesToIframe();
+  if (selectedPath === last.path) renderPanel(selectedPath, selectedEl);
+  toast("Annulé ✓");
+}
+
+function resetAll() {
+  if (!confirm("Réinitialiser TOUTES les personnalisations de tous les thèmes ?")) return;
+  styles = {};
+  history_stack = [];
+  applyStylesToIframe();
+  clearSelection();
+  saveLocal();
+  toast("Réinitialisé ✓");
+}
+
+function resetElement() {
+  if (!selectedPath) return;
+  for (const t of Object.keys(styles)) {
+    delete styles[t]?.[selectedPath];
+  }
+  applyStylesToIframe();
+  renderPanel(selectedPath, selectedEl);
+  toast("Élément réinitialisé ✓");
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════
+function openExport() {
+  document.getElementById("css-output-content").textContent = buildFlatCSS();
+  document.getElementById("modal-export").classList.add("open");
+}
+
+function copyCSS() {
+  navigator.clipboard.writeText(buildFlatCSS()).then(() => toast("CSS copié ✓", "ok"));
+  closeModal("modal-export");
+}
+
+function copyElementCSS() {
+  if (!selectedPath) return;
+  let css = "";
+  for (const [t] of Object.entries(THEMES)) {
+    const props = styles[t]?.[selectedPath] || {};
+    const entries = Object.entries(props).filter(([k]) => k !== "--text-override");
+    if (!entries.length) continue;
+    css += `/* Thème ${THEMES[t].label} */\nhtml[data-theme="${t}"] ${selectedPath} {\n`;
+    entries.forEach(([k, v]) => css += `  ${k}: ${v};\n`);
+    css += `}\n\n`;
+  }
+  if (!css) return toast("Aucune personnalisation pour cet élément", "bad");
+  navigator.clipboard.writeText(css).then(() => toast("CSS de l'élément copié ✓", "ok"));
+}
+
+function openImport() {
+  document.getElementById("import-css-area").value = "";
+  document.getElementById("modal-import").classList.add("open");
+}
+
+function doImport() {
+  const css = document.getElementById("import-css-area").value.trim();
+  if (!css) return;
+  // Parse: html[data-theme="THEME"] SELECTOR { PROPS }
+  const re = /html\[data-theme="([^"]+)"\]\s+([^{]+)\{([^}]+)\}/g;
+  let m, count = 0;
+  while ((m = re.exec(css)) !== null) {
+    const [, t, sel, block] = m;
+    const cleanSel = sel.trim();
+    if (!styles[t]) styles[t] = {};
+    if (!styles[t][cleanSel]) styles[t][cleanSel] = {};
+    block.split(";").forEach(line => {
+      const colon = line.indexOf(":");
+      if (colon < 0) return;
+      const k = line.slice(0, colon).trim();
+      const v = line.slice(colon+1).replace(/!important/g, "").trim();
+      if (k && v) { styles[t][cleanSel][k] = v; count++; }
+    });
+  }
+  applyStylesToIframe();
+  closeModal("modal-import");
+  toast(`${count} propriétés importées ✓`, "ok");
+}
+
+// ═══════════════════════════════════════════════════════
+// SAVE TO SERVER (KV)
+// ═══════════════════════════════════════════════════════
+async function saveToServer() {
+  if (!TOKEN) {
+    TOKEN = prompt("Token admin Qubrix (de localStorage 'qbx_tok') :");
+    if (!TOKEN) return;
+    localStorage.setItem("qbx_tok", TOKEN);
+  }
+  try {
+    const r = await fetch(API + "/api/admin/visual-styles", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + TOKEN },
+      body: JSON.stringify({ styles }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || "Erreur");
+    toast("Sauvegardé dans le KV Cloudflare ✓", "ok");
+    showSaved();
+  } catch(e) {
+    // Fallback localStorage si la route KV n'existe pas encore
+    saveLocal();
+    toast("Sauvegardé localement (route KV à ajouter au Worker)", "");
+  }
+}
+
+function saveLocal() {
+  localStorage.setItem("qbx_ve_v2", JSON.stringify(styles));
+}
+
+function showSaved() {
+  const b = document.getElementById("saved-badge");
+  b.classList.remove("hidden");
+  clearTimeout(b._t);
+  b._t = setTimeout(() => b.classList.add("hidden"), 2400);
+}
+
+// ═══════════════════════════════════════════════════════
+// UI UTILS
+// ═══════════════════════════════════════════════════════
+function clearSelection() {
+  selectedPath = "";
+  selectedEl = null;
+  document.getElementById("panel-empty").style.display = "";
+  document.getElementById("panel-controls").style.display = "none";
+  document.getElementById("ph-title").textContent = "Aucun élément sélectionné";
+  document.getElementById("ph-path").textContent = "—";
+  sendToIframe({ type: "CLEAR_HIGHLIGHT" });
+}
+
+function togglePanel() {
+  panelOpen = !panelOpen;
+  const p = document.getElementById("side-panel");
+  const btn = document.getElementById("panel-toggle");
+  p.classList.toggle("collapsed", !panelOpen);
+  btn.textContent = panelOpen ? "›" : "‹";
+  btn.classList.toggle("collapsed", !panelOpen);
+  btn.style.right = panelOpen ? "320px" : "0";
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove("open");
+}
+document.querySelectorAll(".modal-bg").forEach(bg =>
+  bg.addEventListener("click", e => { if(e.target === bg) bg.classList.remove("open"); })
+);
+
+function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function toHex(str) {
+  if (!str) return "#000000";
+  if (str.startsWith("#") && str.length === 7) return str;
+  if (str.startsWith("#") && str.length === 4) {
+    return "#" + str[1]+str[1]+str[2]+str[2]+str[3]+str[3];
+  }
+  // rgb(...) → hex
+  const m = str.match(/(\d+)/g);
+  if (m && m.length >= 3) {
+    return "#" + m.slice(0,3).map(n => parseInt(n).toString(16).padStart(2,"0")).join("");
+  }
+  return "#000000";
+}
+
+let _toastT;
+function toast(msg, type = "") {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = type ? `show ${type}` : "show";
+  clearTimeout(_toastT);
+  _toastT = setTimeout(() => el.className = "", 2800);
+}
+
+// ═══════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════
+function boot() {
+  // Load saved styles
+  const saved = localStorage.getItem("qbx_ve_v2");
+  if (saved) { try { styles = JSON.parse(saved); } catch {} }
+
+  // Load the iframe with the Qubrix app
+  loadIframePage(currentPage);
+
+  // Try to load styles from KV server
+  loadFromServer();
+}
+
+async function loadFromServer() {
+  if (!TOKEN) return;
+  try {
+    const r = await fetch(API + "/api/admin/visual-styles", {
+      headers: { "Authorization": "Bearer " + TOKEN }
+    });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.styles) {
+      styles = d.styles;
+      saveLocal();
+      applyStylesToIframe();
+    }
+  } catch {}
+}
+
+boot();
+</script>
+</body>
+</html>
