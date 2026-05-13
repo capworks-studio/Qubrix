@@ -1159,7 +1159,9 @@ async function doRegister() {
 }
 function saveSession(d) {
   S.token = d.token;
-  S.user = { xp: 0, unlockedThemes: [], plan: "free", admin: false, ...(d.user || {}) };
+  const u = d.user || {};
+  // Normalise id/uid — le worker retourne "id" mais on veut aussi "uid" disponible
+  S.user = { xp: 0, unlockedThemes: [], plan: "free", admin: false, ...u, uid: u.id || u.uid || null };
   localStorage.setItem("qbx_tok", d.token);
   localStorage.setItem("qbx_usr", JSON.stringify(S.user));
 }
@@ -1740,7 +1742,7 @@ async function showResults(){
   let xpHtml="",pendHtml="";
   try {
     if(quiz.qid&&quiz.qid!=="preview"){
-      const res=await api("POST","/api/score",{qid:quiz.qid,pseudo:S.playPseudo,score,total,answers:S.playAnswers,classId:S.playClassId||null,studentUid:S.user?.id||null});
+      const res=await api("POST","/api/score",{qid:quiz.qid,pseudo:S.playPseudo,score,total,answers:S.playAnswers,classId:S.playClassId||null,studentUid:S.user?.id||S.user?.uid||null});
       if(res.pendingCorrection)pendHtml=`<div style="font-size:.86rem;color:var(--yellow);margin-top:14px;font-weight:500">📋 Copie enregistrée — ta note sera publiée après correction.</div>`;
       if(S.user&&res.newXp!=null){S.user.xp=res.newXp;localStorage.setItem("qbx_usr",JSON.stringify(S.user));renderNav();if(res.xpAwarded)xpHtml=`<div style="font-size:.86rem;color:var(--accent2);margin-top:14px;font-weight:600">+${res.xpAwarded} XP ajoutés ⚡</div>`;}
     }
@@ -1787,7 +1789,7 @@ async function boot(){
   try{await loadDiscover();}catch{}
   renderNav();
   if(S.token&&S.user){
-    try{const fresh=await api("GET","/api/auth/me");S.user={xp:0,unlockedThemes:[],plan:"free",admin:false,...fresh};localStorage.setItem("qbx_usr",JSON.stringify(S.user));renderNav();applyResolvedTheme();}
+    try{const fresh=await api("GET","/api/auth/me");S.user={xp:0,unlockedThemes:[],plan:"free",admin:false,...fresh,uid:fresh.id||fresh.uid||null};localStorage.setItem("qbx_usr",JSON.stringify(S.user));renderNav();applyResolvedTheme();}
     catch{S.token=null;S.user=null;localStorage.removeItem("qbx_tok");localStorage.removeItem("qbx_usr");renderNav();applyResolvedTheme();}
   }
   document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(!document.documentElement.classList.contains("projection-mode"))return;document.documentElement.classList.remove("projection-mode");if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});});
