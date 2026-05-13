@@ -2326,6 +2326,141 @@ async function boot() {
   hideL();
 }
 boot();
+// ═══════════════════════════════════════════════════════════════════
+// QUBRIX — VISUAL STUDIO BRIDGE
+// À coller juste avant </script> dans qubrix.html
+// Permet la communication entre l'éditeur visuel et l'iframe
+// ═══════════════════════════════════════════════════════════════════
+
+(function() {
+  let vePickerActive = false;
+  let veHighlighted  = null;
+  let veInjectedStyle = null;
+
+  // ── INJECT STYLE TAG ──
+  function getOrCreateStyle() {
+    if (!veInjectedStyle || !document.head.contains(veInjectedStyle)) {
+      veInjectedStyle = document.createElement("style");
+      veInjectedStyle.id = "qbx-ve-injected";
+      document.head.appendChild(veInjectedStyle);
+    }
+    return veInjectedStyle;
+  }
+
+  // ── CSS PATH ──
+  function csspath(el) {
+    const parts = [];
+    let cur = el;
+    while (cur && cur !== document.body && cur !== document.documentElement) {
+      let seg = cur.tagName.toLowerCase();
+      if (cur.id) { seg += "#" + cur.id; parts.unshift(seg); break; }
+      const cls = [...(cur.classList || [])].filter(c => !["ve-highlight","fu"].includes(c));
+      if (cls.length) seg += "." + cls.slice(0,2).join(".");
+      const siblings = cur.parentElement
+        ? [...cur.parentElement.children].filter(c => c.tagName === cur.tagName)
+        : [];
+      if (siblings.length > 1)
+        seg += `:nth-child(${[...cur.parentElement.children].indexOf(cur)+1})`;
+      parts.unshift(seg);
+      cur = cur.parentElement;
+    }
+    return parts.join(" > ");
+  }
+
+  // ── HOVER + CLICK HANDLERS ──
+  function onHover(e) {
+    const el = e.target;
+    if (el.closest && el.closest("#page-admin")) return;
+    if (veHighlighted && veHighlighted !== el)
+      veHighlighted.classList.remove("ve-highlight");
+    veHighlighted = el;
+    el.classList.add("ve-highlight");
+  }
+
+  function onClick(e) {
+    const el = e.target;
+    if (el.closest && el.closest("#page-admin")) return;
+    e.preventDefault(); e.stopPropagation();
+    if (veHighlighted) veHighlighted.classList.remove("ve-highlight");
+    vePickerActive = false;
+    document.body.style.cursor = "";
+    document.removeEventListener("mouseover", onHover, true);
+    document.removeEventListener("click",     onClick,  true);
+
+    // Compute styles
+    const cs = window.getComputedStyle(el);
+    window.parent.postMessage({
+      type: "ELEMENT_SELECTED",
+      path:    csspath(el),
+      tagName: el.tagName,
+      computed: {
+        color:           cs.color,
+        backgroundColor: cs.backgroundColor,
+        fontSize:        cs.fontSize,
+        fontWeight:      cs.fontWeight,
+        fontFamily:      cs.fontFamily,
+      }
+    }, "*");
+  }
+
+  // ── LISTEN FOR PARENT MESSAGES ──
+  window.addEventListener("message", e => {
+    const d = e.data || {};
+    switch (d.type) {
+
+      case "SET_PAGE":
+        // Navigate to page via Qubrix's go() function
+        if (typeof go === "function") {
+          try { go(d.page); } catch {}
+        }
+        break;
+
+      case "SET_THEME":
+        if (typeof setVisualTheme === "function") {
+          try { setVisualTheme(d.theme); } catch {}
+        } else {
+          document.documentElement.setAttribute("data-theme", d.theme);
+        }
+        break;
+
+      case "ENABLE_PICKER":
+        vePickerActive = true;
+        document.body.style.cursor = "crosshair";
+        document.addEventListener("mouseover", onHover, true);
+        document.addEventListener("click",     onClick,  true);
+        break;
+
+      case "DISABLE_PICKER":
+        vePickerActive = false;
+        document.body.style.cursor = "";
+        document.removeEventListener("mouseover", onHover, true);
+        document.removeEventListener("click",     onClick,  true);
+        if (veHighlighted) veHighlighted.classList.remove("ve-highlight");
+        break;
+
+      case "INJECT_CSS":
+        getOrCreateStyle().textContent = d.css || "";
+        break;
+
+      case "SET_TEXT":
+        try {
+          const el = document.querySelector(d.path);
+          if (el) el.textContent = d.text;
+        } catch {}
+        break;
+
+      case "CLEAR_HIGHLIGHT":
+        if (veHighlighted) veHighlighted.classList.remove("ve-highlight");
+        break;
+    }
+  });
+
+  // ── PICKER HIGHLIGHT STYLE ──
+  const s = document.createElement("style");
+  s.textContent = `.ve-highlight { outline: 2px dashed var(--accent, #7c5cfc) !important; outline-offset: 2px !important; cursor: crosshair !important; }`;
+  document.head.appendChild(s);
+
+})();
 </script>
 </body>
 </html>
